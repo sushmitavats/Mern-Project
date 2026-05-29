@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.dataTable-wrapper {
+  width: 100%;
+}
+
+.dataTable-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.dataTable-input {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.dataTable-selector {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 5px 8px;
+}
+
+.dataTable-pagination ul {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dataTable-pagination a {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  text-decoration: none;
+  color: black;
+}
+
+.dataTable-pagination .active a {
+  background: #2563eb;
+  color: white !important;
+}
+
+.dataTable-table th {
+  padding-right: 30px !important;
+  white-space: nowrap;
+}
