@@ -8,7 +8,10 @@ import employeeRoutes from "./routes/EmployeeRoute.js";
 import attendanceRoutes from "./routes/Attendance.js";
 import leaveRoutes from "./routes/Leave.js";
 import roleRoutes from "./routes/PermissionRoutes.js";
-
+import leaveBalanceRoutes from "./routes/leaveBalanceRoutes.js";
+import "./cron/leaveReset.js";
+import "./cron/monthlyEarnLeave.js";
+// import "./cron/floatingLeaveReset.js";
 
 
 dotenv.config();
@@ -35,6 +38,7 @@ app.use("/api/employees", employeeRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/leave", leaveRoutes);
 app.use("/api/roles", roleRoutes);
+app.use("/api", leaveBalanceRoutes);
 
 
 

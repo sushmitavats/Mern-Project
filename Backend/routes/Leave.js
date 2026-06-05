@@ -1,23 +1,15 @@
 import express from "express";
 import Leave from "../models/Leave.js";
-import Employee from "../models/EmployeeTable.js";
 import Login from "../models/Login.js";
 import Holiday from "../models/Holiday.js";
-
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { checkPermission } from "../middleware/checkPermission.js";
-
 import sendMail from "../utils/sendMail.js";
 
 const router = express.Router();
-
-
-// ======================================================
 // GET LEAVES
-// ======================================================
-
 router.get(
-  ["/", "/all"],
+  "/",
   authMiddleware,
   checkPermission("LEAVE_VIEW"),
 
@@ -59,13 +51,11 @@ router.get(
   }
 );
 
-
-// ======================================================
 // APPLY LEAVE
-// ======================================================
 
+// can delete apply
 router.post(
-  ["/", "/apply"],
+  "/",
 
   authMiddleware,
 
@@ -76,16 +66,16 @@ router.post(
     try {
 
       const {
-        employee_code,
-        fromDate,
-        toDate,
-        leaveType,
-        dayType,
-      } = req.body;
+  employee_code,
+  leaveType,
+  leaveSource,
+  description,
+  leaveDates
+} = req.body;
 
-      // ============================================
+console.log(req.body);
       // EMPLOYEE CHECK
-      // ============================================
+
 
       const employee =
         await Login.findOne({
@@ -98,165 +88,189 @@ router.post(
           msg: "Employee not found",
         });
       }
+// holiday
 
-      // ============================================
-      // HOLIDAY CHECK
-      // ============================================
+const holidays =
+  await Holiday.find({
+    status: "Active",
+  });
 
-      const holidays =
-        await Holiday.find();
+const holidayDates =
+  holidays.map(
+    (h) => h.holidayDate
+  );
 
-      const holidayDates =
-        holidays.map(
-          (h) => h.holidayDate
-        );
+const leaveDateStrings =
+  leaveDates.map(
+    (item) => item.date
+  );
 
-      if (
-        holidayDates.includes(fromDate)
-      ) {
+const holidayFound =
+  leaveDateStrings.some(
+    (date) =>
+      holidayDates.includes(date)
+  );
 
-        return res.status(400).json({
-          msg:
-            "Leave cannot be applied on holiday",
-        });
-      }
+if (holidayFound) {
 
-      // ============================================
-      // CALCULATE DAYS
-      // ============================================
+  return res.status(400).json({
+    msg:
+      "Leave cannot be applied on holiday",
+  });
 
-      let days = 1;
+}
 
-      if (
-        dayType === "1st Half Day" ||
-        dayType === "2nd Half Day"
-      ) {
 
-        days = 0.5;
 
-      } else {
 
-        const start =
-          new Date(fromDate);
 
-        const end =
-          new Date(toDate);
 
-        days =
-          Math.ceil(
-            (end - start) /
-              (1000 *
-                60 *
-                60 *
-                24)
-          ) + 1;
-      }
 
-      // ============================================
+
+
+let days = 0;                                                                
+
+leaveDates.forEach((item) => {
+  if (
+    item.dayType === "1st Half Day" ||
+    item.dayType === "2nd Half Day"
+  ) {
+    days += 0.5;
+  } else {
+    days += 1;
+  }
+});
+
+
+// if (
+//   leaveSource === "Earn Leave" &&
+//   employee.earnLeave < days
+// ) {
+//   return res.status(400).json({
+//     msg: "Insufficient Earn Leave",
+//   });
+// }
+
+// SOME UNIQUE DATE
+
+
+const uniqueDates =
+  new Set(
+    leaveDates.map(
+      (d) => d.date
+    )
+  );
+
+if (
+  uniqueDates.size !==
+  leaveDates.length
+) {
+  return res.status(400).json({
+    msg: "Duplicate leave dates"
+  });
+}
+
+//       let days = 0;                                                                
+
+// leaveDates.forEach((item) => {
+//   if (
+//     item.dayType === "1st Half Day" ||
+//     item.dayType === "2nd Half Day"
+//   ) {
+//     days += 0.5;
+//   } else {
+//     days += 1;
+//   }
+// });
       // MINIMUM LEAVE CHECK
-      // ============================================
+      // const totalAvailable =
+      //   employee.earnLeave +
+      //   employee.floatingLeave;
 
-      const totalAvailable =
-        employee.earnLeave +
-        employee.floatingLeave;
+      // if (
+      //   totalAvailable < 0.5
+      // ) {
 
-      if (
-        totalAvailable < 0.5
-      ) {
-
-        return res.status(400).json({
-          msg:
-            "Minimum 0.5 leave required",
-        });
-      }
-
-      // ============================================
+      //   return res.status(400).json({
+      //     msg:
+      //       "Minimum 0.5 leave required",
+      //   });
+      // }
       // LEAVE DEDUCTION PRIORITY
-      // ============================================
-
       let deductedFrom = "";
-
       // 1. EARN LEAVE
-      if (
-        employee.earnLeave >= days
-      ) {
+     if (leaveSource === "Earn Leave") {
+  employee.earnLeave -= days;
+}
 
-        employee.earnLeave -= days;
+else if (leaveSource === "Floating Leave") {
+  employee.floatingLeave -= days;
+}
 
-        deductedFrom =
-          "Earn Leave";
-      }
+else if (leaveSource === "Both") {
 
-      // 2. FLOATING LEAVE
-      else if (
-        employee.floatingLeave >= days
-      ) {
+ let remaining = days;
 
-        employee.floatingLeave -=
-          days;
+  const earnUsed = Math.min(
+    Math.max(employee.earnLeave, 0),
+    remaining
+  );
 
-        deductedFrom =
-          "Floating Leave";
-      }
+  employee.earnLeave -= earnUsed;
+  remaining -= earnUsed;
 
-      // 3. NEGATIVE LEAVE
-      else {
+  const floatingUsed = Math.min(
+    Math.max(employee.floatingLeave, 0),
+    remaining
+  );
 
-        employee.negativeLeave -=
-          days;
+  employee.floatingLeave -= floatingUsed;
+  remaining -= floatingUsed;
 
-        deductedFrom =
-          "Negative Leave";
-      }
-
-  
-      // SAVE EMPLOYEE
-  
-
-      await employee.save();
-
-      
+  if (remaining > 0) {
+    employee.floatingLeave -= remaining;
+  }
+} 
+      // SAVE EMPLOYEE 
+      await employee.save();     
       // CREATE LEAVE
+      console.log("REQ BODY", req.body);
+      console.log("DEDUCTED FROM", deductedFrom);
   
 
-      const leave =
-        await Leave.create({
+  const leave =
+  await Leave.create({
+  employee_code,
+  name: employee.name,
+  applicantEmail: employee.email,
 
-          employee_code:
-            employee.employee_code,
+  appliedByEmployeeCode:
+    req.user.employee_code,
 
-          name:
-            employee.name,
+  appliedByName:
+    req.user.name,
 
-          fromDate,
+  appliedByEmail:
+    req.user.email,
 
-          toDate,
+  leaveType,
+  leaveSource,
+  description,
 
-          days,
+  leaveDates,
 
-          leaveType,
+  days,
 
-          dayType,
+  // deductedFrom,
+    deductedFrom:
+    deductedFrom || leaveType,
 
-          deductedFrom,
+  status: "Pending",
+});
 
-          status: "Pending",
-
-          appliedByEmail:
-            req.user.email,
-
-          appliedByName:
-            req.user.name,
-
-          appliedByEmployeeCode:
-            req.user.employee_code,
-        });
-
-      // ============================================
       // SEND MAIL IF APPLYING
       // ON BEHALF OF EMPLOYEE
-      // ============================================
-
+    
       if (
         employee.employee_code !==
         req.user.employee_code
@@ -291,17 +305,6 @@ router.post(
               <b>Leave Type:</b>
               ${leaveType}
             </p>
-
-            <p>
-              <b>From:</b>
-              ${fromDate}
-            </p>
-
-            <p>
-              <b>To:</b>
-              ${toDate}
-            </p>
-
             <p>
               <b>Total Days:</b>
               ${days}
@@ -326,13 +329,9 @@ router.post(
   }
 );
 
-
-
 // APPROVE / REJECT LEAVE
-
-
 router.put(
-  ["/:id", "/status/:id"],
+  "/:id",
 
   authMiddleware,
 
@@ -389,262 +388,261 @@ router.put(
 );
 
 
-// ======================================================
 // SEARCH EMPLOYEE
-// ======================================================
 
-router.get(
-  "/search-employee/:keyword",
+// //no search employee(can delete)
+// router.get(
+//   "/search-employee/:keyword",
 
-  authMiddleware,
+//   authMiddleware,
 
-  async (req, res) => {
+//   async (req, res) => {
 
-    try {
+//     try {
 
-      const keyword =
-        req.params.keyword;
+//       const keyword =
+//         req.params.keyword;
 
-      const employees =
-        await Login.find({
+//       const employees =
+//         await Login.find({
 
-          $or: [
+//           $or: [
 
-            {
-              name: {
-                $regex: keyword,
-                $options: "i",
-              },
-            },
+//             {
+//               name: {
+//                 $regex: keyword,
+//                 $options: "i",
+//               },
+//             },
 
-            {
-              employee_code: {
-                $regex: keyword,
-                $options: "i",
-              },
-            },
-          ],
-        });
+//             {
+//               employee_code: {
+//                 $regex: keyword,
+//                 $options: "i",
+//               },
+//             },
+//           ],
+//         });
 
-      res.json(employees);
+//       res.json(employees);
 
-    } catch (error) {
+//     } catch (error) {
 
-      console.log(error);
+//       console.log(error);
 
-      res.status(500).json({
-        error: error.message,
-      });
-    }
-  }
-);
+//       res.status(500).json({
+//         error: error.message,
+//       });
+//     }
+//   }
+// );
 
-// ADD FLOATING LEAVE
+// // ADD FLOATING LEAVE
 
+// // can delete(using in leave management)
+// router.put(
+//   "/add-floating/:id",
 
-router.put(
-  "/add-floating/:id",
+//   authMiddleware,
 
-  authMiddleware,
+//   async (req, res) => {
 
-  async (req, res) => {
+//     try {
 
-    try {
+//       const employee =
+//         await Login.findById(
+//           req.params.id
+//         );
 
-      const employee =
-        await Login.findById(
-          req.params.id
-        );
+//       if (!employee) {
 
-      if (!employee) {
+//         return res.status(404).json({
+//           msg: "Employee not found",
+//         });
+//       }
 
-        return res.status(404).json({
-          msg: "Employee not found",
-        });
-      }
+//       const today =
+//         new Date();
 
-      const today =
-        new Date();
+//       // CHECK LAST FLOATING DATE
 
-      // CHECK LAST FLOATING DATE
+//       if (
+//         employee.lastFloatingLeaveDate
+//       ) {
 
-      if (
-        employee.lastFloatingLeaveDate
-      ) {
+//         const lastDate =
+//           new Date(
+//             employee.lastFloatingLeaveDate
+//           );
 
-        const lastDate =
-          new Date(
-            employee.lastFloatingLeaveDate
-          );
+//         const diffMonths =
+//           (
+//             today.getFullYear() -
+//             lastDate.getFullYear()
+//           ) * 12 +
 
-        const diffMonths =
-          (
-            today.getFullYear() -
-            lastDate.getFullYear()
-          ) * 12 +
+//           (
+//             today.getMonth() -
+//             lastDate.getMonth()
+//           );
 
-          (
-            today.getMonth() -
-            lastDate.getMonth()
-          );
+//         if (diffMonths < 6) {
 
-        if (diffMonths < 6) {
+//           return res.status(400).json({
+//             msg:
+//               "Floating leave already added for this period",
+//           });
+//         }
+//       }
 
-          return res.status(400).json({
-            msg:
-              "Floating leave already added for this period",
-          });
-        }
-      }
+//       employee.floatingLeave += 3;
 
-      employee.floatingLeave += 3;
+//       employee.lastFloatingLeaveDate =
+//         today;
 
-      employee.lastFloatingLeaveDate =
-        today;
+//       await employee.save();
 
-      await employee.save();
+//       res.json({
+//         success: true,
+//         msg:
+//           "Floating leave added successfully",
+//       });
 
-      res.json({
-        success: true,
-        msg:
-          "Floating leave added successfully",
-      });
+//     } catch (error) {
 
-    } catch (error) {
+//       console.log(error);
 
-      console.log(error);
+//       res.status(500).json({
+//         error: error.message,
+//       });
+//     }
+//   }
+// );
 
-      res.status(500).json({
-        error: error.message,
-      });
-    }
-  }
-);
+// // ADD EARN LEAVE
 
-// ADD EARN LEAVE
+// // can delete(can delete)
+// router.put(
+//   "/add-earn/:id",
 
+//   authMiddleware,
 
-router.put(
-  "/add-earn/:id",
+//   async (req, res) => {
 
-  authMiddleware,
+//     try {
 
-  async (req, res) => {
+//       const employee =
+//         await Login.findById(
+//           req.params.id
+//         );
 
-    try {
+//       if (!employee) {
 
-      const employee =
-        await Login.findById(
-          req.params.id
-        );
+//         return res.status(404).json({
+//           msg: "Employee not found",
+//         });
+//       }
 
-      if (!employee) {
+//       const joining =
+//         new Date(
+//           employee.joiningDate
+//         );
 
-        return res.status(404).json({
-          msg: "Employee not found",
-        });
-      }
+//       const today =
+//         new Date();
 
-      const joining =
-        new Date(
-          employee.joiningDate
-        );
+//       const months =
+//         (
+//           today.getFullYear() -
+//           joining.getFullYear()
+//         ) * 12 +
 
-      const today =
-        new Date();
+//         (
+//           today.getMonth() -
+//           joining.getMonth()
+//         );
 
-      const months =
-        (
-          today.getFullYear() -
-          joining.getFullYear()
-        ) * 12 +
+//       // FIRST 6 MONTHS
 
-        (
-          today.getMonth() -
-          joining.getMonth()
-        );
+//       if (months < 6) {
 
-      // FIRST 6 MONTHS
+//         employee.earnLeave += 0.83;
+//       }
 
-      if (months < 6) {
+//       // AFTER 6 MONTHS
 
-        employee.earnLeave += 0.83;
-      }
+//       else {
 
-      // AFTER 6 MONTHS
+//         employee.earnLeave += 1.23;
+//       }
 
-      else {
+//       await employee.save();
 
-        employee.earnLeave += 1.23;
-      }
+//       res.json({
+//         success: true,
+//         msg:
+//           "Earn leave added successfully",
+//       });
 
-      await employee.save();
+//     } catch (error) {
 
-      res.json({
-        success: true,
-        msg:
-          "Earn leave added successfully",
-      });
+//       console.log(error);
 
-    } catch (error) {
+//       res.status(500).json({
+//         error: error.message,
+//       });
+//     }
+//   }
+// );
 
-      console.log(error);
 
-      res.status(500).json({
-        error: error.message,
-      });
-    }
-  }
-);
+// // GET LEAVE BALANCE
 
+// //can delete()
+// router.get(
+//   "/balance/:employee_code",
 
-// GET LEAVE BALANCE
+//   authMiddleware,
 
+//   async (req, res) => {
 
-router.get(
-  "/balance/:employee_code",
+//     try {
 
-  authMiddleware,
+//       const employee =
+//         await Login.findOne({
+//           employee_code:
+//             req.params.employee_code,
+//         });
 
-  async (req, res) => {
+//       if (!employee) {
 
-    try {
+//         return res.status(404).json({
+//           msg: "Employee not found",
+//         });
+//       }
 
-      const employee =
-        await Login.findOne({
-          employee_code:
-            req.params.employee_code,
-        });
+//       res.json({
 
-      if (!employee) {
+//         earnLeave:
+//           employee.earnLeave,
 
-        return res.status(404).json({
-          msg: "Employee not found",
-        });
-      }
+//         floatingLeave:
+//           employee.floatingLeave,
 
-      res.json({
+//         negativeLeave:
+//           employee.negativeLeave,
+//       });
 
-        earnLeave:
-          employee.earnLeave,
+//     } catch (error) {
 
-        floatingLeave:
-          employee.floatingLeave,
+//       console.log(error);
 
-        negativeLeave:
-          employee.negativeLeave,
-      });
-
-    } catch (error) {
-
-      console.log(error);
-
-      res.status(500).json({
-        error: error.message,
-      });
-    }
-  }
-);
+//       res.status(500).json({
+//         error: error.message,
+//       });
+//     }
+//   }
+// );
 
 export default router;
 

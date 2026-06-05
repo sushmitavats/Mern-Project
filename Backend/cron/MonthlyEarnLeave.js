@@ -21,7 +21,7 @@ cron.schedule("0 0 1 * *", async () => {
       if (diffMonths < 6) {
         emp.earnLeave += 0.83;
       } else {
-        emp.earnLeave += 1.23;
+        emp.earnLeave += 1;
       }
 
       //Counter Saved;

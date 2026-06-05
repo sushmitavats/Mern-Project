@@ -28,14 +28,6 @@ const LeaveSchema = new mongoose.Schema(
       type: String,
     },
 
-    fromDate: {
-      type: String,
-    },
-
-    toDate: {
-      type: String,
-    },
-
     days: {
       type: Number,
     },
@@ -44,22 +36,59 @@ const LeaveSchema = new mongoose.Schema(
       type: String,
     },
 
-    dayType: {
-      type: String,
-    },
+    leaveDates: [
+      {
+        date: {
+          type: String,
+          required: true,
+        },
+
+        dayType: {
+          type: String,
+          enum: [
+            "Full Day",
+            "1st Half Day",
+            "2nd Half Day",
+          ],
+          required: true,
+        },
+      },
+    ],
 
     deductedFrom: {
       type: String,
       enum: [
         "Earn Leave",
         "Floating Leave",
-        "Negative Leave",
+        "Both",
       ],
     },
 
     status: {
       type: String,
       default: "Pending",
+    },
+
+    leaveSource: {
+      type: String,
+      enum: [
+        "Earn Leave",
+        "Floating Leave",
+        "Both",
+      ],
+    },
+
+    //ad
+    description: {
+      type: String,
+      required: true,
+    },
+
+
+
+
+    calendarLabel: {
+      type: String,
     },
     approvedBy: String,
 
@@ -68,6 +97,18 @@ const LeaveSchema = new mongoose.Schema(
 
   { timestamps: true }
 );
+
+// ADD INDEXES
+
+LeaveSchema.index({
+  employee_code: 1,
+  createdAt: -1,
+});
+
+LeaveSchema.index({
+  status: 1,
+});
+
 
 const Leave = mongoose.model("Leave", LeaveSchema);
 

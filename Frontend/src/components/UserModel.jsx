@@ -1,36 +1,40 @@
-import React, {useEffect,useState,} from "react";
+import React, { useEffect, useState, } from "react";
 
-import { createUser,updateUser,} from "../api";
+import { createUser, updateUser, } from "../api";
 
-const UserModal = ({ onClose,fetchUsers,editData,}) => {
+const UserModal = ({ onClose, fetchUsers, editData, }) => {
   const [formData, setFormData] =
     useState({
       name: "",
       email: "",
       department: "",
       role: "",
+      joiningDate: "",
     });
 
   useEffect(() => {
     if (editData) {
       setFormData({
-        name:editData.name || "",
-        email:editData.email || "",
-        role:editData.userAccount || "",
-        department:editData.department || "",
+        name: editData.name || "",
+        email: editData.email || "",
+        role: editData.userAccount || "",
+        department: editData.department || "",
+        joiningDate: editData.joiningDate
+          ? editData.joiningDate.split("T")[0]
+          : "",
       });
     }
   }, [editData]);
 
   const handleChange = (e) => {
-    setFormData({...formData,[e.target.name]:e.target.value,});
+    setFormData({ ...formData, [e.target.name]: e.target.value, });
   };
 
   const handleSubmit =
     async () => {
       try {
         if (editData) {
-          await updateUser(editData._id,formData);
+          await updateUser(editData._id, formData);
           alert(
             "User Updated Successfully"
           );
@@ -38,14 +42,14 @@ const UserModal = ({ onClose,fetchUsers,editData,}) => {
           await createUser(formData);
           alert("User Created & Credentials Sent To Email");
         }
-        
+
         fetchUsers();
         onClose();
 
       } catch (error) {
         alert(
           error.response?.data?.msg ||
-            error.message
+          error.message
         );
       }
     };
@@ -81,7 +85,7 @@ const UserModal = ({ onClose,fetchUsers,editData,}) => {
           className="w-full border p-2 rounded mb-4"
         />
 
-           <select
+        <select
           name="role"
           value={formData.role}
           onChange={
@@ -93,9 +97,9 @@ const UserModal = ({ onClose,fetchUsers,editData,}) => {
             Select Role
           </option>
 
-        <option value="HR">
-  HR
-</option>
+          <option value="HR">
+            HR
+          </option>
 
           <option value="EMPLOYEE">
             EMPLOYEE
@@ -113,6 +117,14 @@ const UserModal = ({ onClose,fetchUsers,editData,}) => {
           onChange={
             handleChange
           }
+          className="w-full border p-2 rounded mb-4"
+        />
+
+        <input
+          type="date"
+          name="joiningDate"
+          value={formData.joiningDate}
+          onChange={handleChange}
           className="w-full border p-2 rounded mb-4"
         />
 

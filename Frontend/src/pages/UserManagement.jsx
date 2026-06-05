@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { getUsers, deleteUser, changeUserStatus, } from "../api";
+import {
+  getUsers, deleteUser, changeUserStatus, monthlyEarnLeave,
+  grantFloatingLeave,
+} from "../api";
 import UserModal from "../components/UserModel";
 import DataTable from "react-data-table-component";
 import { FaEdit, FaTrash, FaSearch, } from "react-icons/fa";
@@ -9,6 +12,8 @@ const UserManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState(null);
   const [search, setSearch] = useState("");
+  const [isLastDay, setIsLastDay] = useState(false);
+
   // FETCH USERS
   const fetchUsers = async () => {
     try {
@@ -46,6 +51,120 @@ const UserManagement = () => {
       console.log(error);
     }
   };
+  const handleEarnLeave = async (id) => {
+    try {
+      await addEarnLeave(id);
+      alert("Earn Leave Added Successfully");
+      fetchUsers();
+    } catch (error) {
+      alert(
+        error.response?.data?.msg ||
+        error.message
+      );
+    }
+  };
+
+  const handleFloatingLeave = async (id) => {
+    try {
+      await addFloatingLeave(id);
+      alert("Floating Leave Added Successfully");
+      fetchUsers();
+    } catch (error) {
+      alert(
+        error.response?.data?.msg ||
+        error.message
+      );
+    }
+  };
+  // const today = new Date()
+  //   .toISOString()
+  //   .split("T")[0];
+
+  useEffect(() => {
+
+    const today = new Date();
+
+    const lastDay =
+      new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        0
+      ).getDate();
+
+    setIsLastDay(
+      today.getDate() === lastDay
+    );
+
+  }, []);
+
+  const handleMonthlyEL =
+    async () => {
+
+      try {
+
+        await monthlyEarnLeave();
+
+        alert(
+          "Monthly Earn Leave Added Successfully"
+        );
+
+        fetchUsers();
+
+      } catch (error) {
+
+        alert(
+          error.response?.data?.msg ||
+          error.message
+        );
+      }
+    };
+  const handleFL =
+    async () => {
+
+      try {
+
+        await grantFloatingLeave();
+
+        alert(
+          "Floating Leave Added Successfully"
+        );
+
+        fetchUsers();
+
+      } catch (error) {
+
+        alert(
+          error.response?.data?.msg ||
+          error.message
+        );
+      }
+    };
+
+  //new added effect.
+  // console.log(form);
+  // useEffect(() => {
+  //   if (
+  //     form.dayType === "1st Half Day" ||
+  //     form.dayType === "2nd Half Day"
+  //   ) {
+  //     setForm((prev) => ({
+  //       ...prev,
+  //       days: 0.5,
+  //     }));
+  //   }
+  // }, [form.dayType]);
+
+  // if (
+  //   leaveBalance.earnLeave +
+  //   leaveBalance.floatingLeave <
+  //   0.5
+  // ) {
+  //   return alert(
+  //     "You do not have enough leave balance"
+  //   );
+  // }
+
+
   // SEARCH FILTER
   const filteredUsers = users.filter((user) => {
 
@@ -98,6 +217,19 @@ const UserManagement = () => {
       sortable: true,
       grow: 1,
     },
+    {
+      name: "EL",
+      selector: (row) =>
+        row.earnLeave || 0,
+      sortable: true,
+    },
+
+    {
+      name: "FL",
+      selector: (row) =>
+        row.floatingLeave || 0,
+      sortable: true,
+    },
 
     {
       name: "Department",
@@ -116,8 +248,8 @@ const UserManagement = () => {
             handleStatus(row._id)
           }
           className={`px-4 py-1 rounded-full text-white text-sm font-medium ${row.status === "Active"
-              ? "bg-green-500"
-              : "bg-red-500"
+            ? "bg-green-500"
+            : "bg-red-500"
             }`}
         >
           {row.status}
@@ -149,26 +281,12 @@ const UserManagement = () => {
           >
             <FaTrash />
           </button>
-          <button
-            onClick={() =>
-              addEarnLeave(row._id)
-            }
-          >
-            Add EL
-          </button>
-
-          <button
-            onClick={() =>
-              addFloatingLeave(row._id)
-            }
-          >
-            Add FL
-          </button>
-
-
         </div>
       ),
     },
+
+
+
   ];
 
   return (
@@ -212,6 +330,34 @@ const UserManagement = () => {
               className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
           </div>
+
+          {/* <input
+            type="date"
+            min={today}
+          /> */}
+
+          <div className="flex gap-2">
+
+            <button
+              disabled={!isLastDay}
+              onClick={handleMonthlyEL}
+              className={`px-4 py-2 rounded text-white ${isLastDay
+                ? "bg-cyan-500"
+                : "bg-gray-400 cursor-not-allowed"
+                }`}
+            >
+              Add Earn Leave
+            </button>
+
+            <button
+              onClick={handleFL}
+              className="px-4 py-2 rounded bg-green-600 text-white"
+            >
+              Add Floating Leave
+            </button>
+
+          </div>
+
 
         </div >
 

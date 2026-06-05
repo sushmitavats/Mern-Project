@@ -8,7 +8,7 @@ import "./App.css";
 import { Route, Routes, Navigate } from "react-router-dom";
 
 import Attendance from "./pages/Attendance";
-import LeaveManagement from "./components/LeaveManagement";
+import LeaveManagement from "./pages/LeaveManagement";
 import RolePermissions from "./pages/RolePermissions";
 import UserManagement from "./pages/UserManagement";
 

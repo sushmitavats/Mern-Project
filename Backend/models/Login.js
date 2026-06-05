@@ -24,9 +24,9 @@ const loginSchema = new mongoose.Schema(
       default: "EMPLOYEE",
     },
 
-        department: {
-        type: String,
-      },
+    department: {
+      type: String,
+    },
 
 
     joiningDate: {
@@ -34,10 +34,10 @@ const loginSchema = new mongoose.Schema(
       required: true,
     },
 
-      employee_code: {
-        type: String,
-        default: null,
-      },
+    employee_code: {
+      type: String,
+      default: null,
+    },
 
 
     earnLeave: {
@@ -47,18 +47,23 @@ const loginSchema = new mongoose.Schema(
 
     floatingLeave: {
       type: Number,
-      default: 0,
+      default: 4,
     },
 
-    negativeLeave: {
-      type: Number,
-      default: 0,
-    },
+    // negativeLeave: {
+    //   type: Number,
+    //   default: 0,
+    // },
 
-    lastFloatingLeaveDate: {
+    floatingLeaveIssuedDate: {
       type: Date,
-      default: null,
+      default: Date.now,
     },
+
+    // lastFloatingLeaveDate: {
+    //   type: Date,
+    //   default: null,
+    // },
 
     status: {
       type: String,
@@ -71,7 +76,7 @@ const loginSchema = new mongoose.Schema(
       default: true,
     },
   },
-    {
+  {
     timestamps: true,
   }
 );

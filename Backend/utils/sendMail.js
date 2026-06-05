@@ -46,27 +46,30 @@ const sendMail = async (
   }
 };
 
-
-await sendMail(
-  employee.email,
-  "Leave Approved",
-  `
-  Your leave has been approved.
-
-  From: ${leave.fromDate}
-  To: ${leave.toDate}
-  `
-);
-
-await sendMail(
-  employee.email,
-  "Leave Rejected",
-  `
-  Your leave request was rejected.
-  `
-);
-
 export default sendMail;
+
+
+
+// await sendMail(
+//   employee.email,
+//   "Leave Approved",
+//   `
+//   Your leave has been approved.
+
+//   From: ${leave.fromDate}
+//   To: ${leave.toDate}
+//   `
+// );
+
+// await sendMail(
+//   employee.email,
+//   "Leave Rejected",
+//   `
+//   Your leave request was rejected.
+//   `
+// );
+
+// export default sendMail;
 
 
 

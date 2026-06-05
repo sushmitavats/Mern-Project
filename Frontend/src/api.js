@@ -49,6 +49,25 @@ axiosInstance.interceptors.response.use(
   }
 );
 
+// export const addMonthlyEarnLeave =
+// () =>
+// axiosInstance.put(
+//  "/monthly-earn-leave"
+// );
+
+  // leave fl & el
+export const monthlyEarnLeave =
+  () =>
+    axiosInstance.put(
+      "/monthly-earn-leave"
+    );
+
+export const grantFloatingLeave =
+  () =>
+    axiosInstance.put(
+      "/grant-floating-leave"
+    );
+
 //employee
 export const getEmployees = () => axiosInstance.get("/employees");
 
@@ -122,6 +141,7 @@ export const changePassword = (data) =>
     data
   );
 
+
 // GET USERS
 export const getUsers = () =>
   axiosInstance.get(
@@ -166,14 +186,8 @@ export const changeUserStatus = (
 //ENTERPRISE LEAVE FEATURES
 
 
-// GET LEAVE BALANCE
-export const getLeaveBalance = (
-  employee_code
-) =>
-  axiosInstance.get(
-    `/leave/balance/${employee_code}`
-  );
-
+  export const getLeaveBalance = (employee_code) =>
+  axiosInstance.get(`/leave-balance/${employee_code}`);
 
 // GET LEAVE HISTORY
 export const getLeaveHistory = (
@@ -185,20 +199,24 @@ export const getLeaveHistory = (
 
 
 // ADD EARN LEAVE
-export const addEarnLeave = (id) =>
-  axiosInstance.put(
-    `/leave/add-earn/${id}`
-  );
+// export const addEarnLeave = (id) =>
+//   axiosInstance.put(
+//     `/leave/add-earn/${id}`
+//   );
+  export const addEarnLeave = (id) =>
+  axiosInstance.put(`/add-earn-leave/${id}`);
 
 
 // ADD FLOATING LEAVE
-export const addFloatingLeave = (
-  id
-) =>
-  axiosInstance.put(
-    `/leave/add-floating/${id}`
-  );
+// export const addFloatingLeave = (
+//   id
+// ) =>
+//   axiosInstance.put(
+//     `/leave/add-floating/${id}`
+//   );
 
+export const addFloatingLeave = (id) =>
+  axiosInstance.put(`/add-floating-leave/${id}`);
 
 // HOLIDAY APIs 
 

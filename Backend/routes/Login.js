@@ -22,6 +22,7 @@ router.post(
         email,
         department,
         role,
+        joiningDate,
       } = req.body;
 
       const existing =
@@ -82,6 +83,7 @@ router.post(
 
         role:
           role?.toUpperCase(),
+          joiningDate,
 
         employee_code:
           employee_code,
