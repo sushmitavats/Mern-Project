@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { addEmployee, getNextEmployeeCode } from "../api";
+import { addEmployee, getNextEmployeeCode, getDepartments, getDesignations } from "../api";
 
 export default function AddEmployeeModal({ isOpen, onClose, refresh }) {
+
   const [form, setForm] = useState({
     employee_code: "",
     name: "",
@@ -22,6 +23,9 @@ export default function AddEmployeeModal({ isOpen, onClose, refresh }) {
     pan: "",
   });
 
+  const [departments, setDepartments] = useState([]);
+  const [designations, setDesignations] = useState([]);
+
   useEffect(() => {
     const fetchCode = async () => {
       try {
@@ -29,7 +33,7 @@ export default function AddEmployeeModal({ isOpen, onClose, refresh }) {
         setForm((prev) => ({
           ...prev,
           employee_code: res.data.code,
-          employee_id:res._id
+          employee_id: res._id
         }));
       } catch (err) {
         console.log(err);
@@ -39,12 +43,58 @@ export default function AddEmployeeModal({ isOpen, onClose, refresh }) {
     fetchCode();
   }, []);
 
-  if (!isOpen) return;
 
+  useEffect(() => {
+    fetchDropdownData();
+  }, []);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const fetchDropdownData = async () => {
+    try {
+
+      const deptRes =
+        await getDepartments();
+
+      const desigRes =
+        await getDesignations();
+
+      setDepartments(
+        deptRes.data
+      );
+
+      setDesignations(
+        desigRes.data
+      );
+
+    } catch (error) {
+      console.log(error);
+    }
   };
+  if (!isOpen) return;
+     //handle change
+  const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  setForm((prev) => ({
+    ...prev,
+    [name]: value,
+
+    ...(name === "department"
+      ? { designation: "" }
+      : {})
+  }));
+};
+
+//submit
+
+// const handleSubmit = async () => {
+//   console.log(form);
+
+//   try {
+//      await addEmployee(form);
+//   } catch(err){
+//      console.log(err);
+//   }
+// };
 
 
   const handleSubmit = async () => {
@@ -65,7 +115,7 @@ export default function AddEmployeeModal({ isOpen, onClose, refresh }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex justify-center items-center overflow-y-auto py-10">
-     <div className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 relative">
+      <div className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 relative">
 
         <div className="flex justify-between mb-4">
           <h2 className="text-lg font-semibold">Add Employee</h2>
@@ -79,8 +129,55 @@ export default function AddEmployeeModal({ isOpen, onClose, refresh }) {
           <input name="name" placeholder="Name" onChange={handleChange} className="border p-2" />
           <input name="email" placeholder="Email" onChange={handleChange} className="border p-2" />
           <input name="contact" placeholder="Contact" onChange={handleChange} className="border p-2" />
-          <input name="department" placeholder="Department" onChange={handleChange} className="border p-2" />
-          <input name="designation" placeholder="Designation" onChange={handleChange} className="border p-2" />
+          {/* <input name="department" placeholder="Department" onChange={handleChange} className="border p-2" />
+          <input name="designation" placeholder="Designation" onChange={handleChange} className="border p-2" /> */}
+          {/* department */}
+          <select
+            name="department"
+            value={form.department}
+            onChange={handleChange}
+            className="w-full border p-2 rounded mb-4"
+          >
+            <option value="">
+              Select Department
+            </option>
+
+            {departments.map((dept) => (
+              <option
+                key={dept._id}
+                value={dept._id}
+              >
+                {dept.departmentName}
+              </option>
+            ))}
+          </select>
+
+
+          <select
+            name="designation"
+            value={form.designation}
+            onChange={handleChange}
+            className="w-full border p-2 rounded mb-4"
+          >
+            <option value="">
+              Select Designation
+            </option>
+
+            {designations
+              .filter(
+                (des) =>
+                  des.department?._id ===
+                  form.department
+              )
+              .map((des) => (
+                <option
+                  key={des._id}
+                  value={des._id}
+                >
+                  {des.designationName}
+                </option>
+              ))}
+          </select>
           <input name="bankAccount" placeholder="Bank Account" onChange={handleChange} className="border p-2" />
           <input name="pfAccount" placeholder="PF Account" onChange={handleChange} className="border p-2" />
 

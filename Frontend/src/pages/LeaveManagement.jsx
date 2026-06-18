@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import { DataTable } from "simple-datatables";
-import "simple-datatables/dist/style.css";
-import { getLeaves, addLeave, updateLeaveStatus, searchEmployees, getLeaveBalance, } from "../api";
+import DataTable from "react-data-table-component";
+import { FaSearch } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { getLeaves, addLeave, updateLeaveStatus, searchEmployees, getLeaveBalance, getEmployees } from "../api";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
+//logic
 export default function LeaveManagement() {
 
   const [employeeResults, setEmployeeResults] = useState([]);
@@ -12,14 +13,15 @@ export default function LeaveManagement() {
   const [leaves, setLeaves] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [applyOnBehalf, setApplyOnBehalf] = useState(false);
+  const [search, setSearch] = useState("");
   const [leaveBalance, setLeaveBalance] = useState({
     earnLeave: 0,
     floatingLeave: 0,
-    negativeLeave: 0,
   });
   const [form, setForm] = useState({
     employee_code: "",
     leaveType: "",
+    leaveSource: "",
     description: "",
     deductedFrom: "",
     leaveDates: [],
@@ -32,40 +34,7 @@ export default function LeaveManagement() {
   const [selectedDayType, setSelectedDayType] =
     useState("Full Day");
 
-  const tableRef = useRef(null);
-  const dataTable = useRef(null);
-
-
-  const today = new Date()
-    .toISOString()
-    .split("T")[0];
-
-  // unique leave
-  // const uniqueDates = new Set(
-  //   leaveDates.map(d => d.date)
-  // );
-
-  const uniqueDates = new Set(
-    form.leaveDates.map(
-      (d) => d.date
-    )
-  );
-
-  const LEAVE_STATUS = {
-    PENDING: "Pending",
-    APPROVED: "Approved",
-    REJECTED: "Rejected",
-  };
-
-  // if (
-  //   uniqueDates.size !==
-  //   leaveDates.length
-  // ) {
-  //   return res.status(400).json({
-  //     msg: "Duplicate leave dates"
-  //   });
-  // }
-
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const fetchLeaveBalance = async () => {
     try {
@@ -83,9 +52,6 @@ export default function LeaveManagement() {
     }
   };
 
-  // useEffect(() => {
-  //   fetchLeaveBalance();
-  // }, []);
 
 
   useEffect(() => {
@@ -99,20 +65,12 @@ export default function LeaveManagement() {
 
   }, []);
 
-  // const [form, setForm] = useState({
-  //   employee_code: "",
-  //   name: "",
-  //   fromDate: "",
-  //   toDate: "",
-  //   days: "",
-  //   leaveType: "",
-  //   dayType: "Full Day",
-  // });
-  const user = JSON.parse(localStorage.getItem("user"));
   console.log("USER =>", user);
 
+  //leave fetch
   const fetchLeaves = async () => {
     try {
+      console.log("Fetching leaves...");
       const res = await getLeaves();
       setLeaves(res.data);
     } catch (err) {
@@ -124,54 +82,30 @@ export default function LeaveManagement() {
     fetchLeaves();
   }, []);
 
-  useEffect(() => {
-    if (!tableRef.current || leaves.length === 0) return;
-    if (dataTable.current) {
-      dataTable.current.destroy();
-      dataTable.current = null;
-    }
-
-    console.log(dataTable.current);
-    const timeout = setTimeout(() => {
-      dataTable.current = new DataTable(tableRef.current, {
-        searchable: true,
-        sortable: true,
-        paging: true,
-        perPage: 5,
-        perPageSelect: [5, 10, 15, 20],
-        paging: true,
-
-        labels: {
-          placeholder: "Search leave...",
-          perPage: "entries per page",
-          noRows: "No leave found",
-          info: "Showing {start} to {end} of {rows} entries",
-        },
-      });
-    }, 0);
-
-    return () => {
-      clearTimeout(timeout);
-
-      if (dataTable.current) {
-        dataTable.current.destroy();
-        dataTable.current = null;
-      }
-    };
-  }, [leaves]);
-
-  // added for changed table
-
+  //table
+  const filteredLeaves = leaves.filter((leave) => {
+    return (
+      leave.employee_code?.toLowerCase().includes(search.toLowerCase()) ||
+      leave.name?.toLowerCase().includes(search.toLowerCase()) ||
+      leave.leaveType?.toLowerCase().includes(search.toLowerCase()) ||
+      leave.status?.toLowerCase().includes(search.toLowerCase()) ||
+      leave.description?.toLowerCase().includes(search.toLowerCase())
+    );
+  });
   const addDateToLeave = () => {
     if (!selectedDate) {
       alert("Select Date");
       return;
     }
 
+    // const dateString =
+    //   selectedDate
+    //     .toISOString()
+    //     .split("T")[0];
     const dateString =
-      selectedDate
-        .toISOString()
-        .split("T")[0];
+      selectedDate.toLocaleDateString(
+        "en-CA"
+      );
 
     const exists =
       form.leaveDates.find(
@@ -197,75 +131,46 @@ export default function LeaveManagement() {
     });
   };
 
-  //check the earn leave comdition
 
-  // if (
-  //   leaveSource === "Earn Leave" &&
-  //   employee.earnLeave < days
-  // ) {
-  //   return res.status(400).json({
-  //     msg: "Insufficient Earn Leave",
-  //   });
-  // }
-  useEffect(() => {
-
-    if (form.fromDate && form.toDate) {
-      const from = new Date(form.fromDate);
-      const to = new Date(form.toDate);
-      const diffTime =
-        to.getTime() - from.getTime();
-      const diffDays =
-        Math.ceil(
-          diffTime / (1000 * 60 * 60 * 24)
-        ) + 1;
-      setForm((prev) => ({
-        ...prev,
-        days: diffDays > 0 ? diffDays : 0,
-      }));
-    }
-  }, [form.fromDate, form.toDate]);
-  const handleEmployeeSearch = async (
-    value
-  ) => {
+  //handle employee
+  const handleEmployeeSearch = async (value) => {
     setEmployeeSearch(value);
     if (!value.trim()) {
       setEmployeeResults([]);
       return;
     }
     try {
-      const res =
-        await searchEmployees(value);
-
-      setEmployeeResults(res.data);
-
+      const res = await searchEmployees(value);
+      // setEmployeeResults(res.data);
+      setEmployeeResults(
+        res.data.filter(
+          emp =>
+            emp.employee_code !==
+            user.employee_code
+        )
+      );
     } catch (err) {
-
       console.log(err);
     }
   };
-
-
-
-
+  //submit form
   const handleSubmit = async () => {
+
+    console.log("FORM BEFORE VALIDATION", form);
 
     if (!form.leaveType) {
       alert("Select Leave Type");
       return;
     }
 
-    if (
-      form.leaveDates.length === 0
-    ) {
+    if (form.leaveDates.length === 0) {
       alert(
         "Select At Least One Leave Date"
       );
       return;
     }
 
-    if (
-      !form.description.trim()
-    ) {
+    if (!form.description.trim()) {
       alert(
         "Description Required"
       );
@@ -273,17 +178,15 @@ export default function LeaveManagement() {
     }
 
 
-    // const payload = {
-    //   ...form,
-    //   deductedFrom: form.leaveType,
-    // };
-
-    // console.log("Submitting:", payload);
-
-    // await createLeave(payload);
-
+    if (form.leaveType === "Floating Leave" &&
+      leaveBalance.floatingLeave < 0.5) {
+      alert(
+        "Floating Leave balance is less than half day (0.5)"
+      );
+      return;
+    }
+    // handle submit
     try {
-
       let finalForm = {
         ...form,
       };
@@ -297,11 +200,28 @@ export default function LeaveManagement() {
 
       await addLeave(finalForm);
 
+      await fetchLeaveBalance(); // refresh balances
+
+      await fetchLeaves();
+
+
+      setForm({
+        employee_code: "",
+        leaveType: "",
+        leaveSource: "",
+        description: "",
+        deductedFrom: "",
+        leaveDates: [],
+      });
+
+      setEmployeeSearch("");
+      setSelectedDate(null);
+      setSelectedDayType("Full Day");
+      setApplyOnBehalf(false);
+
       alert(
         "Leave Applied Successfully"
       );
-
-      fetchLeaves();
 
       setShowModal(false);
 
@@ -315,6 +235,7 @@ export default function LeaveManagement() {
       );
     }
   };
+
   const handleStatus = async (id, status) => {
     try {
       await updateLeaveStatus(id, status);
@@ -324,15 +245,140 @@ export default function LeaveManagement() {
     }
   };
 
+
+  useEffect(() => {
+    fetchLeaves();
+
+    if (
+      user?.role !== "ADMIN" &&
+      user?.employee_code
+    ) {
+      fetchLeaveBalance();
+    }
+  }, []);
+
+  //table
+  const columns = [
+    {
+      name: "ID",
+      selector: row => row.employee_code,
+      sortable: true,
+    },
+    {
+      name: "Name",
+      selector: row => row.name,
+      sortable: true,
+    },
+    {
+      name: "Leave Dates",
+      cell: row => (
+        <div className="max-h-16 overflow-y-auto flex flex-wrap gap-1">
+          {row.leaveDates?.map((d, i) => (
+            <span
+              key={i}
+              className="bg-cyan-100 text-cyan-700 px-2 py-1 rounded text-xs"
+            >
+              {d.date} (
+              {d.dayType === "Full Day"
+                ? "FD"
+                : d.dayType === "1st Half Day"
+                  ? "FH"
+                  : "SH"}
+              )
+            </span>
+          ))}
+        </div>
+      ),
+      width: "250px",
+      grow: 2,
+    },
+    {
+      name: "Total Days",
+      selector: row => row.days,
+      sortable: true,
+      width: "120px",
+    },
+    {
+      name: "Leave Type",
+      selector: row => row.leaveType,
+      sortable: true,
+    },
+    {
+      name: "Description",
+      cell: row => (
+        <div
+          title={row.description}
+          className="max-w-[200px] truncate"
+        >
+          {row.description}
+        </div>
+      ),
+      // width: "220px",
+    },
+    {
+      name: "Applied By",
+      cell: row =>
+        row.appliedByEmployeeCode === row.employee_code
+          ? "Self"
+          : row.appliedByName,
+      sortable: true,
+    },
+    {
+      name: "Status",
+      cell: row => (
+        <span
+          className={`px-2 py-1 rounded text-white text-xs ${row.status === "Approved"
+            ? "bg-green-500"
+            : row.status === "Rejected"
+              ? "bg-red-500"
+              : "bg-yellow-500"
+            }`}
+        >
+          {row.status}
+        </span>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Action",
+      // width: "220px",
+      cell: row => (
+        <>
+          {(user.role === "HR" || user.role === "ADMIN") &&
+            row.status === "Pending" && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() =>
+                    handleStatus(row._id, "Approved")
+                  }
+                  className="bg-green-500 text-white px-2 py-1 rounded"
+                >
+                  Approve
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleStatus(row._id, "Rejected")
+                  }
+                  className="bg-red-500 text-white px-2 py-1 rounded"
+                >
+                  Reject
+                </button>
+              </div>
+            )}
+        </>
+      ),
+    },
+  ];
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="w-full">
       <div className="flex justify-between items-center mb-5">
         <h2 className="text-3xl font-semibold text-gray-800">
           Leave Management
         </h2>
         {user?.role !== "ADMIN" && (
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-white p-4 rounded shadow">
+            <div className="w-full bg-white rounded-xl shadow p-4">
               <h2 className="text-lg font-semibold">
                 Earn Leave
               </h2>
@@ -351,16 +397,6 @@ export default function LeaveManagement() {
                 {(leaveBalance?.floatingLeave || 0).toFixed(2)}
               </p>
             </div>
-            {/* 
-            <div className="bg-white p-4 rounded shadow">
-              <h2 className="text-lg font-semibold">
-                Negative Leave
-              </h2>
-
-              <p className="text-2xl text-red-600 font-bold">
-              {(leaveBalance?.negativeLeave || 0).toFixed(2)}
-              </p>
-            </div> */}
           </div>
         )}
 
@@ -378,157 +414,40 @@ export default function LeaveManagement() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow p-4 overflow-x-auto">
-        <table
-          ref={tableRef}
-          className="w-full border-collapse"
-        >
-          <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="border p-3">ID</th>
-              <th className="border p-3">Name</th>
-              <th className="border p-3">Leave Dates</th>
-              <th className="border p-3">Total Days</th>
-              <th className="border p-3">Leave Type</th>
-              <th className="border p-3">Description</th>
-              <th className="border p-3">Applied By</th>
-              <th className="border p-3">Status</th>
-              <th className="border p-3">Action</th>
-            </tr>
-          </thead>
 
-          <tbody>
-            {leaves.map((l) => (
-              <tr key={l._id}>
-                <td className="border p-3">
-                  {l.employee_code}
-                </td>
-                <td className="border p-3">
-                  {l.name}
-                </td>
-                <td className="border p-3">
-                  <div className="flex flex-wrap gap-1">
-                    {l.leaveDates?.map((d, i) => (
-                      <span
-                        key={i}
-                        className="bg-cyan-100 text-cyan-700 px-2 py-1 rounded text-xs"
-                      >
-                        {d.date}
-                        (
-                        {d.dayType === "Full Day"
-                          ? "FD"
-                          : d.dayType === "1st Half Day"
-                            ? "FH"
-                            : "SH"}
-                        )
-                      </span>
-                    ))}
-                  </div>
-                </td>
+      <div className="bg-white rounded-xl shadow p-4">
 
-                <td className="border p-3">
-                  {l.days}
-                </td>
+        <div className="flex justify-between items-center mb-4">
+          <div className="relative w-64">
+            <FaSearch className="absolute left-3 top-3 text-gray-400" />
 
-                <td className="border p-3">
-                  {l.leaveType}
-                </td>
+            <input
+              type="text"
+              placeholder="Search leave..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full border rounded-lg pl-10 pr-3 py-2"
+            />
+          </div>
+        </div>
 
-                <td className="border p-3">
-                  {l.description}
-                </td>
-
-                <td className="border p-3">
-                  {l.appliedByEmployeeCode === l.employee_code
-                    ? "Self"
-                    : l.appliedByName}
-                </td>
-
-                {/* <td className="border p-3">
-                  <span
-                    className={`px-2 py-1 rounded text-xs ${l.status === "Approved"
-                        ? "bg-green-100 text-green-700"
-                        : l.status === "Rejected"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                  >
-                    {l.status}
-                  </span>
-                </td> */}
-                <td className="border p-3">
-                  <span
-                    className={`px-2 py-1 rounded text-white ${l.status === "Approved"
-                      ? "bg-green-500"
-                      : l.status === "Rejected"
-                        ? "bg-red-500"
-                        : "bg-yellow-500"
-                      }`}
-                  >
-                    {l.status}
-                  </span>
-                </td>
-
-                <td className="border p-3">
-                  {(user.role === "HR" ||
-                    user.role === "ADMIN") &&
-                    l.status === "Pending" && (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() =>
-                            handleStatus(
-                              l._id,
-                              "Approved"
-                            )
-                          }
-                          className="bg-green-500 text-white px-2 py-1 rounded"
-                        >
-                          Approve
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            handleStatus(
-                              l._id,
-                              "Rejected"
-                            )
-                          }
-                          className="bg-red-500 text-white px-2 py-1 rounded"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="w-full overflow-x-auto">
+          <DataTable
+            style={{ width: "100%" }}
+            columns={columns}
+            data={filteredLeaves}
+            pagination
+            highlightOnHover
+            responsive
+            striped
+            dense
+            persistTableHead
+            paginationPerPage={5}
+            paginationRowsPerPageOptions={[5, 10, 15, 20]}
+            sortIcon={<span>↕</span>}
+          />
+        </div>
       </div>
-
-
-      {/* <select
-        value={form.leaveType}
-        onChange={(e) =>
-          setForm({
-            ...form,
-            leaveType: e.target.value,
-            deductedFrom: e.target.value,
-          })
-        }
-      >
-        <option value="">
-          Select Leave Type
-        </option>
-
-        <option value="Earn Leave">
-          Earn Leave
-        </option>
-
-        <option value="Floating Leave">
-          Floating Leave
-        </option>
-      </select> */}
 
 
       {showModal && (
@@ -557,27 +476,73 @@ export default function LeaveManagement() {
                 <select
                   className="border p-3 rounded w-full"
                   value={form.leaveType}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = e.target.value;
+
+                    if (
+                      value === "Floating Leave" &&
+                      leaveBalance.floatingLeave < 0.5
+                    ) {
+                      alert(
+                        "Floating Leave balance is less than half day (0.5)"
+                      );
+                      return;
+                    }
+
                     setForm({
                       ...form,
-                      leaveType: e.target.value,
-                      deductedFrom: e.target.value,
-                    })
-                  }
+                      leaveType: value,
+                      deductedFrom: value,
+                      leaveSource: value,
+                    });
+                  }}
+
+
                 >
                   <option value="">
                     Select Leave Type
                   </option>
 
-                  <option value="Earn Leave" disabled={leaveBalance.earnLeave <= 0}>
+                  <option value="Earn Leave">
                     Earn Leave
                   </option>
 
-                  <option value="Floating Leave"  disabled={leaveBalance.floatingLeave <= 0}>
+                  <option
+                    value="Floating Leave"
+                    disabled={leaveBalance.floatingLeave < 0.5}
+                  >
                     Floating Leave
                   </option>
                 </select>
               </div>
+
+              {/* leave days */}
+              <div className="mb-4">
+                <select
+                  className="border p-3 rounded w-full"
+                  value={selectedDayType}
+                  onChange={(e) =>
+                    setSelectedDayType(
+                      e.target.value
+                    )
+                  }
+                >
+                  <option>
+                    Full Day
+                  </option>
+
+                  <option>
+                    1st Half Day
+                  </option>
+
+                  <option>
+                    2nd Half Day
+                  </option>
+
+                </select>
+              </div>
+
+
               <div className="grid grid-cols-2 gap-5 mb-5">
                 <div>
                   {/* <label className="block mb-2 font-medium">
@@ -602,23 +567,49 @@ export default function LeaveManagement() {
                       minDate={new Date()}
                       onChange={setSelectedDate}
                       value={selectedDate}
-
                       tileClassName={({ date }) => {
-
+                        // const dateString = date
+                        //   .toISOString()
+                        //   .split("T")[0];
                         const dateString =
-                          date
-                            .toISOString()
-                            .split("T")[0];
-
-                        const found =
-                          form.leaveDates.find(
-                            (d) =>
-                              d.date === dateString
+                          date.toLocaleDateString(
+                            "en-CA"
                           );
 
+                        const found = form.leaveDates.find(
+                          (d) => d.date === dateString
+                        );
+
                         return found
-                          ? "bg-green-500 text-white rounded-full"
+                          ? "leave-selected"
                           : "";
+                      }}
+                      tileContent={({ date }) => {
+                        // const dateString = date
+                        //   .toISOString()
+                        //   .split("T")[0];
+
+                        const dateString =
+                          date.toLocaleDateString(
+                            "en-CA"
+                          );
+
+                        const found = form.leaveDates.find(
+                          (d) => d.date === dateString
+                        );
+
+                        if (!found) return null;
+
+                        return (
+                          <div className="text-[10px] font-bold">
+                            {found.dayType === "Full Day"
+                              ? "FD"
+                              : found.dayType ===
+                                "1st Half Day"
+                                ? "FH"
+                                : "SH"}
+                          </div>
+                        );
                       }}
                     />
 
@@ -644,7 +635,7 @@ export default function LeaveManagement() {
                     />
                   </div>
 
-
+                  {/* 
                   <select
                     className="border p-3 rounded w-full"
                     value={selectedDayType}
@@ -666,7 +657,7 @@ export default function LeaveManagement() {
                       2nd Half Day
                     </option>
 
-                  </select>
+                  </select> */}
 
                 </div>
 

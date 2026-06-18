@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 
+
 //This code creates an SMTP email transporter using Gmail and sends emails like login credentials, passwords, or notifications.
 
 const sendMail = async (

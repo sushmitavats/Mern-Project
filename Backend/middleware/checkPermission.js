@@ -1,39 +1,93 @@
-import Permission from "../models/Role.js";
+import Permission from "../models/Permission.js";
 
-export const checkPermission = (permission) => {
-  return async (req, res, next) => {
-    try {
-      const role = req.user.role;
+export const checkPermission = (permissionName) => {
 
-      if (role === "ADMIN") {
-        return next();
-      }
+    return async(req,res,next)=>{
 
-      const roleData = await Permission.findOne({
-        roleName: role,
-      });
+        try{
 
-      if (!roleData) {
-        return res.status(403).json({
-          message: "Role not found",
-        });
-      }
+            if(req.user.role==="ADMIN"){
+                return next();
+            }
 
-      if (
-        !roleData.permissions.includes(permission)
-      ) {
-        return res.status(403).json({
-          message: "Permission denied",
-        });
-      }
+            const [module,action] =
+            permissionName.split("_");
 
-      next();
-    } catch (error) {
-      console.log(error);
+            console.log(
+                "Module:",module,
+                "Action:",action
+            );
 
-      res.status(500).json({
-        message: error.message,
-      });
+            // First try employee-specific permission
+            let permissionDoc =
+            await Permission.findOne({
+                employee:req.user.employee_code
+            });
+
+            // If employee permission not found then use designation/department
+            if(!permissionDoc){
+
+                permissionDoc =
+                await Permission.findOne({
+                    department:req.user.department,
+                    designation:req.user.designation,
+                    employee:null
+                });
+
+            }
+
+            console.log(
+                "PermissionDoc:",
+                permissionDoc
+            );
+
+            if(!permissionDoc){
+
+                return res.status(403).json({
+                    success:false,
+                    message:"No permission assigned"
+                });
+
+            }
+
+            const modulePermission =
+            permissionDoc.permissions.find(
+                p =>
+                p.type.toLowerCase()===
+                module.toLowerCase()
+            );
+
+            console.log(
+                "modulePermission:",
+                modulePermission
+            );
+
+            if(
+                !modulePermission ||
+                modulePermission[
+                    action.toLowerCase()
+                ]!==true
+            ){
+
+                return res.status(403).json({
+                    success:false,
+                    message:
+                    `No ${action.toUpperCase()} permission for ${module.toUpperCase()}`
+                });
+
+            }
+
+            next();
+
+        }
+        catch(error){
+
+            console.log(error);
+
+            return res.status(500).json({
+                success:false,
+                message:error.message
+            });
+        }
     }
-  };
 };

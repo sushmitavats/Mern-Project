@@ -11,6 +11,8 @@ import Attendance from "./pages/Attendance";
 import LeaveManagement from "./pages/LeaveManagement";
 import RolePermissions from "./pages/RolePermissions";
 import UserManagement from "./pages/UserManagement";
+import Department from "./pages/Department";
+import Designation from "./pages/Designation";
 
 function App() {
   return (
@@ -35,19 +37,22 @@ function App() {
               </ProtectedRoute>
             }
           />
-
+          
           <Route
             path="/employees"
             element={
-              <ProtectedRoute permission="EMPLOYEE_VIEW">
+              <ProtectedRoute    permission="Employee_view">
                 <Employees />
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/attendance"
             element={
-              <ProtectedRoute permission="ATTENDANCE_VIEW">
+              <ProtectedRoute
+                permission="Attendance_view"
+              >
                 <Attendance />
               </ProtectedRoute>
             }
@@ -56,7 +61,7 @@ function App() {
           <Route
             path="/leave"
             element={
-              <ProtectedRoute permission="LEAVE_VIEW">
+              <ProtectedRoute permission="Leave_view">
                 <LeaveManagement />
               </ProtectedRoute>
             }
@@ -76,6 +81,33 @@ function App() {
             element={
               <ProtectedRoute permission="USER_MANAGEMENT">
                 <UserManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* <Route
+            path="/department"
+            element={
+              <ProtectedRoute permission="DEPARTMENT_MANAGE">
+                <Department />
+              </ProtectedRoute>
+            }
+          /> */}
+          <Route
+            path="/department"
+            element={
+              <ProtectedRoute
+                permission="Department_view"
+              >
+                <Department />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/designation"
+            element={
+              <ProtectedRoute permission="DEPARTMENT_MANAGE">
+                <Designation />
               </ProtectedRoute>
             }
           />

@@ -7,10 +7,13 @@ import dashboardRoutes from "./routes/Dashbord.js";
 import employeeRoutes from "./routes/EmployeeRoute.js";
 import attendanceRoutes from "./routes/Attendance.js";
 import leaveRoutes from "./routes/Leave.js";
-import roleRoutes from "./routes/PermissionRoutes.js";
+// import roleRoutes from "./routes/PermissionRoutes.js";
+import permissionRoutes from "./routes/permissionRoutes.js";
 import leaveBalanceRoutes from "./routes/leaveBalanceRoutes.js";
 import "./cron/leaveReset.js";
 import "./cron/monthlyEarnLeave.js";
+import departmentRoutes from "./routes/departmentRoutes.js";
+import designationRoutes from "./routes/designationRoutes.js";
 // import "./cron/floatingLeaveReset.js";
 
 
@@ -37,8 +40,14 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/leave", leaveRoutes);
-app.use("/api/roles", roleRoutes);
+// app.use("/api/roles", roleRoutes);
 app.use("/api", leaveBalanceRoutes);
+app.use("/api/departments",departmentRoutes);
+app.use("/api/designation",designationRoutes);
+app.use(
+  "/api/permission",
+  permissionRoutes
+);
 
 
 

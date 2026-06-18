@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-  getUsers, deleteUser, changeUserStatus, monthlyEarnLeave,
-  grantFloatingLeave,
+  getUsers, deleteUser, changeUserStatus, monthlyEarnLeave, grantFloatingLeave,
 } from "../api";
 import UserModal from "../components/UserModel";
 import DataTable from "react-data-table-component";
@@ -140,31 +139,6 @@ const UserManagement = () => {
       }
     };
 
-  //new added effect.
-  // console.log(form);
-  // useEffect(() => {
-  //   if (
-  //     form.dayType === "1st Half Day" ||
-  //     form.dayType === "2nd Half Day"
-  //   ) {
-  //     setForm((prev) => ({
-  //       ...prev,
-  //       days: 0.5,
-  //     }));
-  //   }
-  // }, [form.dayType]);
-
-  // if (
-  //   leaveBalance.earnLeave +
-  //   leaveBalance.floatingLeave <
-  //   0.5
-  // ) {
-  //   return alert(
-  //     "You do not have enough leave balance"
-  //   );
-  // }
-
-
   // SEARCH FILTER
   const filteredUsers = users.filter((user) => {
 
@@ -210,12 +184,18 @@ const UserManagement = () => {
       sortable: true,
       grow: 2,
     },
+    {
+      name: "Department",
+      selector: (row) =>
+        row.department || "-",
+      sortable: true,
+    },
 
     {
-      name: "Role",
-      selector: (row) => row.role,
+      name: "Designation",
+      selector: (row) =>
+        row.designation || "-",
       sortable: true,
-      grow: 1,
     },
     {
       name: "EL",
@@ -230,14 +210,6 @@ const UserManagement = () => {
         row.floatingLeave || 0,
       sortable: true,
     },
-
-    {
-      name: "Department",
-      selector: (row) => row.department,
-      sortable: true,
-      grow: 1,
-    },
-
     {
       name: "Status",
 
@@ -284,9 +256,6 @@ const UserManagement = () => {
         </div>
       ),
     },
-
-
-
   ];
 
   return (

@@ -2,11 +2,13 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Login from "../models/Login.js";
-import Permission from "../models/Role.js";
+import Permission from "../models/Permission.js";
 import generatePassword from "../utils/generatePassword.js";
 import sendMail from "../utils/sendMail.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { isAdmin } from "../middleware/adminMiddleware.js";
+import Department from "../models/Department.js";
+import Designation from "../models/Designation.js";
 
 const router = express.Router();
 
@@ -21,6 +23,7 @@ router.post(
         name,
         email,
         department,
+        designation,
         role,
         joiningDate,
       } = req.body;
@@ -77,13 +80,13 @@ router.post(
         name,
         email,
         department,
-
+        designation,
         password:
           hashedPassword,
 
         role:
           role?.toUpperCase(),
-          joiningDate,
+        joiningDate,
 
         employee_code:
           employee_code,
@@ -115,6 +118,15 @@ router.post(
 
       // IF EMPLOYEE CREATED
       // SEND MAIL TO ALL HR
+      const departmentData =
+        await Department.findById(
+          department
+        );
+
+      const designationData =
+        await Designation.findById(
+          designation
+        );
 
       if (
         role?.toUpperCase() ===
@@ -135,14 +147,12 @@ router.post(
 
             `
             New employee has been added.
-
             Name: ${name}
-
-            Employee Code:
-            ${employee_code}
-
+            Employee Code:${employee_code}
             Department:
-            ${department}
+            ${departmentData?.departmentName}
+            Designation:
+            ${designationData?.designationName}
             `
           );
         }
@@ -173,9 +183,21 @@ router.post("/login", async (req, res) => {
 
     console.log(req.body);
 
-    const user = await Login.findOne({
-      email,
-    });
+    // const user = await Login.findOne({
+    //   email,
+    // });
+    const user =
+      await Login.findOne({
+        email
+      })
+        .populate(
+          "department",
+          "departmentName"
+        )
+        .populate(
+          "designation",
+          "designationName"
+        );
     if (!user) {
       return res.status(400).json({
         msg: "User not found",
@@ -200,13 +222,52 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const rolePermission =
+    // const rolePermission =
+    //   await Permission.findOne({
+    //     roleName: user.role,
+    //   });
+     // const permissions =
+    //   rolePermission?.permissions || [];
+           //permission
+    let permissionData = null;
+
+    // First check employee specific permission
+    permissionData =
       await Permission.findOne({
-        roleName: user.role,
+        employee: user.employee_code
       });
 
+    // If no employee permission,
+    // check department + designation
+
+    if (!permissionData) {
+
+      permissionData =
+        await Permission.findOne({
+          department: user.department?._id,
+          designation: user.designation?._id
+        });
+
+    }
+
+    // If still not found,
+    // check department only
+
+    if (!permissionData) {
+
+      permissionData =
+        await Permission.findOne({
+          department: user.department?._id,
+          designation: null
+        });
+
+    }
+
     const permissions =
-      rolePermission?.permissions || [];
+      permissionData?.permissions || [];
+
+
+    //permission
 
     const token = jwt.sign(
       {
@@ -224,18 +285,17 @@ router.post("/login", async (req, res) => {
 
     res.json({
       token,
-
       firstLogin:
         user.isFirstLogin,
-
       user: {
         id: user._id,
         name: user.name,
         username: user.username,
         email: user.email,
         role: user.role,
-        employee_code:
-          user.employee_code,
+        department: user.department,
+        designation: user.designation,
+        employee_code: user.employee_code,
         permissions,
       },
     });
@@ -276,11 +336,8 @@ router.post(
 
 
       console.log("REQ BODY:", req.body);
-
       console.log("REQ USER:", req.user);
-
       console.log("DB USER:", user);
-
       console.log(
         "isFirstLogin:",
         user.isFirstLogin
@@ -343,18 +400,47 @@ router.get(
 
     try {
 
-      const users =
-        await Login.find({
-          role: {
-            $ne: "ADMIN",
-          },
-        }).sort({
-          createdAt: 1,
+      const users = await Login.find({
+        role: {
+          $ne: "ADMIN"
+        }
+      })
+        .populate(
+          "department",
+          "departmentName"
+        )
+        .populate(
+          "designation",
+          "designationName"
+        )
+        .sort({
+          createdAt: 1
         });
+      // res.json({
+      //   success: true,
+      //   data: users,
+      // });
+
+
+      const formattedUsers = users.map(user => ({
+        ...user.toObject(),
+
+        department:
+          user.department?.departmentName || "",
+
+        designation:
+          user.designation?.designationName || ""
+      }));
+
       res.json({
         success: true,
-        data: users,
+        data: formattedUsers
       });
+
+      // res.json({
+      //   success: true,
+      //   data: users
+      // });
 
     } catch (error) {
 

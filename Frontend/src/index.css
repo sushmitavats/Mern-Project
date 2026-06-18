@@ -50,3 +50,11 @@
   padding-right: 30px !important;
   white-space: nowrap;
 }
+
+
+.leave-selected {
+  background: #22c55e !important;
+  color: white !important;
+  border-radius: 8px;
+  position: relative;
+}

@@ -12,7 +12,7 @@ axiosInstance.interceptors.request.use(
     console.log("REQUEST STARTED");
 
     const token = localStorage.getItem("token");
-
+                   
     console.log("TOKEN:", token);
     console.log("URL:", config.url);
 
@@ -93,9 +93,14 @@ export const getAttendance = () =>
 export const saveAttendance = (data) =>
   axiosInstance.post("/attendance", data);
 
-
 export const searchEmployees = (search) =>
-  axiosInstance.get(`/employees/search?search=${search}`);
+  axiosInstance.get(
+    `/leave/search-employee?search=${search}`
+  );
+
+
+// export const searchEmployees = (search) =>
+//   axiosInstance.get(`/employees/search?search=${search}`);
 
 export const getLeaves = () => axiosInstance.get("/leave");
 export const addLeave = (data) => axiosInstance.post("/leave", data);
@@ -106,17 +111,18 @@ export const getNextEmployeeCode = () =>
   axiosInstance.get("/employees/next-code");
 
 //roles
-export const getRoles = () =>
-  axiosInstance.get("/roles/all");
+// export const getRoles = () =>
+//   axiosInstance.get("/roles/all");
 
-export const addRole = (data) =>
-  axiosInstance.post("/roles/add", data);
+// export const addRole = (data) =>
+//   axiosInstance.post("/roles/add", data);
 
-export const deleteRoleById = (id) =>
-  axiosInstance.delete(`/roles/delete/${id}`);
+// export const deleteRoleById = (id) =>
+//   axiosInstance.delete(`/roles/delete/${id}`);
 
-export const updateRoleById = (id, data) =>
-  axiosInstance.put(`/roles/${id}`, data);
+// export const updateRoleById = (id, data) =>
+//   axiosInstance.put(`/roles/${id}`, data);
+
 
 
 // User Management
@@ -265,4 +271,83 @@ export const downloadLeaveReport =
       {
         responseType: "blob",
       }
+    );
+
+
+    // department api
+
+  export const getDepartments = () =>
+  axiosInstance.get("/departments");
+
+  export const addDepartment = (data) =>
+  axiosInstance.post("/departments",data);
+
+  export const updateDepartment = (id,data) =>
+  axiosInstance.put(`/departments/${id}`,data);
+
+  export const deleteDepartment = (id) =>
+  axiosInstance.delete(`/departments/${id}`);
+
+
+  //designation api
+  export const getDesignations = () =>
+    axiosInstance.get("/designation");
+
+export const addDesignation =(data) =>
+    axiosInstance.post("/designation",data);
+
+export const updateDesignation =(id, data) =>
+  axiosInstance.put(`/designation/${id}`,data);
+
+export const deleteDesignation =(id) =>
+  axiosInstance.delete(`/designation/${id}`);
+    
+
+
+// GET ALL PERMISSIONS
+export const getPermissions = () =>
+  axiosInstance.get("/permission/all");
+
+// GET SINGLE PERMISSION
+export const getPermissionById = (id) =>
+  axiosInstance.get(`/permission/${id}`);
+
+// CREATE PERMISSION
+export const createPermission = (data) =>
+  axiosInstance.post(
+    "/permission/create",
+    data
+  );
+
+// UPDATE PERMISSION
+export const updatePermission = (
+  id,
+  data
+) =>
+  axiosInstance.put(
+    `/permission/update/${id}`,
+    data
+  );
+
+// DELETE PERMISSION
+export const deletePermission = (id) =>
+  axiosInstance.delete(
+    `/permission/delete/${id}`
+  );
+
+      //need later
+  // GET EMPLOYEES BY DESIGNATION
+export const getEmployeesByDesignation = (
+  designationId
+) =>
+  axiosInstance.get(
+    `/employees/designation/${designationId}`
+  );
+
+
+  // GET DESIGNATIONS BY DEPARTMENT
+export const getDesignationByDepartment =
+  (departmentId) =>
+    axiosInstance.get(
+      `/designation/department/${departmentId}`
     );

@@ -35,24 +35,3 @@ export default mongoose.model(
 
 
 
-
-
-// import mongoose from "mongoose";
-
-// const attendanceSchema = new mongoose.Schema({
-//   employee_code: {
-//     type: String,
-//     required: true,
-//     index: true,
-//   },
-//   name: String,
-//   inTime: String,
-//   outTime: String,
-//   date: {
-//     type: Date,
-//     required: true,
-//   },
-// });
-
-// export default mongoose.model("attendance", attendanceSchema);
-

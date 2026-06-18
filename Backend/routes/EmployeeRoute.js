@@ -8,7 +8,7 @@ import bcrypt from "bcryptjs";
 const router = express.Router();
 
 
-router.get( "/",authMiddleware,checkPermission("EMPLOYEE_VIEW"),
+router.get( "/",authMiddleware,
 async (req, res) => {
     try {
       const matchStage =
@@ -172,7 +172,6 @@ router.get(
             }
 
           : {
-
               employee_code:
                 req.user.employee_code,
 
@@ -228,32 +227,6 @@ router.get(
 );
 
 
-// router.get("/next-code", async (req, res) => {
-//   try {
-//     const employees = await Employee.find({}, "employee_code");
-
-//     let max = 0;
-
-//     employees.forEach(emp => {
-//       if (emp.employee_code) {
-//         const num = parseInt(emp.employee_code.replace("EMP", ""));
-//         if (num > max) max = num;
-//       }
-//     });
-
-//     const nextCode = "EMP" + String(max + 1);
-
-
-//     res.json({ code: nextCode });
-
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: err.message });
-//   }
-// });
-
-
-
 router.get("/next-code", async (req, res) => {
   try {
     // GET LAST EMPLOYEE CODE (same pattern as Login logic)
@@ -284,8 +257,8 @@ router.get("/next-code", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
-router.post("/", authMiddleware, checkPermission("EMPLOYEE_CREATE"), async (req, res) => {
+ // add empoyee
+router.post("/", authMiddleware, checkPermission("Employee_create"), async (req, res) => {
   try {
     const exists = await Employee.findOne({
       employee_code: req.body.employee_code,
@@ -307,7 +280,7 @@ router.post("/", authMiddleware, checkPermission("EMPLOYEE_CREATE"), async (req,
 router.put(
   "/code/:employee_code",
   authMiddleware,
-  checkPermission("EMPLOYEE_UPDATE"),
+  checkPermission("Employee_edit"),
   async (req, res) => {
     try {
 
@@ -331,13 +304,9 @@ router.put(
           message: "Employee not found",
         });
       }
-
       res.json(updated);
-
     } catch (err) {
-
       console.log("UPDATE ERROR:", err);
-
       res.status(500).json({
         message: err.message,
       });
@@ -345,12 +314,12 @@ router.put(
   }
 );
 
-
+//delete employee
 
 router.delete(
   "/code/:employee_code",
   authMiddleware,
-  checkPermission("EMPLOYEE_DELETE"),
+  checkPermission("Employee_delete"),
   async (req, res) => {
 
     try {

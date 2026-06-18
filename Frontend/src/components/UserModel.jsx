@@ -1,16 +1,46 @@
 import React, { useEffect, useState, } from "react";
-
-import { createUser, updateUser, } from "../api";
+// add leave(but having previous table from and to)
+import { createUser, updateUser, getDepartments, getDesignations } from "../api";
 
 const UserModal = ({ onClose, fetchUsers, editData, }) => {
+
+  const [departments, setDepartments] = useState([]);
+  const [designations, setDesignations] = useState([]);
   const [formData, setFormData] =
     useState({
       name: "",
       email: "",
       department: "",
-      role: "",
+      designation: "",
       joiningDate: "",
     });
+
+
+  useEffect(() => {
+    fetchDropdownData();
+  }, []);
+
+  const fetchDropdownData = async () => {
+    try {
+
+      const deptRes =
+        await getDepartments();
+
+      const desigRes =
+        await getDesignations();
+
+      setDepartments(
+        deptRes.data
+      );
+
+      setDesignations(
+        desigRes.data
+      );
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     if (editData) {
@@ -84,41 +114,53 @@ const UserModal = ({ onClose, fetchUsers, editData, }) => {
           }
           className="w-full border p-2 rounded mb-4"
         />
-
+        {/* department */}
         <select
-          name="role"
-          value={formData.role}
-          onChange={
-            handleChange
-          }
-          className="w-full border p-2 rounded mb-5"
+          name="department"
+          value={formData.department}
+          onChange={handleChange}
+          className="w-full border p-2 rounded mb-4"
         >
           <option value="">
-            Select Role
+            Select Department
           </option>
 
-          <option value="HR">
-            HR
-          </option>
-
-          <option value="EMPLOYEE">
-            EMPLOYEE
-          </option>
+          {departments.map((dept) => (
+            <option
+              key={dept._id}
+              value={dept._id}
+            >
+              {dept.departmentName}
+            </option>
+          ))}
         </select>
 
-
-        <input
-          type="text"
-          name="department"
-          placeholder="Enter Department"
-          value={
-            formData.department
-          }
-          onChange={
-            handleChange
-          }
+           {/* designation */}
+        <select
+          name="designation"
+          value={formData.designation}
+          onChange={handleChange}
           className="w-full border p-2 rounded mb-4"
-        />
+        >
+          <option value="">
+            Select Designation
+          </option>
+
+          {designations
+            .filter(
+              (des) =>
+                des.department?._id ===
+                formData.department
+            )
+            .map((des) => (
+              <option
+                key={des._id}
+                value={des._id}
+              >
+                {des.designationName}
+              </option>
+            ))}
+        </select>
 
         <input
           type="date"

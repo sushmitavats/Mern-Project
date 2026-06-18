@@ -1,25 +1,13 @@
-import {
-  Link,
-  Outlet,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
-
+import {Link,Outlet,useLocation,useNavigate,} from "react-router-dom";
 import { useState } from "react";
-
 import { HiOutlineMenu } from "react-icons/hi";
-
 import { hasPermission } from "./utils/hasPermission";
 
 export default function Layout() {
-
   const [sidebarOpen, setSidebarOpen] =
     useState(true);
-
   const location = useLocation();
-
   const navigate = useNavigate();
-
   const user = JSON.parse(
     localStorage.getItem("user")
   );
@@ -60,6 +48,19 @@ export default function Layout() {
       path: "/users",
       permission: "USER_MANAGEMENT",
     },
+
+    
+    {
+      name: "Department",
+      path: "/department",
+      permission: "DEPARTMENT_MANAGE",
+    },
+    {
+      name: "Designation",
+      path: "/designation",
+      permission: "DEPARTMENT_MANAGE",
+    },
+
   ];
 
   return (
@@ -68,11 +69,10 @@ export default function Layout() {
 
       {/* SIDEBAR */}
       <div
-        className={`bg-white border-r transition-all duration-300 overflow-hidden ${
-          sidebarOpen
+        className={`bg-white border-r transition-all duration-300 overflow-hidden ${sidebarOpen
             ? "w-[220px]"
-            : "w-0"
-        }`}
+            : "w-[70px]"
+          }`}
       >
 
         <div className="p-4 font-semibold text-lg whitespace-nowrap">
@@ -96,17 +96,13 @@ export default function Layout() {
                 key={index}
                 to={item.path}
               >
-
                 <li
-                  className={`px-3 py-2 rounded cursor-pointer whitespace-nowrap transition-all duration-200 ${
-                    location.pathname === item.path
+                  className={`px-3 py-2 rounded cursor-pointer transition-all duration-200 ${location.pathname === item.path
                       ? "bg-[#00b3bd] text-white"
                       : "hover:bg-[#00b3bd] hover:text-white"
-                  }`}
+                    }`}
                 >
-
-                  {item.name}
-
+                  {sidebarOpen ? item.name : item.name.charAt(0)}
                 </li>
 
               </Link>
@@ -169,7 +165,7 @@ export default function Layout() {
         </div>
 
         {/* PAGE CONTENT */}
-        <div className="p-6 overflow-auto flex-1">
+        <div className="p-6 overflow-auto flex-1 w-full">
 
           <Outlet />
 

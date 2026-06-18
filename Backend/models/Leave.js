@@ -32,6 +32,16 @@ const LeaveSchema = new mongoose.Schema(
       type: Number,
     },
 
+    earnUsed: {
+      type: Number,
+      default: 0,
+    },
+
+    floatingUsed: {
+      type: Number,
+      default: 0,
+    },
+
     leaveType: {
       type: String,
     },
@@ -83,9 +93,6 @@ const LeaveSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-
-
 
     calendarLabel: {
       type: String,
