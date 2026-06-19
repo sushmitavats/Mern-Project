@@ -1,4 +1,4 @@
-import {Link,Outlet,useLocation,useNavigate,} from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate, } from "react-router-dom";
 import { useState } from "react";
 import { HiOutlineMenu } from "react-icons/hi";
 import { hasPermission } from "./utils/hasPermission";
@@ -16,62 +16,140 @@ export default function Layout() {
     {
       name: "Dashboard",
       path: "/dashboard",
-      permission: null,
+      module:null
     },
 
     {
       name: "Employees",
       path: "/employees",
-      permission: "EMPLOYEE_VIEW",
+      module: "Employee",
     },
 
     {
       name: "Attendance",
       path: "/attendance",
-      permission: "ATTENDANCE_VIEW",
-    },
-
-    {
-      name: "Leave",
-      path: "/leave",
-      permission: "LEAVE_VIEW",
+      module: "Attendance",
     },
 
     {
       name: "Role Permissions",
       path: "/roles",
-      permission: "ROLE_MANAGE",
+      module: "Role",
     },
 
     {
       name: "User Management",
       path: "/users",
-      permission: "USER_MANAGEMENT",
+      module: "Permission",
     },
 
-    
+    {
+      name: "Leave",
+      path: "/leave",
+      module: "Leave",
+    },
+
     {
       name: "Department",
       path: "/department",
-      permission: "DEPARTMENT_MANAGE",
+      module: "Department",
     },
+
     {
       name: "Designation",
       path: "/designation",
-      permission: "DEPARTMENT_MANAGE",
+      module: "Designation",
     },
-
   ];
+
+  // const menuItems = [
+  //   {
+  //     name: "Dashboard",
+  //     path: "/dashboard",
+  //     permission: null,
+  //   },
+
+  //   {
+  //     name: "Employees",
+  //     path: "/employees",
+  //     permission: hasPermission(
+  //       "Employee",
+  //       "view"
+  //     )
+  //   },
+
+  //   {
+  //     name: "Attendance",
+  //     path: "/attendance",
+  //     permission: hasPermission(
+  //       "Attendance",
+  //       "view"
+  //     )
+  //   },
+
+  //   {
+  //     name: "Leave",
+  //     path: "/leave",
+  //     permission: hasPermission(
+  //       "Leave",
+  //       "view"
+  //     )
+  //   },
+
+  //   {
+  //     name: "Role Permissions",
+  //     path: "/roles",
+  //     permission: hasPermission(
+  //       "Role",
+  //       "view"
+  //     )
+
+  //   },
+
+  //   {
+  //     name: "User Management",
+  //     path: "/users",
+  //     permission: hasPermission(
+  //       "Permission", //user management
+  //       "view"
+  //     )
+  //   },
+
+
+  //   {
+  //     name: "Department",
+  //     path: "/department",
+  //     permission: hasPermission(
+  //       "Department",
+  //       "view"
+  //     )
+  //   },
+  //   {
+  //     name: "Designation",
+  //     path: "/designation",
+  //     permission: hasPermission(
+  //       "Designation",
+  //       "view"
+  //     )
+  //   },
+
+  // ];
 
   return (
 
     <div className="flex h-screen bg-[#eef1f5]">
 
       {/* SIDEBAR */}
-      <div
+      {/* <div
         className={`bg-white border-r transition-all duration-300 overflow-hidden ${sidebarOpen
             ? "w-[220px]"
             : "w-[70px]"
+          }`}
+      > */}
+      <div
+        className={`bg-white border-r flex-shrink-0 transition-all duration-300 ${sidebarOpen
+          ? "w-64"
+          : "w-20"
           }`}
       >
 
@@ -84,8 +162,11 @@ export default function Layout() {
           {menuItems.map((item, index) => {
 
             if (
-              item.permission &&
-              !hasPermission(item.permission)
+              item.module &&
+              !hasPermission(
+                item.module,
+                "view"
+              )
             ) {
               return null;
             }
@@ -98,8 +179,8 @@ export default function Layout() {
               >
                 <li
                   className={`px-3 py-2 rounded cursor-pointer transition-all duration-200 ${location.pathname === item.path
-                      ? "bg-[#00b3bd] text-white"
-                      : "hover:bg-[#00b3bd] hover:text-white"
+                    ? "bg-[#00b3bd] text-white"
+                    : "hover:bg-[#00b3bd] hover:text-white"
                     }`}
                 >
                   {sidebarOpen ? item.name : item.name.charAt(0)}
@@ -126,9 +207,7 @@ export default function Layout() {
 
             className="bg-red-500 text-white px-4 py-2 rounded mt-5 w-full"
           >
-
             Logout
-
           </button>
 
         </ul>
@@ -165,7 +244,7 @@ export default function Layout() {
         </div>
 
         {/* PAGE CONTENT */}
-        <div className="p-6 overflow-auto flex-1 w-full">
+        <div className="overflow-auto flex-1 w-full">
 
           <Outlet />
 

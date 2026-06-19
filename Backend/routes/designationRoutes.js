@@ -1,25 +1,23 @@
 import express from "express";
 
-import {
-  getDesignations,
-  createDesignation,
-  updateDesignation,
+import { getDesignations,createDesignation,updateDesignation,
   deleteDesignation,
 } from "../controllers/designationController.js";
+import { checkPermission } from "../middleware/checkPermission.js";
 
 const router = express.Router();
 
-router.get("/", getDesignations);
+router.get("/",  checkPermission("Designation_view"), getDesignations);
 
-router.post("/", createDesignation);
+router.post("/",checkPermission("Designation_create"), createDesignation);
 
 router.put(
   "/:id",
-  updateDesignation
+  checkPermission("Designation_edit"),updateDesignation
 );
 
 router.delete(
-  "/:id",
+  "/:id",checkPermission("Designation_delete"),
   deleteDesignation
 );
 

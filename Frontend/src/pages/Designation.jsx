@@ -173,8 +173,8 @@ export default function Designation() {
             className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none"
           />
 
-        </div>
-
+        </div >
+        <div className="user-table border-0 overflow-x-auto">
         <DataTable
           columns={columns}
           data={filtered}
@@ -188,7 +188,7 @@ export default function Designation() {
             </div>
           }
         />
-
+        </div>
       </div>
 
       <DesignationModal

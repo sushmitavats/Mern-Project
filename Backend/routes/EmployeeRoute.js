@@ -2,32 +2,30 @@ import express from "express";
 import Employee from "../models/EmployeeTable.js";
 import Attendance from "../models/Attendance.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import { allowRoles } from "../middleware/roleMiddleware.js";
 import { checkPermission } from "../middleware/checkPermission.js";
-import bcrypt from "bcryptjs";
+
 const router = express.Router();
 
-
-router.get( "/",authMiddleware,
-async (req, res) => {
+router.get("/", authMiddleware,  checkPermission("Employee_view"),
+  async (req, res) => {
     try {
       const matchStage =
         req.user.role === "HR" ||
-        req.user.role === "ADMIN"
+          req.user.role === "ADMIN"
           ? {
-              $or: [
-                { isDeleted: false },
-                { isDeleted: { $exists: false } },
-              ],
-            }
+            $or: [
+              { isDeleted: false },
+              { isDeleted: { $exists: false } },
+            ],
+          }
           : {
-              employee_code: req.user.employee_code,
+            employee_code: req.user.employee_code,
 
-              $or: [
-                { isDeleted: false },
-                { isDeleted: { $exists: false } },
-              ],
-            };
+            $or: [
+              { isDeleted: false },
+              { isDeleted: { $exists: false } },
+            ],
+          };
 
       const data = await Employee.aggregate([
         {
@@ -81,6 +79,36 @@ async (req, res) => {
             preserveNullAndEmptyArrays: true,
           },
         },
+        //designation and department
+        {
+          $lookup: {
+            from: "departments",
+            localField: "department",
+            foreignField: "_id",
+            as: "departmentData"
+          }
+        },
+        {
+          $unwind: {
+            path: "$departmentData",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+
+        {
+          $lookup: {
+            from: "designations",
+            localField: "designation",
+            foreignField: "_id",
+            as: "designationData"
+          }
+        },
+        {
+          $unwind: {
+            path: "$designationData",
+            preserveNullAndEmptyArrays: true
+          }
+        },
 
         {
           $project: {
@@ -90,8 +118,8 @@ async (req, res) => {
             name: 1,
             email: 1,
             contact: 1,
-            department: 1,
-            designation: 1,
+            department: "$departmentData.departmentName",
+            designation: "$designationData.designationName",
             bankAccount: 1,
             pfAccount: 1,
             address: 1,
@@ -139,72 +167,72 @@ router.get(
         req.query.search || "";
       const matchStage =
         req.user.role === "HR" ||
-        req.user.role === "ADMIN"
+          req.user.role === "ADMIN"
           ? {
-              $or: [
-                {
-                  employee_code: {
-                    $regex: search,
-                    $options: "i",
-                  },
+            $or: [
+              {
+                employee_code: {
+                  $regex: search,
+                  $options: "i",
                 },
+              },
 
-                {
-                  name: {
-                    $regex: search,
-                    $options: "i",
-                  },
+              {
+                name: {
+                  $regex: search,
+                  $options: "i",
                 },
-              ],
+              },
+            ],
 
-              $and: [
-                {
-                  $or: [
-                    { isDeleted: false },
-                    {
-                      isDeleted: {
-                        $exists: false,
-                      },
+            $and: [
+              {
+                $or: [
+                  { isDeleted: false },
+                  {
+                    isDeleted: {
+                      $exists: false,
                     },
-                  ],
-                },
-              ],
-            }
+                  },
+                ],
+              },
+            ],
+          }
 
           : {
-              employee_code:
-                req.user.employee_code,
+            employee_code:
+              req.user.employee_code,
 
-              $or: [
+            $or: [
 
-                {
-                  employee_code: {
-                    $regex: search,
-                    $options: "i",
-                  },
+              {
+                employee_code: {
+                  $regex: search,
+                  $options: "i",
                 },
+              },
 
-                {
-                  name: {
-                    $regex: search,
-                    $options: "i",
-                  },
+              {
+                name: {
+                  $regex: search,
+                  $options: "i",
                 },
-              ],
+              },
+            ],
 
-              $and: [
-                {
-                  $or: [
-                    { isDeleted: false },
-                    {
-                      isDeleted: {
-                        $exists: false,
-                      },
+            $and: [
+              {
+                $or: [
+                  { isDeleted: false },
+                  {
+                    isDeleted: {
+                      $exists: false,
                     },
-                  ],
-                },
-              ],
-            };
+                  },
+                ],
+              },
+            ],
+          };
 
       const employees =
         await Employee.find(matchStage)
@@ -257,7 +285,7 @@ router.get("/next-code", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
- // add empoyee
+// add empoyee
 router.post("/", authMiddleware, checkPermission("Employee_create"), async (req, res) => {
   try {
     const exists = await Employee.findOne({
@@ -324,7 +352,7 @@ router.delete(
 
     try {
 
-       const employeeCode = req.params.employee_code;
+      const employeeCode = req.params.employee_code;
 
       const employee = await Employee.findOneAndUpdate(
         {
@@ -344,7 +372,7 @@ router.delete(
         });
       }
 
-       await Attendance.deleteMany({
+      await Attendance.deleteMany({
         employee_code: employeeCode,
       });
 

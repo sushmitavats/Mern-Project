@@ -15,7 +15,9 @@ import Department from "./pages/Department";
 import Designation from "./pages/Designation";
 
 function App() {
+
   return (
+
     <div className="App">
 
       <Routes>
@@ -25,10 +27,14 @@ function App() {
           element={<Navigate to="/login" />}
         />
 
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
         <Route element={<Layout />}>
 
+          {/* Dashboard */}
           <Route
             path="/dashboard"
             element={
@@ -37,76 +43,86 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
+
+          {/* Employees */}
           <Route
             path="/employees"
             element={
-              <ProtectedRoute    permission="Employee_view">
+              <ProtectedRoute
+                module="Employee"
+              >
                 <Employees />
               </ProtectedRoute>
             }
           />
 
+          {/* Attendance */}
           <Route
             path="/attendance"
             element={
               <ProtectedRoute
-                permission="Attendance_view"
+                module="Attendance"
               >
                 <Attendance />
               </ProtectedRoute>
             }
           />
 
+          {/* Leave */}
           <Route
             path="/leave"
             element={
-              <ProtectedRoute permission="Leave_view">
+              <ProtectedRoute
+                module="Leave"
+              >
                 <LeaveManagement />
               </ProtectedRoute>
             }
           />
 
+          {/* Role Permission */}
           <Route
             path="/roles"
             element={
-              <ProtectedRoute permission="ROLE_MANAGE">
+              <ProtectedRoute
+                module="Role"
+              >
                 <RolePermissions />
               </ProtectedRoute>
             }
           />
 
+          {/* User Management */}
           <Route
             path="/users"
             element={
-              <ProtectedRoute permission="USER_MANAGEMENT">
+              <ProtectedRoute
+                module="Permission"
+              >
                 <UserManagement />
               </ProtectedRoute>
             }
           />
 
-          {/* <Route
-            path="/department"
-            element={
-              <ProtectedRoute permission="DEPARTMENT_MANAGE">
-                <Department />
-              </ProtectedRoute>
-            }
-          /> */}
+          {/* Department */}
           <Route
             path="/department"
             element={
               <ProtectedRoute
-                permission="Department_view"
+                module="Department"
               >
                 <Department />
               </ProtectedRoute>
             }
           />
+
+          {/* Designation */}
           <Route
             path="/designation"
             element={
-              <ProtectedRoute permission="DEPARTMENT_MANAGE">
+              <ProtectedRoute
+                module="Designation"
+              >
                 <Designation />
               </ProtectedRoute>
             }
@@ -116,7 +132,11 @@ function App() {
 
         <Route
           path="*"
-          element={<h1>404 Page Not Found</h1>}
+          element={
+            <h1>
+              404 Page Not Found
+            </h1>
+          }
         />
 
       </Routes>
@@ -126,6 +146,152 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import Dashboard from "./pages/Dashboard";
+// import Login from "./Login";
+// import Employees from "./pages/Employees";
+// import Layout from "./Layout";
+// import ProtectedRoute from "./ProtectedRoute";
+// import "./App.css";
+
+// import { Route, Routes, Navigate } from "react-router-dom";
+
+// import Attendance from "./pages/Attendance";
+// import LeaveManagement from "./pages/LeaveManagement";
+// import RolePermissions from "./pages/RolePermissions";
+// import UserManagement from "./pages/UserManagement";
+// import Department from "./pages/Department";
+// import Designation from "./pages/Designation";
+
+// function App() {
+//   return (
+//     <div className="App">
+
+//       <Routes>
+
+//         <Route
+//           path="/"
+//           element={<Navigate to="/login" />}
+//         />
+
+//         <Route path="/login" element={<Login />} />
+
+//         <Route element={<Layout />}>
+
+//           <Route
+//             path="/dashboard"
+//             element={
+//               <ProtectedRoute>
+//                 <Dashboard />
+//               </ProtectedRoute>
+//             }
+//           />
+          
+//           <Route
+//             path="/employees"
+//             element={
+//               <ProtectedRoute    permission="Employee_view">
+//                 <Employees />
+//               </ProtectedRoute>
+//             }
+//           />
+
+//           <Route
+//             path="/attendance"
+//             element={
+//               <ProtectedRoute
+//                 permission="Attendance_view"
+//               >
+//                 <Attendance />
+//               </ProtectedRoute>
+//             }
+//           />
+
+//           <Route
+//             path="/leave"
+//             element={
+//               <ProtectedRoute permission="Leave_view">
+//                 <LeaveManagement />
+//               </ProtectedRoute>
+//             }
+//           />
+
+//           <Route
+//             path="/roles"
+//             element={
+//               <ProtectedRoute permission="ROLE_MANAGE">
+//                 <RolePermissions />
+//               </ProtectedRoute>
+//             }
+//           />
+
+//           <Route
+//             path="/users"
+//             element={
+//               <ProtectedRoute permission="USER_MANAGEMENT">
+//                 <UserManagement />
+//               </ProtectedRoute>
+//             }
+//           />
+
+//           {/* <Route
+//             path="/department"
+//             element={
+//               <ProtectedRoute permission="DEPARTMENT_MANAGE">
+//                 <Department />
+//               </ProtectedRoute>
+//             }
+//           /> */}
+//           <Route
+//             path="/department"
+//             element={
+//               <ProtectedRoute
+//                 permission="Department_view"
+//               >
+//                 <Department />
+//               </ProtectedRoute>
+//             }
+//           />
+//           <Route
+//             path="/designation"
+//             element={
+//               <ProtectedRoute permission="DEPARTMENT_MANAGE">
+//                 <Designation />
+//               </ProtectedRoute>
+//             }
+//           />
+
+//         </Route>
+
+//         <Route
+//           path="*"
+//           element={<h1>404 Page Not Found</h1>}
+//         />
+
+//       </Routes>
+
+//     </div>
+//   );
+// }
+
+// export default App;
 
 
 

@@ -13,11 +13,7 @@ const permissionSchema = new mongoose.Schema({
     // default: null,
   },
 
-  // employee: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "Login",
-  // default: null,
-  // },
+
 
   employee: {
     type: String,

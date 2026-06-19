@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getLeaves, addLeave, updateLeaveStatus, searchEmployees, getLeaveBalance, getEmployees } from "../api";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { hasPermission } from "../utils/hasPermission";
 
 //logic
 export default function LeaveManagement() {
@@ -51,9 +52,6 @@ export default function LeaveManagement() {
       console.log(error);
     }
   };
-
-
-
   useEffect(() => {
 
     if (
@@ -98,10 +96,6 @@ export default function LeaveManagement() {
       return;
     }
 
-    // const dateString =
-    //   selectedDate
-    //     .toISOString()
-    //     .split("T")[0];
     const dateString =
       selectedDate.toLocaleDateString(
         "en-CA"
@@ -401,12 +395,17 @@ export default function LeaveManagement() {
         )}
 
         <div className="flex gap-2">
+          {hasPermission(
+              "Employee",
+              "create"
+            ) && (
           <button
             onClick={() => setShowModal(true)}
             className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded"
           >
             Add Leave
           </button>
+          )}
 
           <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
             Download Excel
@@ -431,7 +430,8 @@ export default function LeaveManagement() {
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto">
+        {/* <div className="w-full overflow-x-auto"> */}
+        <div className="user-table border-0 overflow-x-auto">
           <DataTable
             style={{ width: "100%" }}
             columns={columns}
@@ -634,30 +634,6 @@ export default function LeaveManagement() {
                       }
                     />
                   </div>
-
-                  {/* 
-                  <select
-                    className="border p-3 rounded w-full"
-                    value={selectedDayType}
-                    onChange={(e) =>
-                      setSelectedDayType(
-                        e.target.value
-                      )
-                    }
-                  >
-                    <option>
-                      Full Day
-                    </option>
-
-                    <option>
-                      1st Half Day
-                    </option>
-
-                    <option>
-                      2nd Half Day
-                    </option>
-
-                  </select> */}
 
                 </div>
 

@@ -109,11 +109,16 @@ export default function Department() {
   return (
     <div className="w-full">
 
-      <div className="flex justify-between items-center mb-5">
+      <div className="w-full flex justify-between items-center mb-5">
 
         <h2 className="text-2xl font-bold">
           Department Management
         </h2>
+        {
+        hasPermission(
+             "Employee",
+              "create"
+              ) && (
 
         <button
           onClick={() => {
@@ -124,6 +129,7 @@ export default function Department() {
         >
           + Add Department
         </button>
+)}
 
       </div>
 
@@ -146,7 +152,7 @@ export default function Department() {
           />
 
         </div>
-
+        <div className="user-table border-0 overflow-x-auto">
         <DataTable
           columns={columns}
           data={filteredDepartments}
@@ -155,6 +161,7 @@ export default function Department() {
           striped
           responsive
         />
+        </div>
 
       </div>
 

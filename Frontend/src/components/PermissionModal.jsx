@@ -90,66 +90,71 @@ const PermissionModal = ({
     setFilteredEmployees]
     = useState([]);
 
-
   useEffect(() => {
 
-    if (department) {
+  if (department) {
 
-      const filteredDesig =
-        designations.filter((item) =>
-            item.department?._id === department
-            ||
-            item.department === department
-        );
-      setFilteredDesignations(
-        filteredDesig
-      );
-    }
-    else {
-      setFilteredDesignations(
-        designations
-      );
-    }
-    setDesignation("");
-    setEmployee("");
-  }, [department, designations]);
-
-
-  //filter employee
-  useEffect(() => {
-
-    let filteredEmp =employees;
-    if (department) {
-      filteredEmp =
-        filteredEmp.filter((emp) =>
-            emp.department?._id === department
-            ||
-            emp.department === department
-        );
-    }
-
-    if (designation) {
-
-      filteredEmp =
-        filteredEmp.filter(
-          (emp) =>
-
-            emp.designation?._id === designation
-            ||
-            emp.designation === designation
-        );
-
-    }
-
-    setFilteredEmployees(
-      filteredEmp
+    const filteredDesig = designations.filter(
+      (item) =>
+        item.department?._id === department ||
+        item.department?.toString() === department
     );
 
-  }, [
-    department,
-    designation,
-    employees
-  ]);
+    setFilteredDesignations(filteredDesig);
+
+  } else {
+
+    setFilteredDesignations(designations);
+
+  }
+
+  setDesignation("");
+  setEmployee("");
+
+}, [department, designations]);
+
+  //filter employee
+
+
+  useEffect(() => {
+
+  let filteredEmp = employees;
+
+  const selectedDept = departments.find(
+    (d) => d._id === department
+  );
+
+  const selectedDesig = designations.find(
+    (d) => d._id === designation
+  );
+
+  if (department) {
+    filteredEmp = filteredEmp.filter(
+      (emp) =>
+        emp.department ===
+        selectedDept?.departmentName
+    );
+  }
+
+  if (designation) {
+    filteredEmp = filteredEmp.filter(
+      (emp) =>
+        emp.designation ===
+        selectedDesig?.designationName
+    );
+  }
+
+  setFilteredEmployees(
+    filteredEmp
+  );
+
+}, [
+  department,
+  designation,
+  employees,
+  departments,
+  designations
+]);
 
   useEffect(() => {
 
@@ -216,19 +221,6 @@ const PermissionModal = ({
         };
 
         console.log(payload);
-
-        // if (selectedPermission) {
-        //   if (selectedPermission) {
-        //     await updatePermission(
-        //       selectedPermission._id,
-        //       payload
-        //     );
-        //   } else {
-        //     await createPermission(
-        //       payload
-        //     );
-        //   }
-
 
         if (selectedPermission) {
           await updatePermission(
