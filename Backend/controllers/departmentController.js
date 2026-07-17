@@ -1,24 +1,17 @@
 import Department from "../models/Department.js";
-
 // Create Department
-export const createDepartment = async (
-  req,
-  res
-) => {
+export const createDepartment = async (req,res) => {
   try {
     const { departmentName } = req.body;
-
     const exists =
       await Department.findOne({
         departmentName,
       });
-
     if (exists) {
       return res.status(400).json({
         msg: "Department already exists",
       });
     }
-
     const lastDepartment =
       await Department.findOne().sort({
         departmentId: -1,
@@ -27,13 +20,11 @@ export const createDepartment = async (
     const nextId = lastDepartment
       ? lastDepartment.departmentId + 1
       : 1;
-
     const department =
       await Department.create({
         departmentId: nextId,
         departmentName,
       });
-
     res.status(201).json(department);
   } catch (err) {
     res.status(500).json({
@@ -43,14 +34,12 @@ export const createDepartment = async (
 };
 
 // Get Departments
-export const getDepartments =
-  async (req, res) => {
+export const getDepartments = async (req, res) => {
     try {
       const departments =
         await Department.find().sort({
           departmentId: 1,
         });
-
       res.json(departments);
     } catch (err) {
       res.status(500).json({

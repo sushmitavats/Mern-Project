@@ -15,35 +15,24 @@ router.get(
 
   async (req, res) => {
     try {
-
-      // HR / ADMIN CAN SEE ALL LEAVES
-
       if (
         req.user.role === "HR" ||
         req.user.role === "ADMIN"
       ) {
-
         const leaves = await Leave.find()
           .sort({ createdAt: -1 });
-
         return res.json(leaves);
       }
-
       // EMPLOYEE CAN SEE OWN LEAVES
-
       const leaves = await Leave.find({
         employee_code:
           req.user.employee_code,
       }).sort({
         createdAt: -1,
       });
-
       res.json(leaves);
-
     } catch (error) {
-
       console.log(error);
-
       res.status(500).json({
         error: error.message,
       });
@@ -58,7 +47,6 @@ router.post("/",
   async (req, res) => {
 
     try {
-
       const {
         employee_code,
         leaveType,
@@ -69,8 +57,6 @@ router.post("/",
 
       console.log(req.body);
       // EMPLOYEE CHECK
-
-
       const employee =
         await Login.findOne({
           employee_code,
@@ -169,17 +155,12 @@ router.post("/",
             msg: "Floating Leave balance is less than half day (0.5)"
           });
         }
-
         employee.floatingLeave -= days;
         floatingUsed = days;
-
         deductedFrom = "Floating Leave";
       }
-
       else if (leaveSource === "Both") {
-
         deductedFrom = "Both";
-
         let remaining = days;
 
         // Floating Leave cannot go below zero
@@ -187,16 +168,11 @@ router.post("/",
           employee.floatingLeave,
           remaining
         );
-
         employee.floatingLeave -= floatingUsed;
-
         remaining -= floatingUsed;
-
         // Remaining goes to Earn Leave
         if (remaining > 0) {
-
           earnUsed = remaining;
-
           employee.earnLeave -= remaining;
         }
       }
@@ -212,31 +188,22 @@ router.post("/",
           employee_code,
           name: employee.name,
           applicantEmail: employee.email,
-
           appliedByEmployeeCode:
             req.user.employee_code,
-
           appliedByName:
             req.user.name,
-
           appliedByEmail:
             req.user.email,
-
           earnUsed,
           floatingUsed,
-
           leaveType,
           leaveSource,
           description,
-
           leaveDates,
-
           days,
-
           // deductedFrom,
           deductedFrom:
             deductedFrom || leaveType,
-
           status: "Pending",
         });
 
@@ -249,20 +216,14 @@ router.post("/",
       ) {
 
         await sendMail(
-
           employee.email,
-
           "Leave Applied On Your Behalf",
-
           "Leave Applied",
-
           `
             <h2>Leave Applied</h2>
-
             <p>
               A leave has been applied on your behalf.
             </p>
-
             <p>
               <b>Applied By:</b>
               ${req.user.name}
@@ -304,20 +265,16 @@ router.post("/",
 // APPROVE / REJECT LEAVE
 router.put(
   "/:id",
-
   authMiddleware,
-
-  checkPermission("LEAVE_APPROVE"),
-
+  checkPermission("Leave_edit"),
   async (req, res) => {
-
     try {
 
-      if (req.user.role !== "HR" && req.user.role !== "ADMIN") {
-        return res.status(403).json({
-          msg: "Only HR/Admin allowed",
-        });
-      }
+      // if (req.user.role !== "HR" && req.user.role !== "ADMIN") {
+      //   return res.status(403).json({
+      //     msg: "Only HR/Admin allowed",
+      //   });
+      // }
       const leave =
         await Leave.findById(
           req.params.id
@@ -334,7 +291,6 @@ router.put(
 
       const oldStatus = leave.status;
       const newStatus = req.body.status;
-
       if (
         oldStatus === "Pending" &&
         newStatus === "Rejected"

@@ -47,35 +47,26 @@ export default function DepartmentModal({ isOpen,onClose,refresh,editData,}) {
     };
 
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-
       <div className="bg-white w-[450px] rounded-xl shadow-xl">
-
         <div className="bg-cyan-500 text-white px-5 py-4 flex justify-between">
-
           <h2 className="text-xl font-semibold">
             {editData
               ? "Edit Department"
               : "Add Department"}
           </h2>
-
           <button
             onClick={onClose}
             className="text-2xl"
           >
             ×
           </button>
-
         </div>
-
         <div className="p-5">
-
           <label className="block mb-2 font-medium">
             Department Name
           </label>
-
           <input
             type="text"
             value={departmentName}
@@ -87,7 +78,6 @@ export default function DepartmentModal({ isOpen,onClose,refresh,editData,}) {
             className="border rounded-lg w-full p-3"
             placeholder="Enter Department Name"
           />
-
           <div className="flex justify-end gap-3 mt-5">
 
             <button

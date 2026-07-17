@@ -7,52 +7,41 @@ const LeaveSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-
     name: {
       type: String,
     },
-
     applicantEmail: {
       type: String,
     },
-
     appliedByEmployeeCode: {
       type: String,
     },
-
     appliedByName: {
       type: String,
     },
-
     appliedByEmail: {
       type: String,
     },
-
     days: {
       type: Number,
     },
-
     earnUsed: {
       type: Number,
       default: 0,
     },
-
     floatingUsed: {
       type: Number,
       default: 0,
     },
-
     leaveType: {
       type: String,
     },
-
     leaveDates: [
       {
         date: {
           type: String,
           required: true,
         },
-
         dayType: {
           type: String,
           enum: [
@@ -64,7 +53,6 @@ const LeaveSchema = new mongoose.Schema(
         },
       },
     ],
-
     deductedFrom: {
       type: String,
       enum: [
@@ -73,12 +61,10 @@ const LeaveSchema = new mongoose.Schema(
         "Both",
       ],
     },
-
     status: {
       type: String,
       default: "Pending",
     },
-
     leaveSource: {
       type: String,
       enum: [
@@ -87,13 +73,10 @@ const LeaveSchema = new mongoose.Schema(
         "Both",
       ],
     },
-
-    //ad
     description: {
       type: String,
       required: true,
     },
-
     calendarLabel: {
       type: String,
     },

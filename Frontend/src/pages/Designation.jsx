@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { FaSearch } from "react-icons/fa";
-
-import {
-  getDesignations,
-  deleteDesignation,
-} from "../api";
+import {getDesignations,deleteDesignation,} from "../api";
 
 import DesignationModal from "../components/DesignationModal";
 

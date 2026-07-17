@@ -1,6 +1,6 @@
 export default function ViewEmployeeModal({ employee, onClose }) {
   if (!employee) return null;
- // add employee
+  // add employee
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white w-[700px] rounded-xl shadow-xl p-6 max-h-[90vh] overflow-y-auto">
@@ -38,7 +38,7 @@ export default function ViewEmployeeModal({ employee, onClose }) {
             <p>{employee.contact}</p>
           </div>
 
-          <div>
+          {/* <div>
             <p className="font-semibold">Department</p>
             <p>{employee.department}</p>
           </div>
@@ -46,6 +46,19 @@ export default function ViewEmployeeModal({ employee, onClose }) {
           <div>
             <p className="font-semibold">Designation</p>
             <p>{employee.designation}</p>
+          </div> */}
+          <div>
+            <p className="font-semibold">Department</p>
+            <p>
+              {employee.department?.departmentName || "-"}
+            </p>
+          </div>
+
+          <div>
+            <p className="font-semibold">Designation</p>
+            <p>
+              {employee.designation?.designationName || "-"}
+            </p>
           </div>
 
           <div>
@@ -81,7 +94,7 @@ export default function ViewEmployeeModal({ employee, onClose }) {
             <p className="font-semibold">Aadhaar</p>
             <p>{employee.aadhaar}</p>
           </div>
-          
+
           <div>
             <p className="font-semibold">PAN</p>
             <p>{employee.pan}</p>

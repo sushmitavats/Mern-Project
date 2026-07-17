@@ -5,10 +5,9 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 import { checkPermission } from "../middleware/checkPermission.js";
 const router = express.Router();
 
-router.get("/", authMiddleware, checkPermission("ATTENDANCE_VIEW"), async (req, res) => {
+router.get("/", authMiddleware, checkPermission("Attendance_view"), async (req, res) => {
   try {
     //     : { employee_code: req.user.employee_code };
-
     const matchStage =
       req.user.role === "HR" || req.user.role === "ADMIN"
         ? {
@@ -26,9 +25,7 @@ router.get("/", authMiddleware, checkPermission("ATTENDANCE_VIEW"), async (req, 
         };
 
     const data = await Employee.aggregate([
-
       { $match: matchStage },
-
       {
         $lookup: {
           from: "attendances",
@@ -78,7 +75,7 @@ router.get("/", authMiddleware, checkPermission("ATTENDANCE_VIEW"), async (req, 
 });
 
 
-router.post("/", authMiddleware, checkPermission("ATTENDANCE_MANAGE"), async (req, res) => {
+router.post("/", authMiddleware, checkPermission("Attendance_edit"), async (req, res) => {
   try {
     const { employee_code, inTime, outTime } = req.body;
 
@@ -94,27 +91,25 @@ router.post("/", authMiddleware, checkPermission("ATTENDANCE_MANAGE"), async (re
       // { employee_code: code },
       {
         employee_code: code,
-         date: today,
-        
+         date: today,  
       },
-      {
-        employee_code: code,
+      {employee_code: code,
         inTime,
         outTime,
         date: today,
       },
       {
         new: true,
-  upsert: true,
-}
+        upsert: true,
+      }
     );
 
     res.json(record);
   } catch (err) {
-     console.log(err);
+    console.log(err);
     res.status(500).json({
-        message: "Server Error",
-      });
+      message: "Server Error",
+    });
   }
 });
 export default router;

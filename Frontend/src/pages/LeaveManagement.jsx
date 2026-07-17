@@ -31,12 +31,9 @@ export default function LeaveManagement() {
   console.log("Submitting:", form);
   const [selectedDate, setSelectedDate] =
     useState(null);
-
   const [selectedDayType, setSelectedDayType] =
     useState("Full Day");
-
   const user = JSON.parse(localStorage.getItem("user"));
-
   const fetchLeaveBalance = async () => {
     try {
       const res = await getLeaveBalance(
@@ -46,7 +43,6 @@ export default function LeaveManagement() {
         "LEAVE BALANCE RESPONSE",
         res.data
       );
-
       setLeaveBalance(res.data);
     } catch (error) {
       console.log(error);
@@ -95,28 +91,22 @@ export default function LeaveManagement() {
       alert("Select Date");
       return;
     }
-
     const dateString =
       selectedDate.toLocaleDateString(
         "en-CA"
       );
-
     const exists =
       form.leaveDates.find(
         (d) => d.date === dateString
       );
-
     if (exists) {
       alert("Date already added");
       return;
     }
-
     setForm({
       ...form,
-
       leaveDates: [
         ...form.leaveDates,
-
         {
           date: dateString,
           dayType: selectedDayType,
@@ -124,8 +114,6 @@ export default function LeaveManagement() {
       ],
     });
   };
-
-
   //handle employee
   const handleEmployeeSearch = async (value) => {
     setEmployeeSearch(value);
@@ -184,21 +172,14 @@ export default function LeaveManagement() {
       let finalForm = {
         ...form,
       };
-
       if (!applyOnBehalf) {
-
         finalForm.employee_code =
           user.employee_code;
       }
       console.log("FINAL FORM =>", finalForm);
-
       await addLeave(finalForm);
-
       await fetchLeaveBalance(); // refresh balances
-
       await fetchLeaves();
-
-
       setForm({
         employee_code: "",
         leaveType: "",
@@ -216,13 +197,9 @@ export default function LeaveManagement() {
       alert(
         "Leave Applied Successfully"
       );
-
       setShowModal(false);
-
     } catch (err) {
-
       console.log(err);
-
       alert(
         err.response?.data?.msg ||
         "Error"
@@ -238,11 +215,8 @@ export default function LeaveManagement() {
       console.log(err);
     }
   };
-
-
   useEffect(() => {
     fetchLeaves();
-
     if (
       user?.role !== "ADMIN" &&
       user?.employee_code
@@ -333,36 +307,78 @@ export default function LeaveManagement() {
       ),
       sortable: true,
     },
+  
     {
-      name: "Action",
-      // width: "220px",
-      cell: row => (
-        <>
-          {(user.role === "HR" || user.role === "ADMIN") &&
-            row.status === "Pending" && (
-              <div className="flex gap-2">
-                <button
-                  onClick={() =>
-                    handleStatus(row._id, "Approved")
-                  }
-                  className="bg-green-500 text-white px-2 py-1 rounded"
-                >
-                  Approve
-                </button>
+  name: "Action",
+  cell: (row) => {
 
-                <button
-                  onClick={() =>
-                    handleStatus(row._id, "Rejected")
-                  }
-                  className="bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  Reject
-                </button>
-              </div>
-            )}
-        </>
-      ),
-    },
+    const canApprove =
+      hasPermission(
+        "Leave",
+        "edit"
+      );
+
+    return (
+
+      <div className="flex gap-2">
+
+        <button
+          onClick={() => {
+
+            if (!canApprove) {
+              alert(
+                "You are not permitted to approve leave"
+              );
+              return;
+            }
+
+            handleStatus(
+              row._id,
+              "Approved"
+            );
+
+            alert(
+              "Approved successfully"
+            );
+
+          }}
+
+          className={`px-2 py-1 rounded text-white ${
+            canApprove
+              ? "bg-green-500"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
+        >
+          Approve
+        </button>
+        <button
+          onClick={() => {
+            if (!canApprove) {
+              alert(
+                "You are not permitted to reject leave"
+              );
+              return;
+            }
+            handleStatus(
+              row._id,
+              "Rejected"
+            );
+            alert(
+              "Rejected successfully"
+            );
+          }}
+          className={`px-2 py-1 rounded text-white ${
+            canApprove
+              ? "bg-red-500"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
+        >
+          Reject
+        </button>
+      </div>
+    );
+  },
+}
   ];
   return (
     <div className="w-full">
@@ -376,50 +392,42 @@ export default function LeaveManagement() {
               <h2 className="text-lg font-semibold">
                 Earn Leave
               </h2>
-
               <p className="text-2xl text-cyan-600 font-bold">
                 {(leaveBalance?.earnLeave || 0).toFixed(2)}
               </p>
             </div>
-
             <div className="bg-white p-4 rounded shadow">
               <h2 className="text-lg font-semibold">
                 Floating Leave
               </h2>
-
               <p className="text-2xl text-green-600 font-bold">
                 {(leaveBalance?.floatingLeave || 0).toFixed(2)}
               </p>
             </div>
           </div>
         )}
-
         <div className="flex gap-2">
-          {hasPermission(
-              "Employee",
-              "create"
-            ) && (
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded"
-          >
-            Add Leave
-          </button>
-          )}
-
+          {/* {user?.role !== "ADMIN" && */}
+           {hasPermission(
+            "Leave",
+            "create"
+          ) && (
+              <button
+                onClick={() => setShowModal(true)}
+                className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded"
+              >
+                Add Leave
+              </button>
+            )}
           <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
             Download Excel
           </button>
         </div>
       </div>
-
-
       <div className="bg-white rounded-xl shadow p-4">
-
         <div className="flex justify-between items-center mb-4">
           <div className="relative w-64">
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
-
             <input
               type="text"
               placeholder="Search leave..."
@@ -429,7 +437,6 @@ export default function LeaveManagement() {
             />
           </div>
         </div>
-
         {/* <div className="w-full overflow-x-auto"> */}
         <div className="user-table border-0 overflow-x-auto">
           <DataTable
@@ -448,7 +455,6 @@ export default function LeaveManagement() {
           />
         </div>
       </div>
-
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -488,7 +494,6 @@ export default function LeaveManagement() {
                       );
                       return;
                     }
-
                     setForm({
                       ...form,
                       leaveType: value,
@@ -496,17 +501,13 @@ export default function LeaveManagement() {
                       leaveSource: value,
                     });
                   }}
-
-
                 >
                   <option value="">
                     Select Leave Type
                   </option>
-
                   <option value="Earn Leave">
                     Earn Leave
                   </option>
-
                   <option
                     value="Floating Leave"
                     disabled={leaveBalance.floatingLeave < 0.5}
@@ -545,10 +546,6 @@ export default function LeaveManagement() {
 
               <div className="grid grid-cols-2 gap-5 mb-5">
                 <div>
-                  {/* <label className="block mb-2 font-medium">
-                    Leave Type
-                  </label> */}
-
                   <div className="mb-5">
                     {/* // fron calendae */}
 
@@ -568,9 +565,6 @@ export default function LeaveManagement() {
                       onChange={setSelectedDate}
                       value={selectedDate}
                       tileClassName={({ date }) => {
-                        // const dateString = date
-                        //   .toISOString()
-                        //   .split("T")[0];
                         const dateString =
                           date.toLocaleDateString(
                             "en-CA"
@@ -585,10 +579,6 @@ export default function LeaveManagement() {
                           : "";
                       }}
                       tileContent={({ date }) => {
-                        // const dateString = date
-                        //   .toISOString()
-                        //   .split("T")[0];
-
                         const dateString =
                           date.toLocaleDateString(
                             "en-CA"

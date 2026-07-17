@@ -1,20 +1,18 @@
-import React, { useEffect, useState, } from "react";
-// add leave(but having previous table from and to)
+import React, { useEffect, useState } from "react";
 import { createUser, updateUser, getDepartments, getDesignations } from "../api";
 
 const UserModal = ({ onClose, fetchUsers, editData, }) => {
-
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
-  const [formData, setFormData] =
-    useState({
-      name: "",
-      email: "",
-      department: "",
-      designation: "",
-      joiningDate: "",
-    });
 
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    department: "",
+    designation: "",
+    status: "Active",
+    joiningDate: ""
+  });
 
   useEffect(() => {
     fetchDropdownData();
@@ -22,60 +20,136 @@ const UserModal = ({ onClose, fetchUsers, editData, }) => {
 
   const fetchDropdownData = async () => {
     try {
-
       const deptRes =
         await getDepartments();
-
       const desigRes =
         await getDesignations();
-
       setDepartments(
         deptRes.data
       );
-
       setDesignations(
         desigRes.data
       );
-
     } catch (error) {
       console.log(error);
     }
   };
 
+  // useEffect(() => {
+  //   if (editData && departments.length && designations.length) {
+  //     const selectedDepartment =
+  //       departments.find(
+  //         (dept) =>
+  //           dept.departmentName ===
+  //           editData.department
+  //       );
+  //     const selectedDesignation =
+  //       designations.find(
+  //         (des) =>
+  //           des.designationName ===
+  //           editData.designation
+  //       );
+
+  //     setFormData({
+  //       name: editData.name || "",
+  //       email: editData.email || "",
+  //       department: selectedDepartment?._id || "",
+  //       designation: selectedDesignation?._id || "",
+  //       status: editData.status || "Active",
+  //       joiningDate: editData.joiningDate
+  //         ? new Date(editData.joiningDate)
+  //           .toISOString()
+  //           .split("T")[0]
+  //         : ""
+  //     });
+  //   }
+  // }, [editData, departments, designations]);
+
   useEffect(() => {
     if (editData) {
       setFormData({
-        name: editData.name || "",
-        email: editData.email || "",
-        role: editData.userAccount || "",
-        department: editData.department || "",
-        joiningDate: editData.joiningDate
-          ? editData.joiningDate.split("T")[0]
-          : "",
+        name:
+          editData.name || "",
+        email:
+          editData.email || "",
+        department:
+          editData.department?._id || "",
+        designation:
+          editData.designation?._id || "",
+        status:
+          editData.status || "Active",
+        joiningDate:
+          editData.joiningDate
+            ?
+            editData.joiningDate.substring(
+              0,
+              10
+            )
+            :
+            ""
+
       });
+
     }
+
   }, [editData]);
 
+  //handle new data
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value, });
+    const { name, value } =
+      e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+      ...(name === "department"
+        ? {
+          designation: ""
+        }
+        : {})
+    });
   };
-
+  //submit data
   const handleSubmit =
     async () => {
       try {
+        if (
+          !formData.name.trim() ||
+          !formData.email.trim() ||
+          !formData.department ||
+          !formData.designation ||
+          !formData.status ||
+          !formData.joiningDate
+        ) {
+          alert("Please fill all fields");
+          return;
+        }
+        // Email validation
+        const emailRegex =
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(formData.email)) {
+          alert("Please enter a valid email");
+          return;
+        }
+
         if (editData) {
-          await updateUser(editData._id, formData);
+          await updateUser(
+            editData._id,
+            formData
+          );
           alert(
             "User Updated Successfully"
           );
         } else {
-          await createUser(formData);
-          alert("User Created & Credentials Sent To Email");
+          await createUser(
+            formData
+          );
+          alert(
+            "User Created Successfully"
+          );
         }
-
         fetchUsers();
         onClose();
-
       } catch (error) {
         alert(
           error.response?.data?.msg ||
@@ -83,106 +157,166 @@ const UserModal = ({ onClose, fetchUsers, editData, }) => {
         );
       }
     };
-
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-      <div className="bg-white w-[450px] p-6 rounded-xl shadow-lg">
-        <h2 className="text-2xl font-semibold mb-5">
-          {editData
-            ? "Edit User"
-            : "Add New User"}
-        </h2>
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Enter Name"
-          value={formData.name}
-          onChange={
-            handleChange
-          }
-          className="w-full border p-2 rounded mb-4"
-        />
+    <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center p-4">
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter Email"
-          value={formData.email}
-          onChange={
-            handleChange
-          }
-          className="w-full border p-2 rounded mb-4"
-        />
-        {/* department */}
-        <select
-          name="department"
-          value={formData.department}
-          onChange={handleChange}
-          className="w-full border p-2 rounded mb-4"
-        >
-          <option value="">
-            Select Department
-          </option>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-7">
 
-          {departments.map((dept) => (
-            <option
-              key={dept._id}
-              value={dept._id}
-            >
-              {dept.departmentName}
-            </option>
-          ))}
-        </select>
+        {/* HEADER */}
 
-           {/* designation */}
-        <select
-          name="designation"
-          value={formData.designation}
-          onChange={handleChange}
-          className="w-full border p-2 rounded mb-4"
-        >
-          <option value="">
-            Select Designation
-          </option>
-
-          {designations
-            .filter(
-              (des) =>
-                des.department?._id ===
-                formData.department
-            )
-            .map((des) => (
-              <option
-                key={des._id}
-                value={des._id}
-              >
-                {des.designationName}
-              </option>
-            ))}
-        </select>
-
-        <input
-          type="date"
-          name="joiningDate"
-          value={formData.joiningDate}
-          onChange={handleChange}
-          className="w-full border p-2 rounded mb-4"
-        />
-
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">
+            {editData
+              ? "Edit User"
+              : "Add User"}
+          </h2>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-300 rounded"
+            className="text-gray-500 hover:text-red-500 text-xl font-bold"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="space-y-4">
+          {/* NAME */}
+          <div>
+            <label className="block text-sm font-bold uppercase text-gray-700 mb-2">
+              Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter Name"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-cyan-400 focus:outline-none"
+            />
+          </div>
+          {/* EMAIL */}
+          <div>
+            <label className="block text-sm font-bold uppercase text-gray-700 mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter Email"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-cyan-400 focus:outline-none"
+            />
+          </div>
+          {/* DEPARTMENT */}
+          <div>
+            <label className="block text-sm font-bold uppercase text-gray-700 mb-2">
+              Department
+            </label>
+            <select
+              name="department"
+              value={formData.department}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-cyan-400 outline-none"
+            >
+              <option value="">Select Department</option>
+              {departments.map((dept) => (
+                <option
+                  key={dept._id}
+                  value={dept._id}
+                >
+                  {dept.departmentName}
+                </option>
+              ))}
+            </select>
+          </div>
+          {/* DESIGNATION */}
+          <div>
+            <label className="block text-sm font-bold uppercase text-gray-700 mb-2">
+              Designation
+            </label>
+            <select
+              name="designation"
+              value={formData.designation}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-cyan-400 outline-none"
+            >
+              <option value="">
+                Select Designation
+              </option>
+
+              {designations
+                .filter(
+                  (des) =>
+                    des.department?._id ===
+                    formData.department
+                )
+                .map((des) => (
+                  <option
+                    key={des._id}
+                    value={des._id}
+                  >
+                    {des.designationName}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          {/* STATUS + JOIN DATE */}
+
+          <div className="grid grid-cols-2 gap-4">
+
+            <div>
+
+              <label className="block text-sm font-bold uppercase text-gray-700 mb-2">
+                Status
+              </label>
+
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-cyan-400"
+              >
+
+                <option value="Active">
+                  Active
+                </option>
+
+                <option value="Inactive">
+                  Inactive
+                </option>
+
+              </select>
+
+            </div>
+
+            <div>
+
+              <label className="block text-sm font-bold uppercase text-gray-700 mb-2">
+                Joining Date
+              </label>
+
+              <input
+                type="date"
+                name="joiningDate"
+                value={formData.joiningDate}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-cyan-400"
+              />
+            </div>
+          </div>
+        </div>
+        {/* FOOTER */}
+        <div className="flex justify-end gap-3 mt-8">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 transition"
           >
             Cancel
           </button>
-
           <button
-            onClick={
-              handleSubmit
-            }
-            className="px-5 py-2 bg-cyan-500 text-white rounded"
+            onClick={handleSubmit}
+            className="px-6 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-white font-semibold transition"
           >
             Save User
           </button>
@@ -193,13 +327,3 @@ const UserModal = ({ onClose, fetchUsers, editData, }) => {
 };
 
 export default UserModal;
-
-
-
-// I have used here module of management page
-//I have given u usermanagement and leavemanagement page  with full frontend and backend part. from usermanagement page admin adding new employee and all that field till now but I want that to add more , I want that there should be two button one is earn leave and second is floating leave, earn leave mai aysa ho ki agar new employee hai then jab admin us button pai add karai then joining date sai 6 month tak usko 0.83 leave milai and after that earn leave 1.23 ka add ho.and floating leave jab admin employee add kar raha ho then jab wo floating leave walai button pai add karai then 3 leave employee ka add ho jayai 6 month tak kai liyai after that then again 6 month pura honai pai yai button active ho then again us employee pai admin click karaiga then again usko 3 leave next 6 month kai liyai mil jayaiga.and leave page pai yai data show ho and jab employee leave add kar raha ho then at real time uska leave jitna hai ussai detect hojayai,aysa ho ki agar mai 1 and half day ka leave leti hu then wo leave 1.5 leave merai earn leave sai pahlai detect ho then agar uska earn leave nahi hai then floation leave sai detect ho(prioraty based)aysa bhi hona chahiyai ki aaj ka half lena hai kal ka full day then usmai calender ho jo aaj ka aaur aanai wala date hi show karai baki date select na ho payai.agar leave employee luga raha ho aaur uska leave 0.5 sai kam ho then wo leave apply hi na kar payai. leave nahi hai then uska leave koy aaur luga sakta hai ,then wo minus mai show karai lekin agar yai dono leave mai sai koy bhi leave add ho jayai month kai end tak then uska positive bhi ho jayai nahi to again leave add karnai kai baad bhi positive nahi hua then 0 pai aa jayai next month sai. I want full final and exact frontend and backend code. 
-
-
-
-
-

@@ -4,20 +4,21 @@ import { getDesignations,createDesignation,updateDesignation,
   deleteDesignation,
 } from "../controllers/designationController.js";
 import { checkPermission } from "../middleware/checkPermission.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/",  checkPermission("Designation_view"), getDesignations);
+router.get("/",authMiddleware,  checkPermission("Designation_view"), getDesignations);
 
-router.post("/",checkPermission("Designation_create"), createDesignation);
+router.post("/",authMiddleware,checkPermission("Designation_create"), createDesignation);
 
 router.put(
-  "/:id",
+  "/:id",authMiddleware,
   checkPermission("Designation_edit"),updateDesignation
 );
 
-router.delete(
-  "/:id",checkPermission("Designation_delete"),
+router.delete("/:id",
+  authMiddleware,checkPermission("Designation_delete"),
   deleteDesignation
 );
 

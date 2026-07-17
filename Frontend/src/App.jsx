@@ -4,34 +4,27 @@ import Employees from "./pages/Employees";
 import Layout from "./Layout";
 import ProtectedRoute from "./ProtectedRoute";
 import "./App.css";
-
 import { Route, Routes, Navigate } from "react-router-dom";
-
 import Attendance from "./pages/Attendance";
 import LeaveManagement from "./pages/LeaveManagement";
 import RolePermissions from "./pages/RolePermissions";
 import UserManagement from "./pages/UserManagement";
 import Department from "./pages/Department";
 import Designation from "./pages/Designation";
+import EditEmployeePage from "./pages/EditEmployeePage";
 
 function App() {
-
   return (
-
     <div className="App">
-
       <Routes>
-
         <Route
           path="/"
           element={<Navigate to="/login" />}
         />
-
         <Route
           path="/login"
           element={<Login />}
         />
-
         <Route element={<Layout />}>
 
           {/* Dashboard */}
@@ -43,7 +36,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* Employees */}
           <Route
             path="/employees"
@@ -55,7 +47,22 @@ function App() {
               </ProtectedRoute>
             }
           />
-
+          {/* <Route
+            path="/employees/edit/:employee_code"
+            element={
+            <ProtectedRoute module="Employee">
+               <EditEmployeePage />
+               </ProtectedRoute>
+             }
+            /> */}
+            <Route
+            path="/employees"
+            element={<Employees />}
+            />
+            <Route
+            path="/employees/edit/:employee_code"
+            element={<EditEmployeePage />}
+            />
           {/* Attendance */}
           <Route
             path="/attendance"
@@ -67,7 +74,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* Leave */}
           <Route
             path="/leave"
@@ -79,7 +85,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* Role Permission */}
           <Route
             path="/roles"
@@ -91,19 +96,17 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* User Management */}
           <Route
             path="/users"
             element={
               <ProtectedRoute
-                module="Permission"
+                module="Usermanagement"
               >
                 <UserManagement />
               </ProtectedRoute>
             }
           />
-
           {/* Department */}
           <Route
             path="/department"
@@ -123,11 +126,10 @@ function App() {
               <ProtectedRoute
                 module="Designation"
               >
-                <Designation />
+              <Designation />
               </ProtectedRoute>
             }
           />
-
         </Route>
 
         <Route

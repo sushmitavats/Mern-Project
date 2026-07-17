@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  getUsers, deleteUser, changeUserStatus, monthlyEarnLeave, grantFloatingLeave,
-} from "../api";
+import { getUsers, deleteUser, changeUserStatus, monthlyEarnLeave, grantFloatingLeave, } from "../api";
 import UserModal from "../components/UserModel";
 import DataTable from "react-data-table-component";
 import { FaEdit, FaTrash, FaSearch, } from "react-icons/fa";
+import { hasPermission } from "../utils/hasPermission";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -22,11 +21,11 @@ const UserManagement = () => {
       console.log(error);
     }
   };
-
   useEffect(() => {
-    fetchUsers();
+    if (hasPermission("Usermanagement", "view")) {
+      fetchUsers();
+    }
   }, []);
-
   // DELETE
   const handleDelete = async (id) => {
     try {
@@ -75,63 +74,45 @@ const UserManagement = () => {
       );
     }
   };
-  // const today = new Date()
-  //   .toISOString()
-  //   .split("T")[0];
 
   useEffect(() => {
-
     const today = new Date();
-
     const lastDay =
       new Date(
         today.getFullYear(),
         today.getMonth() + 1,
         0
       ).getDate();
-
     setIsLastDay(
       today.getDate() === lastDay
     );
-
   }, []);
 
   const handleMonthlyEL =
     async () => {
-
       try {
-
         await monthlyEarnLeave();
-
         alert(
           "Monthly Earn Leave Added Successfully"
         );
-
         fetchUsers();
-
       } catch (error) {
-
         alert(
           error.response?.data?.msg ||
           error.message
         );
       }
     };
+
   const handleFL =
     async () => {
-
       try {
-
         await grantFloatingLeave();
-
         alert(
           "Floating Leave Added Successfully"
         );
-
         fetchUsers();
-
       } catch (error) {
-
         alert(
           error.response?.data?.msg ||
           error.message
@@ -140,44 +121,79 @@ const UserManagement = () => {
     };
 
   // SEARCH FILTER
-  const filteredUsers = users.filter((user) => {
+  // const filteredUsers = users.filter((user) => {
 
-    return (
-      user.name
-        ?.toLowerCase()
-        .includes(search.toLowerCase()) ||
+  //   return (
+  //     user.name
+  //       ?.toLowerCase()
+  //       .includes(search.toLowerCase()) ||
+  //     user.email
+  //       ?.toLowerCase()
+  //       .includes(search.toLowerCase()) ||
+  //     user.employee_code
+  //       ?.toLowerCase()
+  //       .includes(search.toLowerCase()) ||
+  //     user.department
+  //       ?.toLowerCase()
+  //       .includes(search.toLowerCase())
+  //   );
+  // });
+  const filteredUsers =
+    users.filter(user => {
 
-      user.email
-        ?.toLowerCase()
-        .includes(search.toLowerCase()) ||
+      return (
 
-      user.employee_code
-        ?.toLowerCase()
-        .includes(search.toLowerCase()) ||
+        user.name
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
 
-      user.department
-        ?.toLowerCase()
-        .includes(search.toLowerCase())
-    );
-  });
+        ||
+
+        user.email
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+
+        ||
+
+        user.employee_code
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+
+        ||
+
+        user.department
+          ?.departmentName
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+
+      )
+
+    })
+
+
 
   // TABLE COLUMNS
   const columns = [
-
     {
       name: "Employee Code",
       selector: (row) => row.employee_code,
       sortable: true,
       grow: 1,
     },
-
     {
       name: "Name",
       selector: (row) => row.name,
       sortable: true,
       grow: 1,
     },
-
     {
       name: "Email",
       selector: (row) => row.email,
@@ -186,15 +202,19 @@ const UserManagement = () => {
     },
     {
       name: "Department",
+      // selector: (row) =>
+      //   row.department || "-",
       selector: (row) =>
-        row.department || "-",
+        row.department
+          ?.departmentName || "-",
       sortable: true,
     },
 
     {
       name: "Designation",
       selector: (row) =>
-        row.designation || "-",
+        row.designation
+          ?.designationName || "-",
       sortable: true,
     },
     {
@@ -212,79 +232,152 @@ const UserManagement = () => {
     },
     {
       name: "Status",
+      cell: row => {
+        const canEdit =
+          hasPermission(
+            "Usermanagement",
+            "edit"
+          );
+        return (
+          <button
+            onClick={() => {
+              if (!canEdit) {
+                alert(
+                  "You are not permitted to change status"
+                );
+                return;
+              }
+              handleStatus(
+                row._id
+              );
+            }}
+            className={`px-4 py-1 rounded-full text-white text-sm font-medium
+          ${row.status === "Active"
+                ?
+                "bg-green-500"
+                :
+                "bg-red-500"
+              }
 
-      cell: (row) => (
-
-        <button
-          onClick={() =>
-            handleStatus(row._id)
-          }
-          className={`px-4 py-1 rounded-full text-white text-sm font-medium ${row.status === "Active"
-            ? "bg-green-500"
-            : "bg-red-500"
-            }`}
-        >
-          {row.status}
-        </button>
-      ),
+          ${!canEdit
+                ?
+                "opacity-60 cursor-not-allowed"
+                :
+                ""
+              }
+          `}
+          >
+            {row.status}
+          </button>
+        );
+      },
     },
-
     {
       name: "Action",
 
-      cell: (row) => (
+      cell: row => {
 
-        <div className="flex gap-2">
+        const canEdit =
+          hasPermission(
+            "Usermanagement",
+            "edit"
+          );
 
-          <button
-            onClick={() =>
-              handleEdit(row)
-            }
-            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg shadow"
-          >
-            <FaEdit />
-          </button>
+        const canDelete =
+          hasPermission(
+            "Usermanagement",
+            "delete"
+          );
 
-          <button
-            onClick={() =>
-              handleDelete(row._id)
-            }
-            className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg shadow"
-          >
-            <FaTrash />
-          </button>
-        </div>
-      ),
-    },
+        return (
+
+          <div className="flex gap-2">
+
+            <button
+
+              onClick={() => {
+
+                if (!canEdit) {
+                  alert(
+                    "You are not permitted to edit users"
+                  );
+                  return;
+                }
+
+                handleEdit(
+                  row
+                );
+              }}
+
+              className={`px-3 py-2 rounded-lg text-white shadow
+
+            ${canEdit
+                  ?
+                  "bg-blue-500 hover:bg-blue-600"
+                  :
+                  "bg-gray-400 cursor-not-allowed"
+                }   
+            `}
+            >
+              <FaEdit />
+            </button>
+            <button
+              onClick={() => {
+                if (!canDelete) {
+                  alert(
+                    "You are not permitted to delete users"
+                  );
+                  return;
+                }
+                handleDelete(
+                  row._id
+                );
+              }}
+              className={`px-3 py-2 rounded-lg text-white shadow
+            ${canDelete
+                  ?
+                  "bg-red-500 hover:bg-red-600"
+                  :
+                  "bg-gray-400 cursor-not-allowed"
+                }     
+            `}
+            >
+              <FaTrash />
+            </button>
+
+          </div>
+        );
+      }
+    }
   ];
 
   return (
 
     <div className="p-6 bg-gray-100 min-h-screen">
-
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-800">
           User Management
         </h1>
-
-        <button
-          onClick={() => {
-
-            setEditData(null);
-
-            setShowModal(true);
-          }}
-          className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-xl shadow-lg font-medium"
-        >
-          Add New User
-        </button>
-
+        {
+          hasPermission(
+            "Usermanagement",
+            "create"
+          ) && (
+            <button
+              onClick={() => {
+                setEditData(null);
+                setShowModal(true);
+              }}
+              className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-xl shadow-lg font-medium"
+            >
+              Add New User
+            </button>
+          )
+        }
       </div>
-
       {/* TABLE CARD */}
       <div className="bg-white rounded-2xl shadow-lg p-5 border border-gray-200">
-
         {/* SEARCH */}
         <div className="flex justify-between items-center mb-3">
           <div className="relative w-56">
@@ -299,14 +392,7 @@ const UserManagement = () => {
               className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
           </div>
-
-          {/* <input
-            type="date"
-            min={today}
-          /> */}
-
           <div className="flex gap-2">
-
             <button
               disabled={!isLastDay}
               onClick={handleMonthlyEL}
@@ -317,22 +403,16 @@ const UserManagement = () => {
             >
               Add Earn Leave
             </button>
-
             <button
               onClick={handleFL}
               className="px-4 py-2 rounded bg-green-600 text-white"
             >
               Add Floating Leave
             </button>
-
           </div>
-
-
         </div >
-
         {/* datable  */}
         <div className="user-table">
-
           <DataTable
             columns={columns}
             data={filteredUsers}
@@ -346,14 +426,10 @@ const UserManagement = () => {
               </span>
             }
           />
-
         </div>
-
       </div>
-
       {/* MODAL */}
       {showModal && (
-
         <UserModal
           onClose={() =>
             setShowModal(false)
@@ -361,12 +437,9 @@ const UserManagement = () => {
           fetchUsers={fetchUsers}
           editData={editData}
         />
-
       )}
-
     </div>
   );
 };
-
 export default UserManagement;
 

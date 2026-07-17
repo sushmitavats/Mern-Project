@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
-import { FaSearch } from "react-icons/fa"; import PermissionModal from "../components/PermissionModal";
+import { FaSearch } from "react-icons/fa";
+import PermissionModal from "../components/PermissionModal";
 import { getPermissions, deletePermission, } from "../api";
 
 const RolePermissions = () => {
@@ -25,7 +26,6 @@ const RolePermissions = () => {
   };
   useEffect(() => {
     fetchPermissions();
-
   }, []);
 
   const handleDelete = async (id) => {
@@ -80,10 +80,9 @@ const RolePermissions = () => {
           ? `${row.employeeData.employee_code} - ${row.employeeData.name}`
           : "-",
     },
-
     {
       name: "Modules",
-      cell: row => (
+      cell: (row) => (
         <div className="flex flex-wrap gap-1">
           {row.permissions?.map((perm, index) => (
             <span
@@ -145,9 +144,6 @@ const RolePermissions = () => {
     },
     rows: { style: { minHeight: "55px", borderBottom: "1px solid #e5e7eb", }, },
   };
-
-
-
   return (
     <div className="w-full p-6">
       <div className="bg-white rounded-xl shadow-md border p-5">
@@ -173,26 +169,24 @@ const RolePermissions = () => {
           />
 
         </div>
-        <div className="user-table border-0 overflow-x-auto"> 
-        <DataTable
-          columns={columns}
-          data={filteredPermissions}
-          pagination
-          responsive
-          highlightOnHover
-          striped
-          persistTableHead
-          progressPending={loading}
-          noDataComponent={
-            <div className="py-5">
-              No Permissions Found
-            </div>
-          }
-        />
+        <div className="user-table border-0 overflow-x-auto">
+          <DataTable
+            columns={columns}
+            data={filteredPermissions}
+            pagination
+            responsive
+            highlightOnHover
+            striped
+            persistTableHead
+            progressPending={loading}
+            noDataComponent={
+              <div className="py-5">
+                No Permissions Found
+              </div>
+            }
+          />
         </div>
-
       </div>
-
       {open &&
         (
           <PermissionModal

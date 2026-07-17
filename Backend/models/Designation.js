@@ -3,9 +3,7 @@ import mongoose from "mongoose";
 const designationSchema = new mongoose.Schema(
   {
     designationCode: {
-      type: String,
-      required: true,
-      unique: true,
+      type: String
     },
     designationName: {
       type: String,

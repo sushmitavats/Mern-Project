@@ -5,18 +5,15 @@ const loginSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     email: {
       type: String,
       required: true,
       unique: true,
     },
-
     password: {
       type: String,
       required: true,
     },
-
     role: {
       type: String,
       enum: ["ADMIN", "HR", "EMPLOYEE"],
@@ -38,7 +35,6 @@ const loginSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-
     employee_code: {
       type: String,
       default: null,

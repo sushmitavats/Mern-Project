@@ -4,46 +4,33 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 // ADD EARN LEAVE
-
-router.put(
-  "/add-earn-leave/:id",
-  authMiddleware,
-  async (req, res) => {
+router.put("/add-earn-leave/:id",authMiddleware, async (req, res) => {
     try {
       const employee = await Login.findById(
         req.params.id
       );
-
       if (!employee) {
         return res.status(404).json({
           msg: "Employee not found",
         });
       }
-
       const joiningDate = new Date(
         employee.joiningDate
       );
-
       const today = new Date();
-
       const diffMonths =
         (today.getFullYear() -
           joiningDate.getFullYear()) *
         12 +
         (today.getMonth() -
           joiningDate.getMonth());
-
       const leaveToAdd =
-        diffMonths < 6 ? 0.83 : 1;
-
+      diffMonths < 6 ? 0.83 : 1;
       employee.earnLeave += leaveToAdd; // add monthly leave
-
       if (employee.earnLeave < 0) {
         employee.earnLeave = 0;
       }
-
       await employee.save();
-
       res.json({
         success: true,
         msg: "Earn Leave Added",
@@ -51,9 +38,7 @@ router.put(
       });
 
     } catch (error) {
-
       console.log(error);
-
       res.status(500).json({
         error: error.message,
       });

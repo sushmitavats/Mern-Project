@@ -1,34 +1,18 @@
 
 import Login from "../models/Login.js";
 import Permission from "../models/Permission.js";
-
 export const createPermission = async (req, res) => {
   try {
-
-    let {
-      department,
-      designation,
-      employee,
-      permissions
-    } = req.body;
-
+    let { department,designation,employee,permissions} = req.body;
     // Convert empty values to null
     department = department || null;
     designation = designation || null;
     employee = employee || null;
-
     const existing =
       await Permission.findOne({
-
-        department:
-          department || null,
-
-        designation:
-          designation || null,
-
-        employee:
-          employee || null
-
+        employee,
+        department,
+        designation
       });
 
     if (!department && !designation && !employee) {
@@ -54,14 +38,11 @@ export const createPermission = async (req, res) => {
         employee,
         permissions
       });
-
     res.status(201).json({
       success: true,
       data: permission
     });
-
   } catch (error) {
-
     res.status(500).json({
       success: false,
       message: error.message
@@ -69,67 +50,6 @@ export const createPermission = async (req, res) => {
   }
 };
 
-//get
-// export const getPermissions =
-//   async (req, res) => {
-//     try {
-//       const permissions =
-//         await Permission.find()
-
-
-//           .populate(
-//             "department",
-//             "departmentName departmentCode"
-//           )
-
-//           .populate(
-//             "designation",
-//             "designationName designationCode"
-//           )
-
-//           .sort({
-//             createdAt: -1,
-//           });
-
-//       // find employee details using employee_code
-//       const updatedPermissions =
-//         await Promise.all(
-
-//           permissions.map(async (item) => {
-
-//             let emp = null;
-
-//             if (item.employee) {
-
-//               emp =
-//                 await Login.findOne({
-
-//                   employee_code:
-//                     item.employee
-
-//                 }).select(
-//                   "employee_code name"
-//                 );
-//             }
-//             return {
-//               ...item.toObject(),
-//               employeeData: emp
-//             };
-//           })
-//         );
-//       res.status(200).json({
-//         success: true,
-//         data: updatedPermissions
-//       });
-//     } catch (error) {
-//       res.status(500).json({
-//         success: false,
-//         message: error.message
-//       });
-
-//     }
-
-//   };
 export const getPermissions = async (req, res) => {
   try {
 
@@ -150,7 +70,7 @@ export const getPermissions = async (req, res) => {
           createdAt: -1
         });
 
-           // update
+    // update
     const updatedPermissions =
       await Promise.all(
         permissions.map(async (item) => {
@@ -195,11 +115,9 @@ export const getSinglePermission =
           .populate(
             "department"
           )
-
           .populate(
             "designation"
           )
-
           .populate(
             "employee"
           );
@@ -272,27 +190,38 @@ export const deletePermission =
   };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+const getUserPermissions =
+  async (user) => {
+    let permissionData = null;
+    // employee specific
+    permissionData =
+      await Permission.findOne({
+        employee:
+          user.employee_code
+      });
+    // department+designation
+    if (!permissionData) {
+      permissionData =
+        await Permission.findOne({
+          department:
+            user.department?._id,
+          designation:
+            user.designation?._id
+        });
+    }
+    // department only
+    if (!permissionData) {
+      permissionData =
+        await Permission.findOne({
+          department:
+            user.department?._id,
+          designation: null
+        });
+    }
+    return (
+      permissionData
+        ?.permissions || []
+    );
+  };
+   export default getUserPermissions;
 

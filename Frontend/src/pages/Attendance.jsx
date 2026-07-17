@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { DataTable } from "simple-datatables";
 import "simple-datatables/dist/style.css";
+import { hasPermission } from "../utils/hasPermission";
+
 
 import { getAttendance, saveAttendance } from "../api";
 
@@ -18,64 +20,63 @@ export default function Attendance() {
       console.error("Error fetching attendance:", error);
     }
   };
-
   useEffect(() => {
     fetchData();
   }, []);
 
-  
-//  useEffect(() => {
 
-//   if (!tableRef.current) return;
-//   if (data.length === 0) return;
-//   if (dataTableRef.current) {
-//     dataTableRef.current.destroy();
-//     dataTableRef.current = null;
-//   }
+  //  useEffect(() => {
 
-//   const timer = setTimeout(() => {
+  //   if (!tableRef.current) return;
+  //   if (data.length === 0) return;
+  //   if (dataTableRef.current) {
+  //     dataTableRef.current.destroy();
+  //     dataTableRef.current = null;
+  //   }
 
-//     dataTableRef.current =
-//       new DataTable(tableRef.current, {
-//         searchable: true,
-//         sortable: true,
-//         paging: true,
+  //   const timer = setTimeout(() => {
 
-//         perPage: 5,
+  //     dataTableRef.current =
+  //       new DataTable(tableRef.current, {
+  //         searchable: true,
+  //         sortable: true,
+  //         paging: true,
 
-//         perPageSelect: [5, 10, 15, 20],
+  //         perPage: 5,
 
-//         fixedHeight: false,
+  //         perPageSelect: [5, 10, 15, 20],
 
-//         labels: {
-//           placeholder:
-//             "Search attendance...",
+  //         fixedHeight: false,
 
-//           perPage:
-//             "entries per page",
+  //         labels: {
+  //           placeholder:
+  //             "Search attendance...",
 
-//           noRows:
-//             "No attendance found",
-//           info:
-//             "Showing {start} to {end} of {rows} entries",
-//         },
-//       });
+  //           perPage:
+  //             "entries per page",
 
-//   }, 0);
+  //           noRows:
+  //             "No attendance found",
+  //           info:
+  //             "Showing {start} to {end} of {rows} entries",
+  //         },
+  //       });
 
-//   return () => {
+  //   }, 0);
 
-//     clearTimeout(timer);
+  //   return () => {
 
-//     if (dataTableRef.current) {
+  //     clearTimeout(timer);
 
-//       dataTableRef.current.destroy();
+  //     if (dataTableRef.current) {
 
-//       dataTableRef.current = null;
-//     }
-//   };
+  //       dataTableRef.current.destroy();
 
-// }, []);
+  //       dataTableRef.current = null;
+  //     }
+  //   };
+
+  // }, []);
 
   const handleChange = (index, field, value) => {
     const updated = [...data];
@@ -83,12 +84,12 @@ export default function Attendance() {
     setData(updated);
   };
 
- 
+
   const handleSave = async (row) => {
     try {
       await saveAttendance(row);
-await fetchData();
-alert("Saved Successfully!");
+      await fetchData();
+      alert("Saved Successfully!");
     } catch (error) {
       console.error("Save Error:", error);
       alert("Failed to save");
@@ -104,124 +105,120 @@ alert("Saved Successfully!");
         </h2>
       </div>
 
-   
+
       <div className="bg-white rounded-xl shadow-md p-2">
         <table
-  ref={tableRef}
-  className="min-w-full border border-gray-300"
->
+          ref={tableRef}
+          className="min-w-full border border-gray-300"
+        >
 
-  <thead className="bg-gray-100">
+          <thead className="bg-gray-100">
 
-    <tr>
+            <tr>
 
-      <th className="border border-gray-300 px-4 py-3 text-left">
-        Emp ID
-      </th>
+              <th className="border border-gray-300 px-4 py-3 text-left">
+                Emp ID
+              </th>
 
-      <th className="border border-gray-300 px-4 py-3 text-left">
-        Name
-      </th>
+              <th className="border border-gray-300 px-4 py-3 text-left">
+                Name
+              </th>
 
-      <th className="border border-gray-300 px-4 py-3 text-left">
-        In Time
-      </th>
+              <th className="border border-gray-300 px-4 py-3 text-left">
+                In Time
+              </th>
 
-      <th className="border border-gray-300 px-4 py-3 text-left">
-        Out Time
-      </th>
+              <th className="border border-gray-300 px-4 py-3 text-left">
+                Out Time
+              </th>
 
-      <th className="border border-gray-300 px-4 py-3 text-left">
-        Action
-      </th>
+              <th className="border border-gray-300 px-4 py-3 text-left">
+                Action
+              </th>
 
-    </tr>
+            </tr>
 
-  </thead>
+          </thead>
 
-  <tbody>
+          <tbody>
 
-    {data.map((emp, index) => (
+            {data.map((emp, index) => (
 
-      <tr
-        key={emp.employee_code}
-        className="hover:bg-gray-50"
-      >
+              <tr
+                key={emp.employee_code}
+                className="hover:bg-gray-50"
+              >
 
-        <td className="border border-gray-300 px-4 py-3">
-          {emp.employee_code}
-        </td>
+                <td className="border border-gray-300 px-4 py-3">
+                  {emp.employee_code}
+                </td>
 
-        <td className="border border-gray-300 px-4 py-3">
-          {emp.name}
-        </td>
+                <td className="border border-gray-300 px-4 py-3">
+                  {emp.name}
+                </td>
 
-        <td className="border border-gray-300 px-4 py-3">
+                <td className="border border-gray-300 px-4 py-3">
 
-          <input
-            type="time"
-            value={emp.inTime || ""}
-            onChange={(e) =>
-              handleChange(
-                index,
-                "inTime",
-                e.target.value
-              )
-            }
-            className="border border-gray-300 rounded px-2 py-1 w-full"
-          />
+                  <input
+                    type="time"
+                    value={emp.inTime || ""}
+                    onChange={(e) =>
+                      handleChange(
+                        index,
+                        "inTime",
+                        e.target.value
+                      )
+                    }
+                    className="border border-gray-300 rounded px-2 py-1 w-full"
+                  />
 
-        </td>
+                </td>
 
-        <td className="border border-gray-300 px-4 py-3">
+                <td className="border border-gray-300 px-4 py-3">
 
-          <input
-            type="time"
-            value={emp.outTime || ""}
-            onChange={(e) =>
-              handleChange(
-                index,
-                "outTime",
-                e.target.value
-              )
-            }
-            className="border border-gray-300 rounded px-2 py-1 w-full"
-          />
+                  <input
+                    type="time"
+                    value={emp.outTime || ""}
+                    onChange={(e) =>
+                      handleChange(
+                        index,
+                        "outTime",
+                        e.target.value
+                      )
+                    }
+                    className="border border-gray-300 rounded px-2 py-1 w-full"
+                  />
+                </td>
+                <td className="border border-gray-300 px-4 py-3">
+                  {/* <button
+                    onClick={() => handleSave(emp)}
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+                  >
+                    Save
+                  </button> */}
 
-        </td>
-
-        <td className="border border-gray-300 px-4 py-3">
-
-          <button
-            onClick={() => handleSave(emp)}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-          >
-            Save
-          </button>
-
-        </td>
-
-      </tr>
-
-    ))}
-
-  </tbody>
-
-</table>
-
-      
-         
-
+                  <button
+                    onClick={() => {
+                      if (!hasPermission("Employee", "edit")) {
+                        return alert(
+                          "You are not permitted to edit employee data"
+                        );
+                      }
+                      handleSave(emp);
+                    }}
+                    className={`px-4 py-2 rounded text-white ${hasPermission("Employee", "edit")
+                        ? "bg-green-500 hover:bg-green-600"
+                        : "bg-gray-400 cursor-not-allowed"
+                      }`}
+                  >
+                    Save
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-

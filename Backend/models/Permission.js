@@ -12,14 +12,10 @@ const permissionSchema = new mongoose.Schema({
     ref: "Designation",
     // default: null,
   },
-
-
-
   employee: {
     type: String,
     // default: null,
   },
-
   permissions: [
     {
       type: {

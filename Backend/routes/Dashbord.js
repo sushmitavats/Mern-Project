@@ -5,12 +5,9 @@ import Leave from "../models/Leave.js";
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-
   try {
-
     const totalEmployees =
       await Employee.countDocuments();
-
     const newEmployees =
       await Employee.countDocuments({
         createdAt: {
@@ -21,12 +18,10 @@ router.get("/", async (req, res) => {
           ),
         },
       });
-
     const onLeave =
       await Leave.countDocuments({
         status: "Approved",
       });
-
     const departmentWise =
       await Employee.aggregate([
         {
@@ -38,37 +33,29 @@ router.get("/", async (req, res) => {
           },
         },
       ]);
-
     const departmentData =
       departmentWise.map(
         (d) => d.count
       );
-
     res.json({
-
       stats: {
         totalEmployees,
         newEmployees,
         onLeave,
       },
-
       departmentData,
-
       payData: {
         salary: 50000,
         bonus: 10000,
         tax: 5000,
       },
     });
-
   } catch (error) {
-
     res.status(500).json({
       error: error.message,
     });
   }
 });
-
 export default router;
 
 

@@ -5,29 +5,30 @@ import cors from "cors";
 import authRoutes from "./routes/Login.js";
 import dashboardRoutes from "./routes/Dashbord.js";
 import employeeRoutes from "./routes/EmployeeRoute.js";
+// import employeeRoute from "./routes/EmployeeRoutes.js";
 import attendanceRoutes from "./routes/Attendance.js";
 import leaveRoutes from "./routes/Leave.js";
-// import roleRoutes from "./routes/PermissionRoutes.js";
 import permissionRoutes from "./routes/permissionRoutes.js";
 import leaveBalanceRoutes from "./routes/leaveBalanceRoutes.js";
 import "./cron/leaveReset.js";
 import "./cron/monthlyEarnLeave.js";
 import departmentRoutes from "./routes/departmentRoutes.js";
 import designationRoutes from "./routes/designationRoutes.js";
-// import "./cron/floatingLeaveReset.js";
+import path from "path";
 
 
 dotenv.config();
 connectDB();
-
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(
-  express.urlencoded({
+app.use(express.urlencoded({
     extended: true,
   })
+);
+app.use("/uploads",
+    express.static(path.join(process.cwd(), "uploads"))
 );
 app.get("/", (req, res) => {
   res.json({
@@ -44,13 +45,8 @@ app.use("/api/leave", leaveRoutes);
 app.use("/api", leaveBalanceRoutes);
 app.use("/api/departments",departmentRoutes);
 app.use("/api/designation",designationRoutes);
-app.use(
-  "/api/permission",
-  permissionRoutes
-);
-
-
-
+app.use("/api/permission",permissionRoutes);
+// app.use("/api/employee-profile",employeeRoute);  //routes edit
 app.use((req, res) => {
   res.status(404).json({
     success: false,
