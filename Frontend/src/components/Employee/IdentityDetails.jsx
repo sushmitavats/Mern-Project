@@ -9,6 +9,7 @@ export default function IdentityDetails({
     removeSelectedIdentityDocument,
     employeeCode,
     setForm,
+    getInputClass,
 }) {
     const handleDeleteDocument = async (documentId) => {
         const confirmDelete = window.confirm(
@@ -33,235 +34,326 @@ export default function IdentityDetails({
         }
     };
     return (
-        <div className="mt-6 bg-white border rounded-xl p-6">
-            <h2 className="font-semibold text-lg mb-6">
-                Identity Details
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="mt-3 w-full rounded-[8px] border border-[#dfe5ec] bg-white p-4 sm:p-5 lg:p-6">
+
+            {/*SECTION HEADER  */}
+            <div className="mb-4 border-b border-[#e4e9ef] pb-3">
+                <h2 className="text-[16px] font-bold leading-5 text-[#101828]">
+                    Identity Details
+                </h2>
+            </div>
+            {/*  IDENTITY FORM GRID */}
+            <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+                {/*  AADHAAR */}
                 <div>
-                    <label className="block text-sm mb-2">
-                        Aadhaar *
+                    <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
+                        Aadhaar <span className="text-red-500">*</span>
                     </label>
                     <input
                         name="aadhaar"
                         maxLength={12}
                         value={form.aadhaar || ""}
                         onChange={handleChange}
-                        className={`w-full border rounded-lg px-3 py-3 ${errors.aadhaar ? "border-red-500" : ""
-                            }`}
+                        className={getInputClass("aadhaar")}
                     />
                     {errors.aadhaar && (
-                        <p className="text-red-500 text-xs mt-1">
+                        <p className="mt-1 text-[10px] text-red-500">
                             {errors.aadhaar}
                         </p>
                     )}
                 </div>
+                {/*PAN */}
                 <div>
-                    <label className="block text-sm mb-2">
-                        PAN *
+                    <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
+                        PAN <span className="text-red-500">*</span>
                     </label>
                     <input
                         name="pan"
                         value={form.pan || ""}
                         onChange={handleChange}
-                        className={`w-full border rounded-lg px-3 py-3 uppercase ${errors.pan ? "border-red-500" : ""
-                            }`}
+                        className={getInputClass("pan")}
                     />
                     {errors.pan && (
-                        <p className="text-red-500 text-xs mt-1">
+                        <p className="mt-1 text-[10px] text-red-500">
                             {errors.pan}
                         </p>
                     )}
                 </div>
+                {/*PASSPORT*/}
                 <div>
-                    <label className="block text-sm mb-2">
+                    <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
                         Passport
                     </label>
                     <input
                         name="passport"
                         value={form.passport || ""}
                         onChange={handleChange}
-                        className="w-full border rounded-lg px-3 py-3"
+                        className={getInputClass("passport")}
                     />
+                    {errors.passport && (
+                        <p className="mt-1 text-[10px] text-red-500">
+                            {errors.passport}
+                        </p>
+                    )}
                 </div>
                 <div>
-                    <label className="block text-sm mb-2">
+                    <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
                         Driving License
                     </label>
                     <input
                         name="drivingLicense"
                         value={form.drivingLicense || ""}
                         onChange={handleChange}
-                        className="w-full border rounded-lg px-3 py-3"
+                        className={getInputClass("drivingLicense")}
                     />
+
+                    {errors.drivingLicense && (
+                        <p className="mt-1 text-[10px] text-red-500">
+                            {errors.drivingLicense}
+                        </p>
+                    )}
                 </div>
+                {/*  UAN */}
                 <div>
-                    <label className="block text-sm mb-2">
+                    <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
                         UAN
                     </label>
                     <input
                         name="uan"
                         value={form.uan || ""}
                         onChange={handleChange}
-                        className="w-full border rounded-lg px-3 py-3"
+                        className={getInputClass("uan")}
                     />
+                    {errors.uan && (
+                        <p className="mt-1 text-[10px] text-red-500">
+                            {errors.uan}
+                        </p>
+                    )}
                 </div>
-                {/* PF */}
+                {/*  PF  */}
                 <div>
-                    <label className="block text-sm mb-2">
+                    <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
                         PF Number
                     </label>
                     <input
                         name="pfNumber"
                         value={form.pfNumber || ""}
                         onChange={handleChange}
-                        className="w-full border rounded-lg px-3 py-3"
+                        className={getInputClass("pfNumber")}
                     />
+                    {errors.pfNumber && (
+                        <p className="mt-1 text-[10px] text-red-500">
+                            {errors.pfNumber}
+                        </p>
+                    )}
                 </div>
-                {/* ESIC */}
+                {/*  ESIC  */}
                 <div>
-                    <label className="block text-sm mb-2">
+                    <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
                         ESIC
                     </label>
                     <input
                         name="esic"
                         value={form.esic || ""}
                         onChange={handleChange}
-                        className="w-full border rounded-lg px-3 py-3"
+                        className={getInputClass("esic")}
                     />
+                    {errors.esic && (
+                        <p className="mt-1 text-[10px] text-red-500">
+                            {errors.esic}
+                        </p>
+                    )}
                 </div>
-                {/* document */}
-                <div className="md:col-span-4">
-                    <label className="font-medium">
-                        Upload Documents 
+                <div className="sm:col-span-2 lg:col-span-4">
+                    <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
+                        Upload Documents *
                     </label>
-                    <input
-                        type="file"
-                        multiple
-                        accept=".jpg,.jpeg,.png,.pdf"
-                        onChange={handleIdentityDocumentChange}
-                        className="w-full border rounded-lg p-3 mt-2"
-                    />
-                    <p className="text-xs text-gray-500 mt-2">
-                        Maximum 6 files
-                        <br />
-                        JPG, JPEG, PNG, PDF
-                        <br />
-                        Maximum 2 MB each
-                    </p>
-                    {
-                        errors.documents && (
-                            <p className="text-red-500 text-xs mt-2">
-                                {errors.documents}
-                            </p>
-                        )
-                    }
-                    {
-                        form.documents &&
-                        form.documents.length > 0 && (
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-                                {
-                                    form.documents.map((doc) => (
-                                        <div
-                                            key={doc._id}
-                                            className="border rounded-lg p-3 bg-gray-50">
-                                            <div className="h-36 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
-                                                {doc.fileType === "application/pdf" ?
-                                                    <FaFilePdf
-                                                        size={70}
-                                                        className="text-red-500"
-                                                    />
-                                                    :
-                                                    <img
-                                                        src={doc.filePath}
-                                                        alt={doc.fileName}
-                                                        className="w-full h-full object-contain"
-                                                    />
-                                                }
-                                            </div>
-                                            <p className="text-xs text-center truncate mt-3">
-                                                {doc.fileName}
-                                            </p>
-                                            <div className="flex justify-center gap-3 mt-auto pt-4">
-                                                <a
-                                                    href={doc.filePath}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="text-blue-600"
-                                                >
-                                                    <FaEye />
-                                                </a>
-                                                <button
-                                                    type="button"
-                                                    className="text-red-600"
-                                                    onClick={() =>
-                                                        handleDeleteDocument(doc._id)
-                                                    }
-                                                >
-                                                    <FaTrash />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))
-                                }
-                            </div>
-                        )}
-                </div>
-                <div className="md:col-span-4">
-                    {selectedIdentityDocuments.length > 0 && (
-                        <>
-                            <h3 className="font-semibold mt-8 mb-4">
-                                New Documents
-                            </h3>
+                    <div
+                        className="
+                    rounded-[8px]
+                    border
+                    border-dashed
+                    border-[#cfd7e2]
+                    bg-[#fafbfc]
+                    p-4
+                    transition
+                    hover:border-[#0392a1]
+                    hover:bg-[#f8fcfc]
+                "
+                    >
 
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                {selectedIdentityDocuments.map((item, index) => (
+                        <input
+                            type="file"
+                            multiple
+                            accept=".jpg,.jpeg,.png,.pdf"
+                            onChange={handleIdentityDocumentChange}
+                            className="
+                        block
+                        w-full
+                        cursor-pointer
+                        rounded-[6px]
+                        border
+                        border-[#d7dee8]
+                        bg-white
+                        p-2
+                        text-[11px]
+                        text-[#667085]
+                        file:mr-3
+                        file:rounded-[5px]
+                        file:border-0
+                        file:bg-[#0392a1]
+                        file:px-3
+                        file:py-1.5
+                        file:text-[10px]
+                        file:font-semibold
+                        file:text-white
+                        hover:file:bg-[#027d89]
+                    "
+                        />
+                        <p className="mt-2 text-[10px] leading-4 text-[#8994a5]">
+                            Maximum 6 files
+                            <br />
+                            JPG, JPEG, PNG, PDF
+                            <br />
+                            Maximum 2 MB each
+                        </p>
+                    </div>
+                    {errors.documents && (
+                        <p className="mt-2 text-[10px] text-red-500">
+                            {errors.documents}
+                        </p>
+                    )}
+                    {/* EXISTING DOCUMENTS */}
+                    {form.documents &&
+                        form.documents.length > 0 && (
+                            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                {form.documents.map((doc) => (
                                     <div
-                                        key={index}
-                                        className="border rounded-lg p-3 bg-blue-50"
+                                        key={doc._id}
+                                        className="
+                                    overflow-hidden
+                                    rounded-[8px]
+                                    border
+                                    border-[#dfe5ec]
+                                    bg-white
+                                    p-3
+                                    shadow-sm
+                                "
                                     >
-                                        <div className="h-36 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
-                                            {item.file.type === "application/pdf" ? (
+                                        <div
+                                            className="
+                                        flex
+                                        h-[120px]
+                                        items-center
+                                        justify-center
+                                        overflow-hidden
+                                        rounded-[6px]
+                                        bg-[#f5f7fa]
+                                    "
+                                        >
+                                            {doc.fileType === "application/pdf" ? (
                                                 <FaFilePdf
-                                                    size={70}
+                                                    size={55}
                                                     className="text-red-500"
                                                 />
                                             ) : (
                                                 <img
-                                                    src={item.preview}
-                                                    alt=""
-                                                    className="w-28 h-28 object-cover rounded"
+                                                    src={doc.filePath}
+                                                    alt={doc.fileName}
+                                                    className="h-full w-full object-contain"
                                                 />
                                             )}
                                         </div>
+                                        <p className="mt-2 truncate text-center text-[10px] font-medium text-[#344054]">
+                                            {doc.fileName}
+                                        </p>
+                                        <div className="mt-3 flex justify-center gap-4">
+                                            <a
+                                                href={doc.filePath}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="
+                                            text-[#0392a1]
+                                            transition
+                                            hover:text-[#027d89]
+                                        "
+                                            >
+                                                <FaEye />
+                                            </a>
+                                            <button
+                                                type="button"
+                                                className="
+                                            text-red-500
+                                            transition
+                                            hover:text-red-700
+                                        "
+                                                onClick={() =>
+                                                    handleDeleteDocument(doc._id)
+                                                }
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                </div>
+                {/*NEW DOCUMENTS */}
+                <div className="sm:col-span-2 lg:col-span-4">
+                    {selectedIdentityDocuments.length > 0 && (
+                        <>
+                            <h3 className="mb-3 mt-4 text-[13px] font-bold text-[#17213b]">
+                                New Documents
+                            </h3>
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                {selectedIdentityDocuments.map((item, index) => (
+                                    <div
+                                        key={index}
+                                        className="
+                                    overflow-hidden
+                                    rounded-[8px]
+                                    border
+                                    border-[#cfe7ea]
+                                    bg-[#f5fcfc]
+                                    p-3
+                                "
+                                    >
+                                        <div
+                                            className="
+                                        flex
+                                        h-[120px]
+                                        items-center
+                                        justify-center
+                                        overflow-hidden
+                                        rounded-[6px]
+                                        bg-[#f1f4f6]
+                                    "
+                                        >
+                                            {item.file.type === "application/pdf" ? (
 
-                                        <p className="text-xs text-center truncate mt-3">
+                                                <FaFilePdf
+                                                    size={55}
+                                                    className="text-red-500"
+                                                />
+
+                                            ) : (
+
+                                                <img
+                                                    src={item.preview}
+                                                    alt=""
+                                                    className="h-full w-full rounded-[6px] object-contain"
+                                                />
+
+                                            )}
+                                        </div>
+                                        <p className="mt-2 truncate text-center text-[10px] font-medium text-[#344054]">
                                             {item.file.name}
                                         </p>
 
-                                        {/* <div className="flex justify-center gap-4 mt-3">
-                                                {item.file.type !== "application/pdf" && (
-                                                    <a
-                                                        href={item.preview}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        className="text-blue-600"
-                                                    >
-                                                        <FaEye />
-                                                    </a>
-                                                )}
 
-                                                <button
-                                                    type="button"
-                                                    className="text-red-600"
-                                                    onClick={() =>
-                                                        removeSelectedIdentityDocument(index)
-                                                    }
-                                                >
-                                                    <FaTrash />
-                                                </button>
-                                            </div> */}
-                                        <div className="flex justify-center gap-4 mt-3">
+                                        <div className="mt-3 flex justify-center gap-4">
+
                                             <a
                                                 href={
                                                     item.file.type === "application/pdf"
@@ -270,14 +362,13 @@ export default function IdentityDetails({
                                                 }
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="text-blue-600"
+                                                className="text-[#0392a1]"
                                             >
                                                 <FaEye />
                                             </a>
-
                                             <button
                                                 type="button"
-                                                className="text-red-600"
+                                                className="text-red-500"
                                                 onClick={() =>
                                                     removeSelectedIdentityDocument(index)
                                                 }

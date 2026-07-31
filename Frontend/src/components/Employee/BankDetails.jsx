@@ -1,6 +1,6 @@
 import { FaTrash, FaEye, FaFilePdf } from "react-icons/fa";
 import { deleteBankDocument } from "../../api";
-export default function BankDetails({ form, setForm, errors, handleChange, handleChequeChange, selectedCheques, removeSelectedCheque, employeeCode }) {
+export default function BankDetails({ form, setForm, errors, handleChange, handleChequeChange, selectedCheques, removeSelectedCheque, employeeCode, getInputClass, setErrors, }) {
 
   const handleDeleteDocument = async (documentId) => {
     const confirmDelete = window.confirm(
@@ -16,13 +16,30 @@ export default function BankDetails({ form, setForm, errors, handleChange, handl
       //   form.cancelledCheque.filter(
       //     doc => doc._id !== documentId
       //   );
-      setForm(prev => ({
-        ...prev,
-        cancelledCheque:
-          prev.cancelledCheque.filter(
-            doc => doc._id !== documentId
-          )
-      }));
+      // setForm(prev => ({
+      //   ...prev,
+      //   cancelledCheque:
+      //     prev.cancelledCheque.filter(
+      //       doc => doc._id !== documentId
+      //     )
+      // }));
+      setForm(prev => {
+        const updatedDocs = prev.cancelledCheque.filter(
+          doc => doc._id !== documentId
+        );
+        // update validation
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          cancelledCheque:
+            updatedDocs.length + selectedCheques.length < 1
+              ? "At least one bank document is required"
+              : ""
+        }));
+        return {
+          ...prev,
+          cancelledCheque: updatedDocs
+        };
+      });
     }
     catch (err) {
       console.log(err);
@@ -30,251 +47,363 @@ export default function BankDetails({ form, setForm, errors, handleChange, handl
     }
   };
   return (
-    <div className="mt-6 bg-white border rounded-xl p-6">
-      <h2 className="font-semibold text-lg mb-6">
-        Bank Details
-      </h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-
+    <div className="mt-3 w-full rounded-[8px] border border-[#dfe5ec] bg-white p-4 sm:p-5 lg:p-6">
+      {/* SECTION HEADER */}
+      <div className="mb-4 border-b border-[#e4e9ef] pb-3">
+        <h2 className="text-[16px] font-bold leading-5 text-[#101828]">
+          Bank Details
+        </h2>
+      </div>
+      {/* BANK FORM */}
+      <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* ACCOUNT HOLDER */}
         <div>
-          <label>Account Holder *</label>
-
+          <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
+            Account Holder <span className="text-red-500">*</span>
+          </label>
           <input
             name="accountHolder"
             value={form.accountHolder || ""}
             onChange={handleChange}
-            className={`w-full border rounded-lg p-3 ${errors?.accountHolder ? "border-red-500" : ""
-              }`}
+            className={getInputClass("accountHolder")}
           />
-
           {errors?.accountHolder && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="mt-1 text-[10px] text-red-500">
               {errors.accountHolder}
             </p>
           )}
         </div>
-
+        {/* BANK */}
         <div>
-          <label>Bank *</label>
+          <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
+            Bank <span className="text-red-500">*</span>
+          </label>
           <input
             name="bankName"
             value={form.bankName || ""}
             onChange={handleChange}
-            className={`w-full border rounded-lg p-3 ${errors?.bankName ? "border-red-500" : ""
-              }`}
+            className={getInputClass("bankName")}
           />
           {errors?.bankName && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="mt-1 text-[10px] text-red-500">
               {errors.bankName}
             </p>
           )}
         </div>
-
+        {/* ACCOUNT NUMBER */}
         <div>
-          <label>Account Number *</label>
+          <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
+            Account Number <span className="text-red-500">*</span>
+          </label>
           <input
             name="accountNumber"
             value={form.accountNumber || ""}
             onChange={handleChange}
-            className={`w-full border rounded-lg p-3 ${errors?.accountNumber ? "border-red-500" : ""
-              }`}
+            className={getInputClass("accountNumber")}
           />
-
           {errors?.accountNumber && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="mt-1 text-[10px] text-red-500">
               {errors.accountNumber}
             </p>
           )}
         </div>
-
+        {/* IFSC */}
         <div>
-          <label>IFSC *</label>
+
+          <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
+            IFSC <span className="text-red-500">*</span>
+          </label>
 
           <input
             name="ifsc"
             value={form.ifsc || ""}
             onChange={handleChange}
-            className={`w-full border rounded-lg p-3 ${errors?.ifsc ? "border-red-500" : ""
-              }`}
+            className={getInputClass("ifsc")}
           />
 
           {errors?.ifsc && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="mt-1 text-[10px] text-red-500">
               {errors.ifsc}
             </p>
           )}
         </div>
-
+        {/* BRANCH */}
         <div>
-          <label>Branch</label>
-
+          <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
+            Branch
+          </label>
           <input
             name="branch"
             value={form.branch || ""}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3"
+            className={getInputClass("branch")}
           />
+          {errors?.branch && (
+            <p className="mt-1 text-[10px] text-red-500">
+              {errors.branch}
+            </p>
+          )}
         </div>
-
+        {/* UPI */}
         <div>
-          <label>UPI</label>
-
+          <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
+            UPI
+          </label>
           <input
             name="upi"
             value={form.upi || ""}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3"
+            className={getInputClass("upi")}
           />
+          {errors?.upi && (
+            <p className="mt-1 text-[10px] text-red-500">
+              {errors.upi}
+            </p>
+          )}
         </div>
-        <div className="md:col-span-3">
-          <label className="font-medium">
-            Upload Bank Document
-          </label>
-          <input
-            type="file"
-            multiple
-            accept=".jpg,.jpeg,.png,.pdf"
-            onChange={handleChequeChange}
-            className="w-full border rounded-lg p-3 mt-2"
-          />
-          <p className="text-xs text-gray-500 mt-2">
-            Maximum 6 files
-            <br />
-            JPG, JPEG, PNG, PDF
-            <br />
-            Maximum 2 MB each
-          </p>
-          {
-            form.cancelledCheque &&
-            form.cancelledCheque.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-                {
-                  form.cancelledCheque.map((doc) => (
+        {/* UPLOAD BANK DOCUMENT */}
+        <div className="sm:col-span-2 lg:col-span-3">
+          <div className="mt-2 rounded-[8px] border border-[#e1e6ed] bg-[#fcfdfe] p-4">
+            <label className="mb-2 block text-[11px] font-bold text-[#17213b]">
+              Upload Bank Document *
+            </label>
+            {/* UPLOAD BOX */}
+            <div
+              className="
+                        rounded-[7px]
+                        border
+                        border-dashed
+                        border-[#cfd7e2]
+                        bg-white
+                        p-3
+                        transition-all
+                        duration-200
+                        hover:border-[#0392a1]
+                        hover:bg-[#f8fcfc]
+                    "
+            >
+
+              <input
+                type="file"
+                multiple
+                accept=".jpg,.jpeg,.png,.pdf"
+                onChange={handleChequeChange}
+                className="
+                            block
+                            w-full
+                            cursor-pointer
+                            rounded-[6px]
+                            border
+                            border-[#d7dee8]
+                            bg-white
+                            p-2
+                            text-[11px]
+                            text-[#667085]
+                            file:mr-3
+                            file:rounded-[5px]
+                            file:border-0
+                            file:bg-[#0392a1]
+                            file:px-3
+                            file:py-1.5
+                            file:text-[10px]
+                            file:font-semibold
+                            file:text-white
+                            hover:file:bg-[#027d89]
+                        "
+              />
+              <p className="mt-2 text-[10px] leading-4 text-[#8994a5]">
+                Maximum 6 files
+                <br />
+                JPG, JPEG, PNG, PDF
+                <br />
+                Maximum 2 MB each
+                <br />
+                At least one document require
+              </p>
+            </div>
+            {/* {errors.cancelledCheque && (
+                <p className="mt-2 text-[10px] text-red-500">
+                  {errors.cancelledCheque}
+                </p>
+              )} */}
+            {errors?.cancelledCheque && (
+              <p className="mt-2 text-[10px] text-red-500">
+                {errors.cancelledCheque}
+              </p>
+            )}
+            {/* EXISTING DOCUMENTS */}
+            {form.cancelledCheque &&
+              form.cancelledCheque.length > 0 && (
+                <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {form.cancelledCheque.map((doc) => (
                     <div
                       key={doc._id}
-                      className="border rounded-lg p-3 bg-gray-50"
+                      className="
+                                        overflow-hidden
+                                        rounded-[8px]
+                                        border
+                                        border-[#dfe5ec]
+                                        bg-white
+                                        p-3
+                                        shadow-sm
+                                    "
                     >
-                      <div className="flex justify-center">
-                        {
-                          doc.fileType === "application/pdf"
-                            ?
-                            <div className="flex flex-col items-center">
-                              <FaFilePdf
-                                size={70}
-                                className="text-red-500"
-                              />
-                            </div>
-                            :
-                            <img
-                              src={doc.filePath}
-                              alt={doc.fileName}
-                              className="w-28 h-28 object-cover rounded"
-                            />
-                        }
-                      </div>
-                      <p
-                        className="text-xs mt-3 text-center truncate"
+
+                      <div
+                        className="
+                                            flex
+                                            h-[120px]
+                                            items-center
+                                            justify-center
+                                            overflow-hidden
+                                            rounded-[6px]
+                                            bg-[#f5f7fa]
+                                        "
                       >
+
+                        {doc.fileType === "application/pdf" ? (
+
+                          <FaFilePdf
+                            size={55}
+                            className="text-red-500"
+                          />
+
+                        ) : (
+
+                          <img
+                            src={doc.filePath}
+                            alt={doc.fileName}
+                            className="h-full w-full object-contain"
+                          />
+
+                        )}
+                      </div>
+                      <p className="mt-2 truncate text-center text-[10px] font-medium text-[#344054]">
                         {doc.fileName}
                       </p>
-                      <div className="flex justify-center gap-4 mt-3">
+                      <div className="mt-3 flex justify-center gap-4">
                         <a
                           href={doc.filePath}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-blue-600"
+                          className="
+                                                text-[#0392a1]
+                                                transition
+                                                hover:text-[#027d89]
+                                            "
                         >
-                          <FaEye size={18} />
+                          <FaEye size={16} />
                         </a>
                         <button
                           type="button"
                           onClick={() =>
                             handleDeleteDocument(doc._id)
                           }
-                          className="text-red-600"
+                          className="
+                                                text-red-500
+                                                transition
+                                                hover:text-red-700
+                                            "
                         >
-                          <FaTrash size={18} />
+                          <FaTrash size={16} />
                         </button>
                       </div>
                     </div>
-                  ))
-                }
-              </div>
-            )
-          }
-          {
-            selectedCheques.length > 0 && (
+                  ))}
+                </div>
+              )}
+            {/* NEW DOCUMENTS */}
+            {selectedCheques.length > 0 && (
               <>
-                <h3 className="font-semibold mt-8 mb-4">
+                <h3 className="mb-3 mt-6 text-[12px] font-bold text-[#17213b]">
                   New Documents
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {
-                    selectedCheques.map((item, index) => (
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+
+                  {selectedCheques.map((item, index) => (
+                    <div
+                      key={index}
+                      className="
+                                        overflow-hidden
+                                        rounded-[8px]
+                                        border
+                                        border-[#cfe7ea]
+                                        bg-[#f5fcfc]
+                                        p-3
+                                    "
+                    >
                       <div
-                        key={index}
-                        className="border rounded-lg p-3 bg-blue-50"
+                        className="
+                                            flex
+                                            h-[120px]
+                                            items-center
+                                            justify-center
+                                            overflow-hidden
+                                            rounded-[6px]
+                                            bg-[#f1f4f6]
+                                        "
                       >
-                        <div className="flex justify-center">
-                          {
-                            item.file.type === "application/pdf"
-                              ?
-                              <FaFilePdf
-                                size={70}
-                                className="text-red-500"
-                              />
-                              :
-                              <img
-                                src={item.preview}
-                                alt=""
-                                className="w-28 h-28 object-cover rounded"
-                              />
-                          }
-                        </div>
-                        <p
-                          className="text-xs text-center truncate mt-3" >
-                          {item.file.name}
-                        </p>
-                        <div className="flex justify-center gap-4 mt-3">
-                          <a
-                            href={
-                              item.file.type === "application/pdf"
-                                ? URL.createObjectURL(item.file)
-                                : item.preview
-                            }
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600"
-                          >
-                            <FaEye />
-                          </a>
-                          <button
-                            type="button"
-                            className="text-red-600"
-                            onClick={() =>
-                              removeSelectedCheque(index)
-                            }
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
+                        {item.file.type === "application/pdf" ? (
+                          <FaFilePdf
+                            size={55}
+                            className="text-red-500"
+                          />
+                        ) : (
+                          <img
+                            src={item.preview}
+                            alt=""
+                            className="h-full w-full object-contain"
+                          />
+                        )}
                       </div>
-                    ))
-                  }
+                      <p className="mt-2 truncate text-center text-[10px] font-medium text-[#344054]">
+                        {item.file.name}
+                      </p>
+                      <div className="mt-3 flex justify-center gap-4">
+
+                        <a
+                          href={
+                            item.file.type === "application/pdf"
+                              ? URL.createObjectURL(item.file)
+                              : item.preview
+                          }
+                          target="_blank"
+                          rel="noreferrer"
+                          className="
+                                                text-[#0392a1]
+                                                transition
+                                                hover:text-[#027d89]
+                                            "
+                        >
+                          <FaEye size={16} />
+                        </a>
+                        <button
+                          type="button"
+                          className="
+                                                text-red-500
+                                                transition
+                                                hover:text-red-700
+                                            "
+                          onClick={() =>
+                            removeSelectedCheque(index)
+                          }
+                        >
+                          <FaTrash size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </>
-            )
-          }
-        </div>
-        <div>
+            )}
+          </div>
         </div>
       </div>
+
     </div>
   );
 }
-
-
 
 
 

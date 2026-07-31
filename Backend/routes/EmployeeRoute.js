@@ -316,8 +316,7 @@ router.put("/code/:employee_code",
             "Aadhaar should be 12 digits"
         });
       }
-      if (
-        req.body.pan &&
+      if (req.body.pan &&
         !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(
           req.body.pan.toUpperCase()
         )
@@ -343,6 +342,13 @@ router.put("/code/:employee_code",
               emergencyContact: req.body.emergencyContact,
               aadhaar: req.body.aadhaar,
               pan: req.body.pan,
+              // added here
+              passport: req.body.passport,
+              drivingLicense: req.body.drivingLicense,
+              uan: req.body.uan,
+              pfNumber: req.body.pfNumber,
+              esic: req.body.esic,
+
               department: req.body.department,
               designation: req.body.designation,
               status: req.body.status,
@@ -420,18 +426,12 @@ router.put(
       const { status } = req.body;
       await Promise.all([
         Employee.findOneAndUpdate(
-          {
-            employee_code: req.params.employee_code,
-          },
-          {
-            status
-          }
+          { employee_code: req.params.employee_code, },
+          { status }
         ),
         Login.findOneAndUpdate(
           { employee_code: req.params.employee_code },
-          {
-            status
-          }
+          { status }
         )
       ]);
       res.json({
@@ -492,7 +492,6 @@ router.get("/:employee_code", authMiddleware, async (req, res) => {
     // bank document cheque
     const BASE_URL =
       `${req.protocol}://${req.get("host")}`;
-
     if (employeeData.profilePhoto) {
       employeeData.profilePhoto =
         `${BASE_URL}${employeeData.profilePhoto}`;
@@ -509,15 +508,10 @@ router.get("/:employee_code", authMiddleware, async (req, res) => {
           filePath: `${BASE_URL}${doc.filePath}`
         }));
     }
+    
     // Convert Document URLs of identity page
     employeeData.documents = [];
-
-    if (
-      identity &&
-      identity.documents &&
-      identity.documents.length > 0
-    ) {
-
+    if (identity && identity.documents && identity.documents.length > 0) {
       employeeData.documents =
         identity.documents.map((doc) => ({
           _id: doc._id,
@@ -525,7 +519,6 @@ router.get("/:employee_code", authMiddleware, async (req, res) => {
           fileType: doc.fileType,
           filePath: `${BASE_URL}${doc.filePath}`
         }));
-
     }
     console.log(employeeData.cancelledCheque);
     return res.json(employeeData);
@@ -536,7 +529,8 @@ router.get("/:employee_code", authMiddleware, async (req, res) => {
     });
   }
 });
-//draft router m
+
+//draft router 
 router.post("/draft", authMiddleware, upload.fields([
   { name: "profilePhoto", maxCount: 1 },
   { name: "cancelledCheque", maxCount: 6 },
@@ -545,10 +539,8 @@ router.post("/draft", authMiddleware, upload.fields([
   async (req, res) => {
     try {
       let body = { ...req.body };
-
       delete body._id;
       delete body.__v;
-
       delete body.aadhaar;
       delete body.pan;
       delete body.passport;
@@ -623,9 +615,8 @@ router.post("/draft", authMiddleware, upload.fields([
           );
         identityDocuments.push(
           ...newDocuments
-        );
+        ); 
       }
-
       //bank work started
       const existingBank = await BankDetails.findOne({
         employee_code: body.employee_code
@@ -693,6 +684,7 @@ router.post("/draft", authMiddleware, upload.fields([
         }
       );
       // payroll
+
       await PayrollDetails.findOneAndUpdate(
         {
           employee_code: body.employee_code
@@ -749,260 +741,290 @@ router.post("/draft", authMiddleware, upload.fields([
     }
   });
 // save and next router
-router.post("/save", authMiddleware, upload.fields([{ name: "profilePhoto", maxCount: 1 }, { name: "cancelledCheque", maxCount: 6 },{ name: "identityDocuments", maxCount: 6 }]),
- async (req, res) => {
-  try {
-    console.log("BODY:", req.body);
-    console.log("FILES:", req.files);
-    console.log("SAVE REQUEST BODY:", req.body);
-    if (!req.body.department) {
-      console.log("FAILED: department");
-      return res.status(400).json({
-        message: "Department is required"
-      });
-    }
-    if (!req.body.designation) {
-      console.log("FAILED: designation");
-      return res.status(400).json({
-        message: "Designation is required"
-      });
-    }
-
-    if (!req.body.joiningDate) {
-      console.log("FAILED: joiningDate");
-      return res.status(400).json({
-        message: "Joining Date is required"
-      });
-    }
-    if (req.body.aadhaar && !/^\d{12}$/.test(req.body.aadhaar)) {
-      console.log("FAILED: aadhaar");
-      return res.status(400).json({
-        message: "Invalid Aadhaar"
-      });
-    }
-    if (req.body.pan && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(req.body.pan.toUpperCase())) {
-      console.log("FAILED: pan");
-      return res.status(400).json({
-        message: "Invalid PAN"
-      });
-    }
-    let body = { ...req.body };
-    //removing the updation
-    delete body._id;
-    delete body.__v;
-    // Identity fields are stored in IdentityDetails collection
-    delete body.aadhaar;
-    delete body.pan;
-    delete body.passport;
-    delete body.drivingLicense;
-    delete body.uan;
-    delete body.pfNumber;
-    delete body.esic;
-    // delete body.createdAt;
-    const oldEmployee = await Employee.findOne({
-      employee_code: body.employee_code,
-    });
-
-
-    if (req.files?.profilePhoto) {
-      body.profilePhoto =
-        `/uploads/profile/${req.files.profilePhoto[0].filename}`;
-    }
-
-    // Find Existing Bank and Identity Record
-    const existingBank = await BankDetails.findOne({
-      employee_code: body.employee_code
-    });
-    const existingIdentity = await IdentityDetails.findOne({
-      employee_code: body.employee_code
-    });
-    // Create Identity Documents Array
-    let identityDocuments = [];
-    if (
-      existingIdentity &&
-      existingIdentity.documents
-    ) {
-      identityDocuments = [
-        ...existingIdentity.documents
-      ];
-    }
-    if (req.files?.identityDocuments) {
-      if (identityDocuments.length + req.files.identityDocuments.length > 6) {
+router.post("/save", authMiddleware, upload.fields([{ name: "profilePhoto", maxCount: 1 }, { name: "cancelledCheque", maxCount: 6 }, { name: "identityDocuments", maxCount: 6 }]),
+  async (req, res) => {
+    try {
+      console.log("BODY:", req.body);
+      console.log("FILES:", req.files);
+      console.log("SAVE REQUEST BODY:", req.body);
+      if (!req.body.department) {
+        console.log("FAILED: department");
         return res.status(400).json({
-          message:
-            "Maximum 6 identity documents allowed."
+          message: "Department is required"
         });
       }
-      const newDocuments =
-        req.files.identityDocuments.map(file => ({
-          fileName: file.originalname,
-          filePath:
-            `/uploads/identity/${file.filename}`,
-          fileType: file.mimetype
-        }));
-      identityDocuments.push(...newDocuments);
-    }
-    // Create Bank Documents Array
-    let chequeDocuments = [];
-    if (existingBank && existingBank.cancelledCheque) {
-      chequeDocuments = [...existingBank.cancelledCheque];
-    }
-    if (req.files?.cancelledCheque) {
-      if (chequeDocuments.length + req.files.cancelledCheque.length > 6) {
+      if (!req.body.designation) {
+        console.log("FAILED: designation");
         return res.status(400).json({
-          message: "Maximum 6 cancelled cheque documents allowed."
+          message: "Designation is required"
         });
       }
-      const newDocuments =
-        req.files.cancelledCheque.map(file => ({
-          fileName: file.originalname,
-          filePath:
-            `/uploads/cancelledCheque/${file.filename}`,
-          fileType: file.mimetype
-        }));
-      chequeDocuments.push(...newDocuments);
-    }
-    const employee = await Employee.findOneAndUpdate(
-      { employee_code: body.employee_code, },
-      {
-        ...body,
-        draft: false,
-      },
-      {
-        returnDocument: "after",
-        upsert: true
+
+      if (!req.body.joiningDate) {
+        console.log("FAILED: joiningDate");
+        return res.status(400).json({
+          message: "Joining Date is required"
+        });
       }
-    );
-    // Delete old image only after database update
-    if (req.files?.profilePhoto && oldEmployee?.profilePhoto && oldEmployee.profilePhoto !== employee.profilePhoto) {
-      const oldPath = path.join(
-        process.cwd(),
-        oldEmployee.profilePhoto.replace(/^\/uploads/, "uploads")
+      if (req.body.aadhaar && !/^\d{12}$/.test(req.body.aadhaar)) {
+        console.log("FAILED: aadhaar");
+        return res.status(400).json({
+          message: "Invalid Aadhaar"
+        });
+      }
+      if (req.body.pan && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(req.body.pan.toUpperCase())) {
+        console.log("FAILED: pan");
+        return res.status(400).json({
+          message: "Invalid PAN"
+        });
+      }
+      let body = { ...req.body };
+      //removing the updation
+      delete body._id;
+      delete body.__v;
+      // Identity fields are stored in IdentityDetails collection
+      delete body.aadhaar;
+      delete body.pan;
+      delete body.passport;
+      delete body.drivingLicense;
+      delete body.uan;
+      delete body.pfNumber;
+      delete body.esic;
+      // delete body.createdAt;
+      const oldEmployee = await Employee.findOne({
+        employee_code: body.employee_code,
+      });
+      if (req.files?.profilePhoto) {
+        body.profilePhoto =
+          `/uploads/profile/${req.files.profilePhoto[0].filename}`;
+      }
+      // Find Existing Bank and Identity Record
+      const existingBank = await BankDetails.findOne({
+        employee_code: body.employee_code
+      });
+      const existingIdentity = await IdentityDetails.findOne({
+        employee_code: body.employee_code
+      });
+      // Create Identity Documents Array
+      let identityDocuments = [];
+      if (existingIdentity && existingIdentity.documents) {
+        identityDocuments = [
+          ...existingIdentity.documents
+        ];
+      }
+      if (req.files?.identityDocuments) {
+        if (identityDocuments.length + req.files.identityDocuments.length > 6) {
+          return res.status(400).json({
+            message:
+              "Maximum 6 identity documents allowed."
+          });
+        }
+        const newDocuments =
+          req.files.identityDocuments.map(file => ({
+            fileName: file.originalname,
+            filePath:
+              `/uploads/identity/${file.filename}`,
+            fileType: file.mimetype
+          }));
+        identityDocuments.push(...newDocuments);
+      }
+      // Create Bank Documents Array
+      let chequeDocuments = [];
+      if (existingBank && existingBank.cancelledCheque) {
+        chequeDocuments = [...existingBank.cancelledCheque];
+      }
+      if (req.files?.cancelledCheque) {
+        if (chequeDocuments.length + req.files.cancelledCheque.length > 6) {
+          return res.status(400).json({
+            message: "Maximum 6 cancelled cheque documents allowed."
+          });
+        }
+        const newDocuments =
+          req.files.cancelledCheque.map(file => ({
+            fileName: file.originalname,
+            filePath:
+              `/uploads/cancelledCheque/${file.filename}`,
+            fileType: file.mimetype
+          }));
+        chequeDocuments.push(...newDocuments);
+      }
+      const employee = await Employee.findOneAndUpdate(
+        { employee_code: body.employee_code, },
+        {
+          ...body,
+          draft: false,
+        },
+        {
+          returnDocument: "after",
+          upsert: true
+        }
       );
-      if (fs.existsSync(oldPath)) {
-        fs.unlinkSync(oldPath);
+      // Delete old image only after database update
+      if (req.files?.profilePhoto && oldEmployee?.profilePhoto && oldEmployee.profilePhoto !== employee.profilePhoto) {
+        const oldPath = path.join(
+          process.cwd(),
+          oldEmployee.profilePhoto.replace(/^\/uploads/, "uploads")
+        );
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
       }
-    }
-    // Save Identity Details
-    await IdentityDetails.findOneAndUpdate(
-      {
-        employee_code: body.employee_code
-      },
-      {
-        employee_code: body.employee_code,
-        aadhaar: req.body.aadhaar,
-        pan: req.body.pan,
-        passport: req.body.passport,
-        drivingLicense: req.body.drivingLicense,
-        uan: req.body.uan,
-        pfNumber: req.body.pfNumber,
-        esic: req.body.esic,
-        documents: identityDocuments
-      },
-      {
-        upsert: true,
-        new: true
-      }
-    );
-    await BankDetails.findOneAndUpdate(
-      {
-        employee_code: body.employee_code
-      },
-      {
-        employee_code: body.employee_code,
-        accountHolder: body.accountHolder,
-        bankName: body.bankName,
-        accountNumber: body.accountNumber,
-        ifsc: body.ifsc,
-        branch: body.branch,
-        upi: body.upi,
-        cancelledCheque: chequeDocuments
-      },
-      {
-        upsert: true,
-        new: true
-      }
-    );
-    await PayrollDetails.findOneAndUpdate(
-      {
-        employee_code: body.employee_code
-      },
-      {
-        employee_code: body.employee_code,
+      // Save Identity Details
+      await IdentityDetails.findOneAndUpdate(
+        {
+          employee_code: body.employee_code
+        },
+        {
+          employee_code: body.employee_code,
+          aadhaar: req.body.aadhaar,
+          pan: req.body.pan,
+          passport: req.body.passport,
+          drivingLicense: req.body.drivingLicense,
+          uan: req.body.uan,
+          pfNumber: req.body.pfNumber,
+          esic: req.body.esic,
+          documents: identityDocuments
+        },
+        {
+          upsert: true,
+          new: true
+        }
+      );
+      await BankDetails.findOneAndUpdate(
+        {
+          employee_code: body.employee_code
+        },
+        {
+          employee_code: body.employee_code,
+          accountHolder: body.accountHolder,
+          bankName: body.bankName,
+          accountNumber: body.accountNumber,
+          ifsc: body.ifsc,
+          branch: body.branch,
+          upi: body.upi,
+          cancelledCheque: chequeDocuments
+        },
+        {
+          upsert: true,
+          new: true
+        }
+      );
+      console.log("Payroll Body:", {
         ctc: body.ctc,
-        payrollGroup: body.payrollGroup,
-        salaryEffectiveDate: body.salaryEffectiveDate,
         basicSalary: body.basicSalary,
         hra: body.hra,
         allowances: body.allowances,
         pfDeduction: body.pfDeduction,
         esicDeduction: body.esicDeduction,
-        professionalTax: body.professionalTax
-      },
-      {
-        upsert: true,
-        returnDocument: "after"
+        professionalTax: body.professionalTax,
+      });
+      await PayrollDetails.findOneAndUpdate(
+        {
+          employee_code: body.employee_code
+        },
+        {
+          employee_code: body.employee_code,
+          ctc: body.ctc,
+          payrollGroup: body.payrollGroup,
+          salaryEffectiveDate: body.salaryEffectiveDate,
+          basicSalary: body.basicSalary,
+          hra: body.hra,
+          allowances: body.allowances,
+          pfDeduction: body.pfDeduction,
+          esicDeduction: body.esicDeduction,
+          professionalTax: body.professionalTax
+        },
+        {
+          upsert: true,
+          returnDocument: "after"
+        }
+      );
+      console.log(req.body);
+      // await Login.findOneAndUpdate(
+      //   {
+      //     employee_code:
+      //       employee.employee_code
+      //   },
+      //   {
+      //     name:
+      //       `${employee.firstName} ${employee.lastName}`,
+      //     email:
+      //       employee.officialEmail,
+      //     employee_code:
+      //       employee.employee_code,
+      //     department:
+      //       employee.department,
+      //     designation:
+      //       employee.designation,
+      //     joiningDate:
+      //       employee.joiningDate,
+      //   },
+      //   {
+      //     upsert: true,
+      //     returnDocument: "after"
+      //   }
+      // );
+      const loginUpdate = {
+        name: `${employee.firstName} ${employee.lastName}`,
+        employee_code: employee.employee_code,
+        department: employee.department,
+        designation: employee.designation,
+        joiningDate: employee.joiningDate,
+      };
+      if (employee.officialEmail && employee.officialEmail.trim() !== "") {
+        loginUpdate.email = employee.officialEmail.trim();
       }
-    );
-    await Login.findOneAndUpdate(
-      {
-        employee_code:
-          employee.employee_code
-      },
-      {
-        name:
-          `${employee.firstName} ${employee.lastName}`,
-        email:
-          employee.officialEmail,
-        employee_code:
-          employee.employee_code,
-        department:
-          employee.department,
-        designation:
-          employee.designation,
-        joiningDate:
-          employee.joiningDate,
-      },
-      {
-        upsert: true,
-        returnDocument: "after"
+      await Login.findOneAndUpdate(
+        {
+          employee_code: employee.employee_code,
+        },
+        { $set: loginUpdate, },
+        {
+          upsert: true,
+          returnDocument: "after",
+        }
+      );
+      const employeeData = employee.toObject();
+      const BASE_URL =
+        `${req.protocol}://${req.get("host")}`;
+      if (employeeData.profilePhoto) {
+        employeeData.profilePhoto =
+          `${BASE_URL}${employeeData.profilePhoto}`;
       }
-    );
-
-    const employeeData = employee.toObject();
-    const BASE_URL =
-      `${req.protocol}://${req.get("host")}`;
-    if (employeeData.profilePhoto) {
-      employeeData.profilePhoto =
-        `${BASE_URL}${employeeData.profilePhoto}`;
+      // it is for bank document
+      employeeData.cancelledCheque =
+        chequeDocuments.map(doc => ({
+          _id: doc._id,
+          fileName: doc.fileName,
+          fileType: doc.fileType,
+          filePath:
+            `${BASE_URL}${doc.filePath}`
+        }));
+      // Return Documents to Frontend
+      employeeData.documents =
+        identityDocuments.map(doc => ({
+          _id: doc._id,
+          fileName: doc.fileName,
+          fileType: doc.fileType,
+          filePath:
+            `${BASE_URL}${doc.filePath}`
+        }));
+      return res.json(employeeData);
+      // res.json(employeeData)
+    } catch (err) {
+      console.log("Full Error:", err);
+      console.log("Message:", err.message);
+      console.log("Response:", err.response);
+      console.log("Request:", err.request);
+      if (err.response) {
+        console.log("Status:", err.response.status);
+        console.log("Data:", err.response.data);
+      }
+      res.status(500).json({
+        message: err.message
+      })
     }
-    // it is for bank document
-    employeeData.cancelledCheque =
-      chequeDocuments.map(doc => ({
-        _id: doc._id,
-        fileName: doc.fileName,
-        fileType: doc.fileType,
-        filePath:
-          `${BASE_URL}${doc.filePath}`
-      }));
-    // Return Documents to Frontend
-    employeeData.documents =
-      identityDocuments.map(doc => ({
-        _id: doc._id,
-        fileName: doc.fileName,
-        fileType: doc.fileType,
-        filePath:
-          `${BASE_URL}${doc.filePath}`
-      }));
-    return res.json(employeeData);
-    // res.json(employeeData)
-  } catch (err) {
-    res.status(500).json({
-      message: err.message
-    })
-  }
-});
-
+  });
 // delete document
 router.delete("/bank-document/:employee_code/:documentId",
   authMiddleware,
@@ -1055,7 +1077,7 @@ router.delete("/bank-document/:employee_code/:documentId",
 );
 
 //deletion in identity page
-router.delete("/identity-document/:employee_code/:documentId",authMiddleware,
+router.delete("/identity-document/:employee_code/:documentId", authMiddleware,
   async (req, res) => {
     try {
       const { employee_code, documentId } = req.params;

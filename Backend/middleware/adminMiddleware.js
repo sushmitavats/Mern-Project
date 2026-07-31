@@ -1,7 +1,4 @@
-export const isAdmin = async (
-  req,
-  res,
-  next
+export const isAdmin = async (req,res,next
 ) => {
   try {
     if (req.user.role !== "ADMIN") {

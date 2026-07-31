@@ -41,6 +41,10 @@ const employeeSchema = new Schema(
         personalEmail: String,
         officialEmail: String,
         mobile: String,
+        mobile: {
+            type: String,
+            // unique: true
+        },
         alternateMobile: String,
         department: {
             type: mongoose.Schema.Types.ObjectId,
@@ -56,14 +60,7 @@ const employeeSchema = new Schema(
             enum: ["Active", "Inactive"],
             default: "Active"
         },
-        //change done.
-        // Employment detail
         employeeType: String,
-        // department: String,
-        // designation: String,
-        // maritalStatus:String,
-        // bloodGroup:String,
-        // nationality:String,
         maritalStatus: {
             type: String,
             default: ""
@@ -90,15 +87,6 @@ const employeeSchema = new Schema(
         confirmationDate: Date,
         noticePeriod: String,
         costCenter: String,
-        // Identity
-        // aadhaar: String,
-        // pan: String,
-        // passport: String,
-        // drivingLicense: String,
-        // uan: String,
-        // pfNumber: String,
-        // esic: String,
-        // Address Details
         currentAddress: {
             type: String,
             trim: true,
@@ -109,79 +97,16 @@ const employeeSchema = new Schema(
             trim: true,
             default: ""
         },
-        pincode: {
+        currentPincode: {
             type: String,
+            default: "",
             trim: true,
-            default: ""
         },
-        // Bank
-        // accountHolder: String,
-        // bankName: String,
-        // accountNumber: String,
-        // ifsc: String,
-        // branch: String,
-        // upi: String,
-        //Payroll
-        // ctc: Number,
-        // payrollGroup: String,
-        // salaryEffectiveDate: Date,
-        // allowances: String,
-        //Education
-        // qualification: String,
-        // institution: String,
-        // educationYear: String,
-        // cgpa: String,
-        // // Experience
-        // company: String,
-        // experienceDesignation: String,
-        // experienceStartDate: Date,
-        // experienceEndDate: Date,
-        // lastCtc: Number,
-
-
-        // // Emergency
-
-        // emergencyName: String,
-        // relationship: String,
-        // emergencyPhone: String,
-        // emergencyAddress: String,
-
-
-        // // Documents
-
-        // documents: [
-
-        //     {
-        //         documentName: String,
-        //         fileUrl: String
-        //     }
-
-        // ],
-        // // IT & Assets
-        // username: String,
-        // laptop: String,
-        // assetId: String,
-        // systemAccess: String,
-        // // Leave
-        // leavePolicy: String,
-        // attendancePolicy: String,
-        // holidayCalendar: String,
-        // weeklyOff: String,
-        // // Exit
-        // resignationDate: Date,
-        // lwd: Date,
-        // exitReason: String,
-        // fnf: String,
-        // // Additional
-        // skills: [String],
-        // certifications: [String],
-        // languages: [String],
-        // linkedIn: String,
-        // notes: String,
-        // draft: {
-        //     type: Boolean,
-        //     default: true
-        // }
+        permanentPincode: {
+            type: String,
+            default: "",
+            trim: true,
+        },
     },
     { timestamps: true }
 );

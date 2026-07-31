@@ -2,29 +2,22 @@ export default function ITAssets({
   form,
   errors,
   handleChange,
+   getInputClass
 }) {
   return (
     <div className="mt-6 bg-white border rounded-xl p-6">
-      <h2 className="font-semibold text-lg mb-6">
+      <h2 className="text-[16px] font-bold leading-5 text-[#101828] mb-4 border-b border-[#e4e9ef] pb-3">
         IT & Assets
       </h2>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-
         <div>
-          <label>Username *</label>
-
+          <label className="mb-2 block text-[11px] font-bold text-[#17213b]">System ID*</label>
           <input
             name="username"
             value={form.username || ""}
             onChange={handleChange}
-            className={`w-full border rounded-lg p-3 ${
-              errors?.username
-                ? "border-red-500"
-                : ""
-            }`}
+             className={getInputClass("username")}
           />
-
           {errors?.username && (
             <p className="text-red-500 text-xs mt-1">
               {errors.username}
@@ -33,60 +26,71 @@ export default function ITAssets({
         </div>
 
         <div>
-          <label>Official Email *</label>
-
+          <label className="mb-2 block text-[11px] font-bold text-[#17213b]">Official Email *</label>
           <input
             name="officialEmail"
             value={form.officialEmail || ""}
-            onChange={handleChange}
-            className={`w-full border rounded-lg p-3 ${
-              errors?.officialEmail
-                ? "border-red-500"
-                : ""
-            }`}
+            // onChange={handleChange}
+             readOnly
+             className={getInputClass("officialEmail")}
+           
           />
-
           {errors?.officialEmail && (
             <p className="text-red-500 text-xs mt-1">
               {errors.officialEmail}
             </p>
           )}
         </div>
-
         <div>
-          <label>Laptop</label>
-
+          <label className="mb-2 block text-[11px] font-bold text-[#17213b]">Laptop</label>
           <input
             name="laptop"
             value={form.laptop || ""}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3"
+            className={getInputClass("laptop")}
+
           />
+          {errors?.laptop && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.laptop}
+            </p>
+          )}
         </div>
-
-        <div>
-          <label>Asset ID</label>
-
+        {/* <div>
+          <label>Assert ID</label>
           <input
             name="assetId"
             value={form.assetId || ""}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3"
+            className={`w-full border rounded-lg p-3 ${errors?.assetId ? "border-red-500" : ""
+              }`}
           />
-        </div>
+
+          {errors?.assetId && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.assetId}
+            </p>
+          )}
+        </div> */}
 
         <div>
-          <label>Git / Jira / CRM Access</label>
-
+          <label className="mb-2 block text-[11px] font-bold text-[#17213b]">Git / Jira / CRM Access</label>      
           <input
             name="systemAccess"
             value={form.systemAccess || ""}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3"
+           className={getInputClass("systemAccess")}
           />
+          {errors?.systemAccess && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.systemAccess}
+            </p>
+          )}
         </div>
 
       </div>
     </div>
   );
 }
+
+

@@ -4,6 +4,7 @@ import Employees from "./pages/Employees";
 import Layout from "./Layout";
 import ProtectedRoute from "./ProtectedRoute";
 import "./App.css";
+
 import { Route, Routes, Navigate } from "react-router-dom";
 import Attendance from "./pages/Attendance";
 import LeaveManagement from "./pages/LeaveManagement";
@@ -12,6 +13,12 @@ import UserManagement from "./pages/UserManagement";
 import Department from "./pages/Department";
 import Designation from "./pages/Designation";
 import EditEmployeePage from "./pages/EditEmployeePage";
+import EmployeeProfile from "./pages/EmployeeProfile";
+// import EmployeeProfile from "./pages/EmployeeProfile";
+import EmployeeProfileView from "./pages/EmployeeProfileView"
+import Exit from "./pages/Exit";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -55,14 +62,14 @@ function App() {
                </ProtectedRoute>
              }
             /> */}
-            <Route
+          <Route
             path="/employees"
             element={<Employees />}
-            />
-            <Route
+          />
+          <Route
             path="/employees/edit/:employee_code"
             element={<EditEmployeePage />}
-            />
+          />
           {/* Attendance */}
           <Route
             path="/attendance"
@@ -86,6 +93,30 @@ function App() {
             }
           />
           {/* Role Permission */}
+          <Route path="/exit" element={<Exit />} />
+          {/* <Route
+            path="/employee-profile"
+            element={
+              <EmployeeProfile />
+            }
+          /> */}
+          <Route
+            path="/employee-profile/:employee_code"
+            element={
+              <ProtectedRoute module="Employee">
+                <EmployeeProfile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/employee-profile/view/:employee_code"
+            element={
+              <ProtectedRoute module="Employee">
+                <EmployeeProfileView />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/roles"
             element={
@@ -118,7 +149,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           {/* Designation */}
           <Route
             path="/designation"
@@ -126,12 +156,19 @@ function App() {
               <ProtectedRoute
                 module="Designation"
               >
-              <Designation />
+                <Designation />
               </ProtectedRoute>
             }
           />
         </Route>
-
+        {/* <Route
+          path="/employee-profile"
+          element={
+            <ProtectedRoute module="Employee">
+              <EmployeeProfile />
+            </ProtectedRoute>
+          }
+        /> */}
         <Route
           path="*"
           element={
@@ -140,8 +177,15 @@ function App() {
             </h1>
           }
         />
-
       </Routes>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+      />
 
     </div>
   );
@@ -149,211 +193,3 @@ function App() {
 
 export default App;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import Dashboard from "./pages/Dashboard";
-// import Login from "./Login";
-// import Employees from "./pages/Employees";
-// import Layout from "./Layout";
-// import ProtectedRoute from "./ProtectedRoute";
-// import "./App.css";
-
-// import { Route, Routes, Navigate } from "react-router-dom";
-
-// import Attendance from "./pages/Attendance";
-// import LeaveManagement from "./pages/LeaveManagement";
-// import RolePermissions from "./pages/RolePermissions";
-// import UserManagement from "./pages/UserManagement";
-// import Department from "./pages/Department";
-// import Designation from "./pages/Designation";
-
-// function App() {
-//   return (
-//     <div className="App">
-
-//       <Routes>
-
-//         <Route
-//           path="/"
-//           element={<Navigate to="/login" />}
-//         />
-
-//         <Route path="/login" element={<Login />} />
-
-//         <Route element={<Layout />}>
-
-//           <Route
-//             path="/dashboard"
-//             element={
-//               <ProtectedRoute>
-//                 <Dashboard />
-//               </ProtectedRoute>
-//             }
-//           />
-          
-//           <Route
-//             path="/employees"
-//             element={
-//               <ProtectedRoute    permission="Employee_view">
-//                 <Employees />
-//               </ProtectedRoute>
-//             }
-//           />
-
-//           <Route
-//             path="/attendance"
-//             element={
-//               <ProtectedRoute
-//                 permission="Attendance_view"
-//               >
-//                 <Attendance />
-//               </ProtectedRoute>
-//             }
-//           />
-
-//           <Route
-//             path="/leave"
-//             element={
-//               <ProtectedRoute permission="Leave_view">
-//                 <LeaveManagement />
-//               </ProtectedRoute>
-//             }
-//           />
-
-//           <Route
-//             path="/roles"
-//             element={
-//               <ProtectedRoute permission="ROLE_MANAGE">
-//                 <RolePermissions />
-//               </ProtectedRoute>
-//             }
-//           />
-
-//           <Route
-//             path="/users"
-//             element={
-//               <ProtectedRoute permission="USER_MANAGEMENT">
-//                 <UserManagement />
-//               </ProtectedRoute>
-//             }
-//           />
-
-//           {/* <Route
-//             path="/department"
-//             element={
-//               <ProtectedRoute permission="DEPARTMENT_MANAGE">
-//                 <Department />
-//               </ProtectedRoute>
-//             }
-//           /> */}
-//           <Route
-//             path="/department"
-//             element={
-//               <ProtectedRoute
-//                 permission="Department_view"
-//               >
-//                 <Department />
-//               </ProtectedRoute>
-//             }
-//           />
-//           <Route
-//             path="/designation"
-//             element={
-//               <ProtectedRoute permission="DEPARTMENT_MANAGE">
-//                 <Designation />
-//               </ProtectedRoute>
-//             }
-//           />
-
-//         </Route>
-
-//         <Route
-//           path="*"
-//           element={<h1>404 Page Not Found</h1>}
-//         />
-
-//       </Routes>
-
-//     </div>
-//   );
-// }
-
-// export default App;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <Routes>
-//         <Route path='/login' element={<Login />} />
-//         <Route path='/signup' element={<Signup />} />
-//       </Routes>
-//     </div>
-//   );
-// }
-
-// export default App;
-// import { useState } from "react";
-// import Login from "./Login";
-// import Signup from "./signup";
-
-// function App() {
-//   const [isLogin, setIsLogin] = useState(true);
-
-//   return (
-//     <>
-//       {isLogin ? <Login /> : <Signup />}
-
-//       <div style={{ textAlign: "center", marginTop: "10px" }}>
-//         {isLogin ? (
-//           <p>
-//             Don't have an account?{" "}
-//             <button onClick={() => setIsLogin(false)}>
-//               Sign Up
-//             </button>
-//           </p>
-//         ) : (
-//           <p>
-//             Already have an account?{" "}
-//             <button onClick={() => setIsLogin(true)}>
-//               Login
-//             </button>
-//           </p>
-//         )}
-//       </div>
-//     </>
-//   );
-// }

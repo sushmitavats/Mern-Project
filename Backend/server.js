@@ -14,8 +14,13 @@ import "./cron/leaveReset.js";
 import "./cron/monthlyEarnLeave.js";
 import departmentRoutes from "./routes/departmentRoutes.js";
 import designationRoutes from "./routes/designationRoutes.js";
+import educationExperienceRoutes from "./routes/educationExperienceRoutes.js";
+import additionalDetailRoutes from "./routes/AddditionalDetailRoutes.js"
+import exitDetailRoutes from "./routes/exitDetailRoutes.js"
+// import leaveDetailRoutes from "./routes/leaveDetailRoutes.js"
+import itAssertRoutes from "./routes/itAssertRoutes.js"
+import employeeProfileRoutes from "./routes/EmployeeProfileRoutes.js";
 import path from "path";
-
 
 dotenv.config();
 connectDB();
@@ -46,6 +51,15 @@ app.use("/api", leaveBalanceRoutes);
 app.use("/api/departments",departmentRoutes);
 app.use("/api/designation",designationRoutes);
 app.use("/api/permission",permissionRoutes);
+app.use("/api/education-experience",educationExperienceRoutes);
+// Api for edit employee page 
+// app.use("/api/it-asset", itAssertRoutes );
+app.use("/api/it-asset", itAssertRoutes);
+// app.use("/api/leave-detail", leaveDetailRoutes);
+app.use("/api/exit-detail", exitDetailRoutes);
+app.use("/api/additional-detail", additionalDetailRoutes);
+app.use("/api/profile", employeeProfileRoutes);
+app.use("/uploads", express.static("uploads"));
 // app.use("/api/employee-profile",employeeRoute);  //routes edit
 app.use((req, res) => {
   res.status(404).json({

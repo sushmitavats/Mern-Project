@@ -116,11 +116,8 @@ const stats = [
   return (
 
     <div className="flex h-screen bg-[#eef1f5]">
-    
-
       <div className="flex-1 flex flex-col">
         {/* NAVBAR */}
-       
         <div className="p-6">
           <h2 className="text-lg font-semibold mb-4">Dashboard</h2>
 

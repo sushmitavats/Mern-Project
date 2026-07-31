@@ -2,9 +2,12 @@ import axios from "axios";
 
 // BASE URL
 // "http://localhost:5000/api";
-const BASE_URL = "http://192.168.1.18:5000/api";
+const BASE_URL = "http://localhost:5000/api";
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
+});
+const api = axios.create({
+  baseURL: "http://localhost:5000/api",
 });
 
 //login 
@@ -26,23 +29,20 @@ axiosInstance.interceptors.request.use(
 );
 axiosInstance.interceptors.response.use(
   (response) => response,
-
   (error) => {
-
     console.log(
       "API ERROR:",
       error.response?.data
     );
-
     return Promise.reject(error);
   }
 );
 // leave fl & el
-export const monthlyEarnLeave =() =>
-    axiosInstance.put(
-      "/monthly-earn-leave"
-    );
-export const grantFloatingLeave =() =>axiosInstance.put("/grant-floating-leave");
+export const monthlyEarnLeave = () =>
+  axiosInstance.put(
+    "/monthly-earn-leave"
+  );
+export const grantFloatingLeave = () => axiosInstance.put("/grant-floating-leave");
 //employee
 export const getEmployees = () => axiosInstance.get("/employees");
 export const addEmployee = (data) =>
@@ -67,22 +67,48 @@ export const saveDraft = (data) =>
       headers: { "Content-Type": "multipart/form-data", },
     }
   );
-
 // Save Next (Basic Information → Employment Details)
 export const saveEmployee = (data) =>
   axiosInstance.post("/employees/save", data,
-    { headers: {
+    {
+      headers: {
         "Content-Type": "multipart/form-data",
       },
     }
   );
-  //delete bank document
+// Employee Profile (View Profile)
+export const getEmployeeProfile = (employee_code) =>
+  axiosInstance.get(`/profile/${employee_code}`);
+//put
+export const updateEmployeeProfile = (employee_code, formData) =>
+  axiosInstance.put(`/profile/${employee_code}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+//api of education and experience
+// Education & Experience DRUD operation
+
+export const saveEducationExperience = (data) =>
+  axiosInstance.post("/education-experience/save", data);
+export const getEducationExperience = (employeeCode) =>
+  axiosInstance.get(`/education-experience/${employeeCode}`);
+export const deleteEducation = (employeeCode, educationId) =>
+  axiosInstance.delete(
+    `/education-experience/education/${employeeCode}/${educationId}`
+  );
+export const deleteExperience = (employeeCode, experienceId) =>
+  axiosInstance.delete(
+    `/education-experience/experience/${employeeCode}/${experienceId}`
+  );
+
+//delete bank document
 export const deleteBankDocument = (employee_code, documentId) =>
   axiosInstance.delete(
     `/employees/bank-document/${employee_code}/${documentId}`
   );
-  //delete Identity document
-export const deleteIdentityDocument = (employeeCode,documentId) =>
+//delete Identity document
+export const deleteIdentityDocument = (employeeCode, documentId) =>
   axiosInstance.delete(
     `/employees/identity-document/${employeeCode}/${documentId}`
   );
@@ -102,35 +128,41 @@ export const updateEmployee = (employee_code, data) =>
     `/employees/code/${employee_code}`,
     data
   );
+// export const updateEmployeeProfile = (employee_code, formData) =>
+//   axiosInstance.put(`/profile/${employee_code}`, formData, {
+//     headers: {
+//       "Content-Type": "multipart/form-data",
+//     },
+//   });
 
-// export const updateEmployee = (code, data) =>
-// axiosInstance.put(
-//   `/employees/code/${code}`,
-//   data
-// );
+//---Add EditEmployee Route---
+// IT Asset Details API
+export const saveITAssetDetails = (data) =>
+  axiosInstance.post("/it-asset/save", data);
 
-// export const getEmployeesByDesignation =
-// (designationId) =>
-//   axiosInstance.get(
-//     `/employees/designation/${designationId}`
-//   );
-// export const getEmployeeByCode =(code) => {
-//     return axiosInstance.get(
-//       `employee-profile/${code}`
-//     );
-//   };
-// export const saveDraft =
-//   (data) => {
-//     return axiosInstance.post(
-//       "employee-profile/draft",data);
-//   };
-// export const saveEmployee =
-//   (data) => {
-//     return axiosInstance.post(
-//       "employee-profile/save",
-//       data
-//     )
-//   };
+export const getITAssetDetails = (employee_code) =>
+  axiosInstance.get(`/it-asset/${employee_code}`);
+
+// Leave Details API
+// export const saveLeaveDetails = (data) =>
+//   axiosInstance.post("/leave-detail/save", data);
+
+// export const getLeaveDetails = (employee_code) =>
+//   axiosInstance.get(`/leave-detail/${employee_code}`);
+
+// Exit Details API
+export const saveExitDetails = (data) =>
+  axiosInstance.post("/exit-detail/save", data);
+
+export const getExitDetails = (employee_code) =>
+  axiosInstance.get(`/exit-detail/${employee_code}`);
+
+// Additional Details API
+export const saveAdditionalDetails = (data) =>
+  axiosInstance.post("/additional-detail/save", data);
+
+export const getAdditionalDetails = (employee_code) =>
+  axiosInstance.get(`/additional-detail/${employee_code}`);
 
 //dashboard
 export const getDashboard = () =>
@@ -159,20 +191,6 @@ export const addLeave = (data) => axiosInstance.post("/leave", data);
 export const updateLeaveStatus = (id, status) =>
   axiosInstance.put(`/leave/${id}`, { status });
 
-
-//roles
-// export const getRoles = () =>
-//   axiosInstance.get("/roles/all");
-
-// export const addRole = (data) =>
-//   axiosInstance.post("/roles/add", data);
-
-// export const deleteRoleById = (id) =>
-//   axiosInstance.delete(`/roles/delete/${id}`);
-
-// export const updateRoleById = (id, data) =>
-//   axiosInstance.put(`/roles/${id}`, data);
-
 // LOGIN
 export const loginUser = async (data) => {
   console.log("LOGIN API FUNCTION CALLED");
@@ -184,36 +202,30 @@ export const loginUser = async (data) => {
   return response;
 };
 // CHANGE PASSWORD
-export const changePassword = (data) =>
-  axiosInstance.post(
-    "/auth/change-password",
-    data
-  );
+export const changePassword = (data) => axiosInstance.post(
+  "/auth/change-password",
+  data
+);
 // GET USERS
-export const getUsers = () =>
-  axiosInstance.get(
-    "/auth/all-users"
-  );
-
+export const getUsers = () => axiosInstance.get(
+  "/auth/all-users"
+);
 // CREATE USER
 export const createUser = (data) =>
   axiosInstance.post(
     "/auth/register",
     data
   );
-
 // UPDATE USER
-export const updateUser = (id, data) =>
-  axiosInstance.put(
-    `/auth/update-user/${id}`,
-    data
-  );
+export const updateUser = (id, data) => axiosInstance.put(
+  `/auth/update-user/${id}`,
+  data
+);
 
 // DELETE USER
-export const deleteUser = (id) =>
-  axiosInstance.delete(
-    `/auth/delete-user/${id}`
-  );
+export const deleteUser = (id) => axiosInstance.delete(
+  `/auth/delete-user/${id}`
+);
 
 // CHANGE STATUS
 export const changeUserStatus = (
@@ -323,13 +335,11 @@ export const updatePermission = (id, data) =>
     `/permission/update/${id}`,
     data
   );
-
 // DELETE PERMISSION
 export const deletePermission = (id) =>
   axiosInstance.delete(
     `/permission/delete/${id}`
   );
-
 //need later
 // GET EMPLOYEES BY DESIGNATION
 export const getEmployeesByDesignation = (
@@ -338,8 +348,6 @@ export const getEmployeesByDesignation = (
   axiosInstance.get(
     `/employees/designation/${designationId}`
   );
-
-
 // GET DESIGNATIONS BY DEPARTMENT
 export const getDesignationByDepartment =
   (departmentId) =>

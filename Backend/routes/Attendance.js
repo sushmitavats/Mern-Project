@@ -51,7 +51,7 @@ router.get("/", authMiddleware, checkPermission("Attendance_view"), async (req, 
         $group: {
           _id: "$employee_code",
           employee_code: { $first: "$employee_code" },
-          name: { $first: "$name" },
+          name: { $first: "$firstName" },
           inTime: { $first: "$attendance.inTime" },
           outTime: { $first: "$attendance.outTime" },
         },

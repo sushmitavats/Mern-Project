@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
-import { FaSearch, } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import { getEmployees, deleteEmployee, updateEmployeeStatus } from "../api";
 import ViewEmployeeModal from "../components/ViewEmployeeModal";
 // import EditEmployeeModal from "../components/EditEmployeeModal";
 import { useNavigate } from "react-router-dom";
 import { MdEditSquare } from "react-icons/md";
 import { Tooltip } from "react-tooltip";
-import { hasPermission } from "../utils/hasPermission";
-import { checkAccess } from "../utils/checkAccess"
+// import { hasPermission } from "../utils/hasPermission";
+import { checkAccess } from "../utils/checkAccess";
 
 export default function Employees() {
   const navigate = useNavigate();
@@ -16,42 +16,36 @@ export default function Employees() {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [viewModal, setViewModal] = useState(false);
   const [search, setSearch] = useState("");
-  // const [editModal,setEditModal] =useState(false);
+  // const [editModal, setEditModal] = useState(false);
   // const user = JSON.parse(localStorage.getItem("user"));
   const fetchEmployees = async () => {
     try {
       const res = await getEmployees();
       console.log(res.data);
-
       setEmployees(res.data || []);
     } catch (err) {
       console.log(err);
     }
   };
-  // handle change 
-  const handleStatusChange = async (
-    employee_code,
-    status
-  ) => {
+  // Handle change
+  const handleStatusChange = async (employee_code, status) => {
     try {
-      await updateEmployeeStatus(
-        employee_code,
-        { status }
-      );
+      await updateEmployeeStatus(employee_code, { status });
+
       fetchEmployees();
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
   };
-  //will fetchEmployees
+  // Will fetch employees
   useEffect(() => {
     fetchEmployees();
   }, []);
   const filteredEmployees = employees.filter((emp) => {
-
     return (
-      `${emp.firstName || ""} ${emp.lastName || ""}`?.toLowerCase().includes(search.toLowerCase()) ||
+      `${emp.firstName || ""} ${emp.lastName || ""}`
+        ?.toLowerCase()
+        .includes(search.toLowerCase()) ||
       emp.officialEmail?.toLowerCase().includes(search.toLowerCase()) ||
       emp.employee_code?.toLowerCase().includes(search.toLowerCase()) ||
       emp.department?.departmentName
@@ -62,25 +56,27 @@ export default function Employees() {
         .includes(search.toLowerCase())
     );
   });
+
   const columns = [
     {
       name: "Employee ID",
-      selector: row => row.employee_code,
+      selector: (row) => row.employee_code,
       sortable: true,
     },
     {
       name: "Name",
-      selector: row => `${row.firstName || ""} ${row.lastName || ""}` .trim() || "-",
+      selector: (row) =>
+        `${row.firstName || ""} ${row.lastName || ""}`.trim() || "-",
       sortable: true,
     },
     {
       name: "Email",
-      cell: row => (
+      cell: (row) => (
         <>
           <div
             data-tooltip-id={`email-${row._id}`}
             data-tooltip-content={row.officialEmail}
-            className="max-w-[180px] truncate whitespace-nowrap overflow-hidden cursor-pointer"
+            className="max-w-[180px] cursor-pointer overflow-hidden truncate whitespace-nowrap text-[11px] text-[#344054]"
           >
             {row.officialEmail || row.personalEmail || "-"}
           </div>
@@ -88,9 +84,10 @@ export default function Employees() {
           <Tooltip id={`email-${row._id}`} />
         </>
       ),
-      sortable: true,
+      // sortable: true,
       grow: 2,
     },
+
     // {
     //   name: "Contact",
     //   cell: row => (
@@ -106,135 +103,119 @@ export default function Employees() {
     // },
     {
       name: "Mobile",
-      cell: row => (
-        <div
-          className="max-w-[100px] truncate whitespace-nowrap overflow-hidden"
-        >
+      cell: (row) => (
+        <div className="max-w-[100px] cursor-pointer overflow-hidden truncate whitespace-nowrap text-[11px] text-[#475467]">
           {row.mobile || "-"}
         </div>
       ),
-      sortable: true,
+      // sortable: true,
     },
     {
       name: "Department",
-      cell: row => (
+      cell: (row) => (
         <div
-          title={
-            row.department?.departmentName || ""
-          }
-          className="max-w-[120px] truncate whitespace-nowrap overflow-hidden"
+          title={row.department?.departmentName || ""}
+          className="max-w-[120px] overflow-hidden truncate whitespace-nowrap text-[11px] text-[#475467]"
         >
-          {
-            row.department?.departmentName || "-"
-          }
+          {row.department?.departmentName || "-"}
         </div>
       ),
-      sortable: true,
+      // sortable: true,
     },
     {
       name: "Designation",
-      cell: row => (
+      cell: (row) => (
         <div
           title={row.designation?.designationName || ""}
-          className="max-w-[120px] truncate whitespace-nowrap overflow-hidden"
+          className="max-w-[120px] overflow-hidden truncate whitespace-nowrap text-[11px] text-[#475467]"
         >
           {row.designation?.designationName || "-"}
         </div>
       ),
-      sortable: true,
+      // sortable: true,
     },
     {
       name: "Joining Date",
-      cell: row => (
-        row.joiningDate
-          ? new Date(row.joiningDate).toLocaleDateString()
-          : "-"
-      ),
-      sortable: true,
+      cell: (row) =>
+        row.joiningDate ? new Date(row.joiningDate).toLocaleDateString() : "-",
+      // sortable: true,
     },
-    //my status
+
+    // My status
     {
       name: "Status",
-      cell: row => (
+      cell: (row) => (
         <button
           onClick={() =>
             handleStatusChange(
               row.employee_code,
-              row.status === "Active"
-                ? "Inactive"
-                : "Active"
+              row.status === "Active" ? "Inactive" : "Active"
             )
           }
-          className={`px-3 py-1 rounded-full text-white text-xs cursor-pointer ${row.status === "Active"
-            ? "bg-green-600 hover:bg-green-700"
-            : "bg-red-500 hover:bg-red-600"
-            }`}
+          className={`cursor-pointer rounded-full px-3 py-1 text-[10px] font-semibold text-white transition-all duration-200 ${
+            row.status === "Active"
+              ? "bg-[#0392a1] hover:bg-[#027d89]"
+              : "bg-red-500 hover:bg-red-600"
+          }`}
         >
           {row.status}
         </button>
-
       ),
     },
 
     {
       name: "Action",
       width: "150px",
-      cell: row => (
-        <div className="flex items-center gap-1">
+      cell: (row) => (
+        <div className="flex items-center gap-1.5">
           {/* VIEW */}
           <button
             onClick={() => {
               setSelectedEmployee(row);
               setViewModal(true);
             }}
-            className="bg-gray-600 hover:bg-gray-700 text-white text-xs px-2 py-1 rounded-md"
+            className="rounded-[5px] border border-[#cfd7e2] bg-[#f8fafc] px-2.5 py-1.5 text-[10px] font-semibold text-[#344054] transition-all duration-200 hover:border-[#0392a1] hover:bg-[#eefafb] hover:text-[#027d89]"
           >
             View
           </button>
-
           {/* EDIT */}
           <button
             onClick={() => {
-              checkAccess(
-                "Employee",
-                "edit",
-                () => {
-                  navigate(
-                      `/employees/edit/${row.employee_code}`
-                  )
-                }
-              )
+              checkAccess("Employee", "edit", () => {
+                navigate(`/employees/edit/${row.employee_code}`);
+              });
             }}
-            className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md flex items-center justify-center"
+            className="flex items-center justify-center rounded-[5px] bg-[#0392a1] p-2 text-white transition-all duration-200 hover:bg-[#027d89]"
           >
             <MdEditSquare />
           </button>
-        </div >
+        </div>
       ),
-    }
+    },
   ];
+  // const handleDelete = async (employee_code) => {
+  //   const confirmDelete = window.confirm(
+  //     "Are you sure you want to delete this employee?"
+  //   );
 
-  const handleDelete = async (employee_code) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this employee?"
-    );
+  //   if (!confirmDelete) return;
 
-    if (!confirmDelete) return;
-    try {
-      await deleteEmployee(employee_code);
+  //   try {
+  //     await deleteEmployee(employee_code);
 
-      fetchEmployees();
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  //     fetchEmployees();
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
   return (
-    <div className="p-6 bg-gray-100 h-full w-full">
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-2xl font-semibold text-gray-800">
+    <div className="h-full w-full bg-[#eef1f5] p-4 sm:p-5 lg:p-6">
+      <div className="mb-5 flex items-center justify-between">
+        <h2 className="text-[18px] font-bold text-[#101828]">
           Employee Management
         </h2>
       </div>
+
       {/* 
         {
           hasPermission(
@@ -247,32 +228,35 @@ export default function Employees() {
             >
               + Add Employee
             </button>
-          )} */}
+          )} 
+      */}
 
       {/* 
       <AddEmployeeModal
         isOpen={openModal}
         onClose={() => setOpenModal(false)}
         refresh={fetchEmployees}
-      /> */}
-      <div className="bg-white rounded-2xl shadow-md border p-4 w-full">
+      /> 
+      */}
+
+      <div className="w-full overflow-hidden rounded-[10px] border border-[#dfe5ec] bg-white p-4 shadow-sm">
         {/* SEARCH */}
-        <div className="flex justify-between items-center mb-3">
-          <div className="relative w-56">
-            <FaSearch className="absolute top-3 left-3 text-gray-400 text-sm" />
+        <div className="mb-4 flex items-center justify-between">
+          <div className="relative w-full sm:w-64">
+            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-[#98a2b3]" />
+
             <input
               type="text"
               placeholder="Search employee..."
               value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-              className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none"
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-[36px] w-full rounded-[6px] border border-[#cfd7e2] bg-white pl-9 pr-3 text-[11px] text-[#344054] outline-none placeholder:text-[#98a2b3] transition-all duration-200 focus:border-[#0392a1] focus:ring-1 focus:ring-[#0392a1]/20"
             />
           </div>
         </div>
+
         {/* TABLE */}
-        <div className="user-table border-0 overflow-x-auto" >
+        <div className="user-table w-full overflow-x-auto border-0">
           <DataTable
             columns={columns}
             data={filteredEmployees}
@@ -282,19 +266,18 @@ export default function Employees() {
             striped
             persistTableHead
             dense
-            sortIcon={
-              <span style={{ fontSize: "14px" }}>
-                ↕
-              </span>
-            }
+            sortIcon={<span style={{ fontSize: "14px" }}>↕</span>}
           />
+
           <Tooltip id="email-tooltip" />
         </div>
       </div>
+
       <ViewEmployeeModal
         employee={viewModal ? selectedEmployee : null}
         onClose={() => setViewModal(false)}
       />
+
       {/* <EditEmployeeModal
         isOpen={editModal}
         employee={selectedEmployee}
@@ -304,3 +287,32 @@ export default function Employees() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

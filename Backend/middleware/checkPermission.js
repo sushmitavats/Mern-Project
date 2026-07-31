@@ -1,41 +1,29 @@
 import Permission from "../models/Permission.js";
-
 export const checkPermission =
 (permissionName) => {
 
-  return async (
-    req,
-    res,
-    next
-  ) => {
+  return async ( req,res,next) => {
     try {
       if (!req.user) {
         return res
         .status(401)
-        .json({
-          success:false,
-          message:"Unauthorized"
+        .json({success:false, message:"Unauthorized"
         });
       }
       // ADMIN bypass only
-      if(
-        req.user.role==="ADMIN"
-      ){
+      if(req.user.role==="ADMIN" ){
         return next();
       }
       const [module,action] =
       permissionName.split("_");
       let permissionDoc=null;
       // Employee specific
-      permissionDoc =
-      await Permission.findOne({
-        employee:
-        req.user.employee_code
+      permissionDoc =await Permission.findOne({
+        employee: req.user.employee_code
       });
       // Department + designation
       if(!permissionDoc){
-        permissionDoc =
-        await Permission.findOne({
+        permissionDoc = await Permission.findOne({
           department:
           req.user.department,
           designation:
