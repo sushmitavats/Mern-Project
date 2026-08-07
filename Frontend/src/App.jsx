@@ -16,6 +16,7 @@ import EditEmployeePage from "./pages/EditEmployeePage";
 import EmployeeProfile from "./pages/EmployeeProfile";
 // import EmployeeProfile from "./pages/EmployeeProfile";
 import EmployeeProfileView from "./pages/EmployeeProfileView"
+import LeaveApply from "./pages/LeaveApply";
 import Exit from "./pages/Exit";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -89,6 +90,14 @@ function App() {
                 module="Leave"
               >
                 <LeaveManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leave/apply"
+            element={
+              <ProtectedRoute module="Leave">
+                <LeaveApply />
               </ProtectedRoute>
             }
           />

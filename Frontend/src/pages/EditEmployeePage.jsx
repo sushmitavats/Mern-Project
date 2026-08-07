@@ -16,7 +16,7 @@ import EmployeeFooter from "../components/Employee/EmployeeFooter";
 import EducationExperienceDetails from "../components/Employee/EducationExperienceDetails";
 import { saveEducationExperience, getEducationExperience, deleteEducation, deleteExperience } from "../api";
 import {
-    saveITAssetDetails, getITAssetDetails,saveExitDetails, getExitDetails, saveAdditionalDetails,
+    saveITAssetDetails, getITAssetDetails, saveExitDetails, getExitDetails, saveAdditionalDetails,
     getAdditionalDetails,
 } from "../api";
 
@@ -643,7 +643,6 @@ export default function EditEmployeePage() {
             if (!form.salaryEffectiveDate)
                 newErrors.salaryEffectiveDate =
                     "Salary Effective Date is required";
-
         }
         if (activeTab === "eduAndexp") {
             let eduErrors = [];
@@ -666,19 +665,6 @@ export default function EditEmployeePage() {
                 if (Object.keys(err).length > 0)
                     hasError = true;
             });
-            // experienceList.forEach((item, index) => {
-            //     const err = {};
-            //     if (!item.company?.trim())
-            //         err.company = "Company is required";
-            //     if (!item.experienceDesignation?.trim())
-            //         err.experienceDesignation = "Designation is required";
-            //     if (!item.experienceStartDate)
-            //         err.experienceStartDate = "Start Date is required";
-            //     expErrors[index] = err;
-            //     if (Object.keys(err).length > 0)
-            //         hasError = true;
-            // });
-
             experienceList.forEach((item, index) => {
                 const err = {};
                 if (!item.company?.trim())
@@ -692,16 +678,18 @@ export default function EditEmployeePage() {
                     new Date(item.experienceEndDate) < new Date(item.experienceStartDate)) {
                     err.experienceEndDate = "End Date cannot be earlier than Start Date";
                 }
+                 if (item.lastCtc &&!/^\d+(\.\d{1,2})?$/.test(item.lastCtc)) {
+                err.lastCtc = "Enter a valid CTC amount";
+            }
                 expErrors[index] = err;
                 if (Object.keys(err).length > 0)
                     hasError = true;
             });
-
+            // if (item.lastCtc &&!/^\d+(\.\d{1,2})?$/.test(item.lastCtc)) {
+            //     err.lastCtc = "Enter a valid CTC amount";
+            // }
             setEducationErrors(eduErrors);
             setExperienceErrors(expErrors);
-            // if (hasError) {
-            //     return false;
-            // }
             if (hasError) {
                 setErrors({
                     education: "Please correct the education details.",
@@ -1021,17 +1009,28 @@ export default function EditEmployeePage() {
                 else if (Number(value) < 0)
                     message = "CTC cannot be negative";
                 break;
+            // case "LASTctc":
+            //     if (value === "" || value === null || value === undefined)
+            //         message = "Number is required";
+            //     else if (Number(value) < 0)
+            //         message = "CTC cannot be negative";
+            //     break;
+            case "lastCtc":
+                if (value && !/^\d+(\.\d{1,2})?$/.test(value)) {
+                    message[index].lastCtc = "Enter a valid CTC amount";
+                } else {
+                    message[index].lastCtc = "";
+                }
+                break;
 
             case "payrollGroup":
                 if (!value)
                     message = "Payroll Group is required";
                 break;
-
             case "salaryEffectiveDate":
                 if (!value)
                     message = "Salary Effective Date is required";
                 break;
-
             case "basicSalary":
             case "hra":
             case "allowances":
@@ -1138,7 +1137,7 @@ export default function EditEmployeePage() {
             setSaveNextLoading(true);
             const formData = new FormData();
             Object.keys(form).forEach((key) => {
-                if ( key !== "_id" && key !== "__v" && key !== "profilePhoto" && key !== "cancelledCheque") {
+                if (key !== "_id" && key !== "__v" && key !== "profilePhoto" && key !== "cancelledCheque") {
                     const value = form[key];
                     // Send empty string instead of null or undefined
                     formData.append(
@@ -1217,7 +1216,7 @@ export default function EditEmployeePage() {
             // After successful save, clear selected files.
             setSelectedIdentityDocuments([]);
             // const employee = await getEmployeeByCode(employee_code);
-            const [employeeRes, educationRes, itAssetRes,exitRes, additionalRes,
+            const [employeeRes, educationRes, itAssetRes, exitRes, additionalRes,
             ] = await Promise.all([
                 getEmployeeByCode(employee_code),
                 getEducationExperience(employee_code),

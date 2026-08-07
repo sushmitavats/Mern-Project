@@ -109,28 +109,6 @@ export default function EducationExperienceDetails({
                   </td>
                   {/* Year */}
                   <td className="p-2">
-                    {/* <input
-                      type="number"
-                      name="educationYear"
-                      value={item.educationYear || ""}
-                      onChange={(e) =>
-                        handleChange(e, index, "education")
-                      }
-                      placeholder="2024"
-                      className={`w-full border rounded-md px-3 py-2 text-sm ${educationErrors?.[index]?.educationYear
-                        ? "border-red-500"
-                        : ""
-                        }`}
-                    /> */}
-                    {/* <input
-                      type="date"
-                      name="educationYear"
-                      value={item.educationYear || ""}
-                      onChange={(e) => handleChange(e, index, "education")}
-                      max={today}
-                      className={`w-full border rounded-md px-3 py-2 text-sm ${educationErrors?.[index]?.educationYear ? "border-red-500" : ""
-                        }`}
-                    /> */}
                     <input
                       type="month"
                       name="educationYear"
@@ -288,7 +266,7 @@ export default function EducationExperienceDetails({
                   </td>
                   {/* Last CTC */}
                   <td className="p-2">
-                    <input
+                    {/* <input
                       name="lastCtc"
                       value={item.lastCtc || ""}
                       onChange={(e) =>
@@ -296,7 +274,37 @@ export default function EducationExperienceDetails({
                       }
                       placeholder="6.5"
                       className="w-full border rounded-md px-3 py-2 text-sm"
+                    /> */}
+                    <input
+                      name="lastCtc"
+                      value={item.lastCtc || ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Allow only numbers and optional decimal (max 2 decimal places)
+                        if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
+                          handleChange(
+                            {
+                              target: {
+                                name: "lastCtc",
+                                value,
+                              },
+                            },
+                            index,
+                            "experience"
+                          );
+                        }
+                      }}
+                      placeholder="6.50"
+                      inputMode="decimal"
+                      maxLength={12}
+                      className={`w-full border rounded-md px-3 py-2 text-sm ${experienceErrors?.[index]?.lastCtc ? "border-red-500" : ""
+                        }`}
                     />
+                    {experienceErrors?.[index]?.lastCtc && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {experienceErrors[index].lastCtc}
+                      </p>
+                    )}
                   </td>
                   {/* Delete */}
                   <td className="text-center">

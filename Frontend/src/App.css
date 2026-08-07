@@ -88,6 +88,75 @@
   word-break: break-word !important;
   opacity: 1 !important;
 }
+   /* React Calendar Leave Colors */
+/* Holiday - Red */
+.holiday-tile {
+  background: #ef4444 !important;
+  color: white !important;
+  border-radius: 8px !important;
+}
+/* Pending Leave - Yellow */
+.pending-leave {
+  background: #facc15 !important;
+  color: black !important;
+  border-radius: 8px !important;
+}
+
+/* Approved Leave - Green */
+.approved-leave {
+  background: #22c55e !important;
+  color: white !important;
+  border-radius: 8px !important;
+}
+
+/* Weekend (Saturday & Sunday) disabled style */
+.react-calendar__tile:disabled {
+  background: #f3f4f6 !important;
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+}
+
+/* Improve calendar appearance */
+.react-calendar {
+  width: 100%;
+  border: none !important;
+  border-radius: 12px;
+  font-family: inherit;
+}
+
+.react-calendar__navigation button {
+  font-weight: 600;
+  color: #111827;
+}
+
+.react-calendar__tile {
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.react-calendar__tile:hover:not(:disabled) {
+  background: #e5e7eb !important;
+}
+
+.react-calendar__tile--active {
+  background: #2563eb !important;
+  color: white !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

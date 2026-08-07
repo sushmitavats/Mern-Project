@@ -12,17 +12,6 @@ export default function BankDetails({ form, setForm, errors, handleChange, handl
         employeeCode,
         documentId
       );
-      // form.cancelledCheque =
-      //   form.cancelledCheque.filter(
-      //     doc => doc._id !== documentId
-      //   );
-      // setForm(prev => ({
-      //   ...prev,
-      //   cancelledCheque:
-      //     prev.cancelledCheque.filter(
-      //       doc => doc._id !== documentId
-      //     )
-      // }));
       setForm(prev => {
         const updatedDocs = prev.cancelledCheque.filter(
           doc => doc._id !== documentId
@@ -67,6 +56,14 @@ export default function BankDetails({ form, setForm, errors, handleChange, handl
             onChange={handleChange}
             className={getInputClass("accountHolder")}
           />
+          {/* <input
+            name="accountHolder"
+            value={[form.firstName, form.middleName, form.lastName]
+              .filter(Boolean)
+              .join(" ")}
+            readOnly
+            className={getInputClass("accountHolder")}
+          /> */}
           {errors?.accountHolder && (
             <p className="mt-1 text-[10px] text-red-500">
               {errors.accountHolder}
@@ -78,10 +75,23 @@ export default function BankDetails({ form, setForm, errors, handleChange, handl
           <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
             Bank <span className="text-red-500">*</span>
           </label>
-          <input
+          {/* <input
             name="bankName"
             value={form.bankName || ""}
             onChange={handleChange}
+            className={getInputClass("bankName")}
+          /> */}
+          <input
+            name="bankName"
+            value={form.bankName || ""}
+            maxLength={50}
+            onChange={(e) => {
+              const value = e.target.value;
+              // Allow only letters, spaces, dots, ampersand, apostrophe and hyphen
+              if (/^[A-Za-z .&'-]*$/.test(value)) {
+                handleChange(e);
+              }
+            }}
             className={getInputClass("bankName")}
           />
           {errors?.bankName && (
@@ -109,18 +119,15 @@ export default function BankDetails({ form, setForm, errors, handleChange, handl
         </div>
         {/* IFSC */}
         <div>
-
           <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
             IFSC <span className="text-red-500">*</span>
           </label>
-
           <input
             name="ifsc"
             value={form.ifsc || ""}
             onChange={handleChange}
             className={getInputClass("ifsc")}
           />
-
           {errors?.ifsc && (
             <p className="mt-1 text-[10px] text-red-500">
               {errors.ifsc}
@@ -182,7 +189,6 @@ export default function BankDetails({ form, setForm, errors, handleChange, handl
                         hover:bg-[#f8fcfc]
                     "
             >
-
               <input
                 type="file"
                 multiple
@@ -239,14 +245,13 @@ export default function BankDetails({ form, setForm, errors, handleChange, handl
                     <div
                       key={doc._id}
                       className="
-                                        overflow-hidden
-                                        rounded-[8px]
-                                        border
-                                        border-[#dfe5ec]
-                                        bg-white
-                                        p-3
-                                        shadow-sm
-                                    "
+                                  overflow-hidden
+                                  rounded-[8px]
+                                  border
+                                  border-[#dfe5ec]
+                                  bg-white
+                                  p-3
+                                  shadow-sm"
                     >
 
                       <div

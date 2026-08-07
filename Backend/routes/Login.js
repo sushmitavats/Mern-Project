@@ -103,37 +103,6 @@ router.post(
         });
       }
 
-      // const employee = new Employee({
-      //   employee_code,
-      //   name,
-      //   email,
-      //   department,
-      //   designation,
-      //   joiningDate,
-      //   status: "Active",
-      //   contact: "",
-      //   bankAccount: "",
-      //   pfAccount: "",
-      //   address: "",
-      //   gender: "",
-      //   dob: null,
-      //   emergencyContact: "",
-      //   aadhaar: "",
-      //   pan: ""
-      // });
-      // const employee =
-      //   new Employee({
-      //     userId: user._id,
-      //     employee_code,
-      //     firstName: name,
-      //     officialEmail: email,
-      //     department,
-      //     designation,
-      //     joiningDate,
-      //     status: "Active"
-      //   });
-
-
       const splitName =
         name.trim().split(" ");
       const employee =
@@ -209,9 +178,7 @@ router.post(
 
           await sendMail(
             hr.email,
-
             "New Employee Added",
-
             `
             New employee has been added.
             Name: ${name}
@@ -241,10 +208,8 @@ router.post(
 
 // add user
 router.post("/login", async (req, res) => {
-
   try {
     const { email, password } = req.body;
-
     const user =
       await Login.findOne({ email })
         .populate(
@@ -255,31 +220,26 @@ router.post("/login", async (req, res) => {
           "designation",
           "designationName"
         );
-
     if (!user) {
       return res.status(400).json({
         msg: "User not found"
       });
     }
-
     if (user.status === "Inactive") {
       return res.status(403).json({
         msg: "User is inactive"
       });
     }
-
     const isMatch =
       await bcrypt.compare(
         password,
         user.password
       );
-
     if (!isMatch) {
       return res.status(400).json({
         msg: "Invalid password"
       });
     }
-
     let permissions = [];
     // ADMIN gets all access
     if (user.role === "ADMIN") {
@@ -287,17 +247,14 @@ router.post("/login", async (req, res) => {
     } else {
       const permissionResult =
         await Permission.aggregate([
-
           {
             $match: {
               $or: [
-
                 // employee specific
                 {
                   employee:
                     user.employee_code
                 },
-
                 // department + designation
                 {
                   department:
@@ -306,18 +263,13 @@ router.post("/login", async (req, res) => {
                   designation:
                     user.designation?._id
                 },
-
                 // department only
                 {
                   department:
                     user.department?._id,
                   designation: null
                 }
-
-              ]
-            }
-          },
-
+              ]}},
           {
             $addFields: {
               priority: {
@@ -344,19 +296,10 @@ router.post("/login", async (req, res) => {
                             $eq: [
                               "$designation",
                               user.designation?._id
-                            ]
-                          }
-
-                        ]
-                      },
-
-                      2,
-                      3
+                            ]}]},
+                      2,3
                     ]
-                  }]
-              }
-            }
-          },
+                  }]}}},
           {
             $sort: {
               priority: 1

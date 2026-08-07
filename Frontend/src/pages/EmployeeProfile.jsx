@@ -3,13 +3,14 @@ import React, { useState, useEffect } from "react";
 import { FaCamera, FaCheckCircle } from "react-icons/fa";
 // import { getEmployeeProfile } from "../api";
 import { useNavigate, useParams } from "react-router-dom";
-import {getEmployeeProfile,updateEmployeeProfile,} from "../api";
+import { getEmployeeProfile, updateEmployeeProfile, } from "../api";
 import { toast } from "react-toastify";
 
 export default function EmployeeProfile() {
     const navigate = useNavigate();
     const { employee_code } = useParams();
     const [selectedImage, setSelectedImage] = useState(null);
+    const [errors, setErrors] = useState({});
     const [employee, setEmployee] = useState({
         fullName: "",
         employeeId: "",
@@ -50,67 +51,87 @@ export default function EmployeeProfile() {
     };
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setEmployee((prev) => ({ ...prev, [name]: value }));
+        // Allow only digits for alternate mobile
+        if (name === "alternateMobile") {
+            const digitsOnly = value.replace(/\D/g, "").slice(0, 10);
+            setEmployee((prev) => ({
+                ...prev,
+                alternateMobile: digitsOnly,
+            }));
+            if (digitsOnly && !/^[6-9]\d{9}$/.test(digitsOnly)) {
+                setErrors((prev) => ({
+                    ...prev,
+                    alternateMobile:
+                        "Enter a valid 10-digit mobile number starting with 6-9",
+                }));
+            } else {
+                setErrors((prev) => ({
+                    ...prev,
+                    alternateMobile: "",
+                }));
+            }
+            return;
+        }
+        setEmployee((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
+    //user can change their profile pic
     const handleImageChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        // Save the actual file for backend upload
         setSelectedImage(file);
+        // Show preview immediately
         const preview = URL.createObjectURL(file);
         setEmployee((prev) => ({
             ...prev,
             profilePhoto: preview,
         }));
     };
-    // const handleImageChange = (e) => {
-    //     const file = e.target.files?.[0];
-    //     if (!file) return;
-    //     const reader = new FileReader();
-    //     reader.onloadend = () => {
-    //         setEmployee((prev) => ({
-    //             ...prev,
-    //             profilePhoto: reader.result,
-    //         }));
-    //     };
-    //     reader.readAsDataURL(file);
-    // };
-    // const handleSubmit = (e) => {
-    //     e.preventDefault();
-    //     console.log("Updated Employee:", employee);
-    // };
+    //handle submit
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (employee.alternateMobile && !/^[6-9]\d{9}$/.test(employee.alternateMobile)) {
+            setErrors({
+                alternateMobile:
+                    "Enter a valid 10-digit mobile number starting with 6-9",
+            });
+            return;
+        }
         try {
             const formData = new FormData();
-            // phone number
-            formData.append("mobile", employee.phone);
-            // profile photo
+            formData.append(
+                "alternateMobile",
+                employee.alternateMobile
+            );
             if (selectedImage) {
-                formData.append("profilePhoto", selectedImage);
+                formData.append(
+                    "profilePhoto",
+                    selectedImage
+                );
             }
-            await updateEmployeeProfile(employee.employeeId, formData);
-            toast.success("Profile updated successfully");
-            // Refresh latest data
+            await updateEmployeeProfile(
+                employee.employeeId,
+                formData
+            );
+            toast.success(
+                "Profile updated successfully"
+            );
             fetchEmployeeProfile();
-            // Clear temporary file
             setSelectedImage(null);
         } catch (err) {
             console.error(err);
-            toast.error("Failed to update profile");
+            toast.error(
+                "Failed to update profile"
+            );
         }
     };
     return (
         <div className="min-h-screen bg-[#EDF2F7] p-4 sm:p-5 lg:p-6">
             <div className="rounded-xl border border-[#D9E1E8] bg-white shadow-[0_2px_8px_rgba(14,41,64,0.05)]">
                 {/* PAGE HEADER */}
-                {/* <div className="border-b border-[#E5EAF0] px-5 py-4 sm:px-6">
-                    <h1 className="text-[22px] font-semibold text-[#0E2940]">
-                        Employee Profile
-                    </h1>
-                    <p className="mt-1 text-[12px] text-[#7A8795]">
-                        Update employee personal and official information
-                    </p>
-                </div> */}
                 <div className="border-b border-[#E5EAF0] px-5 py-4 sm:px-6 flex items-center justify-between">
                     <div>
                         <h1 className="text-[22px] font-semibold text-[#0E2940]">
@@ -144,14 +165,11 @@ export default function EmployeeProfile() {
                                                 alt="profile"
                                                 className="h-full w-full object-cover"
                                             />
-
                                         ) : (
-
                                             <div className="relative h-[60px] w-[60px]">
                                                 <div className="absolute left-1/2 top-0 h-[24px] w-[24px] -translate-x-1/2 rounded-full bg-[#AEB8C7]" />
                                                 <div className="absolute bottom-0 left-1/2 h-[28px] w-[52px] -translate-x-1/2 rounded-t-full bg-[#AEB8C7]" />
                                             </div>
-
                                         )}
                                     </div>
 
@@ -189,7 +207,6 @@ export default function EmployeeProfile() {
                                 </p>
                             </div>
                             {/* RIGHT FORM SECTION */}
-
                             <div className="lg:col-span-9">
                                 <div className="grid grid-cols-1 gap-x-5 gap-y-5 md:grid-cols-2">
                                     {/* EMPLOYEE ID */}
@@ -239,19 +256,27 @@ export default function EmployeeProfile() {
                                         />
 
                                     </div>
-                                    {/* PHONE */}
                                     <div>
                                         <label className="mb-2 block text-[13px] font-semibold text-[#17213B]">
-                                            Phone
+                                            Alternate Mobile
                                         </label>
                                         <input
                                             type="text"
-                                            name="phone"
-                                            value={employee.phone}
+                                            name="alternateMobile"
+                                            value={employee.alternateMobile}
                                             onChange={handleChange}
-                                            placeholder="Enter phone number"
-                                            className="h-[44px] w-full rounded-md border border-[#D5DDE5] bg-[#F3F4F6] px-3 text-[14px] text-[#17213B] outline-none"
+                                            maxLength={10}
+                                            placeholder="Enter alternate mobile number"
+                                            className={`h-[44px] w-full rounded-md border px-3 text-[14px] outline-none ${errors.alternateMobile
+                                                ? "border-red-500 bg-red-50"
+                                                : "border-[#D5DDE5] bg-[#F3F4F6]"
+                                                }`}
                                         />
+                                        {errors.alternateMobile && (
+                                            <p className="mt-1 text-xs text-red-600">
+                                                {errors.alternateMobile}
+                                            </p>
+                                        )}
                                     </div>
                                     {/* DATE OF BIRTH */}
                                     <div>
@@ -337,188 +362,3 @@ export default function EmployeeProfile() {
     );
 
 }
-
-
-// import { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import { getEmployeeProfile } from "../api";
-
-// export default function EmployeeProfile() {
-//   const { employee_code } = useParams();
-//   const navigate = useNavigate();
-
-//   const [profile, setProfile] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     fetchProfile();
-//   }, [employee_code]);
-
-//   const fetchProfile = async () => {
-//     try {
-//       const res = await getEmployeeProfile(employee_code);
-//       setProfile(res.data.data);
-//     } catch (err) {
-//       console.log(err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   if (loading) return <div className="p-6">Loading profile...</div>;
-//   if (!profile) return <div className="p-6">Employee not found</div>;
-
-//   const basic = profile.basic || {};
-
-//   return (
-//     <div className="p-6 bg-[#EDF2F7] min-h-screen">
-//       <div className="bg-white rounded-xl shadow border p-6">
-//         <div className="flex items-center justify-between mb-6">
-//           <div>
-//             <h1 className="text-2xl font-semibold text-[#0E2940]">
-//               Employee Profile
-//             </h1>
-//             <p className="text-sm text-gray-500">
-//               View employee profile
-//             </p>
-//           </div>
-
-//           <button
-//             onClick={() => navigate(-1)}
-//             className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
-//           >
-//             Back
-//           </button>
-//         </div>
-
-//         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-//           <div className="flex flex-col items-center border-r pr-6">
-//             {basic.profilePhoto ? (
-//               <img
-//                 src={basic.profilePhoto}
-//                 alt="profile"
-//                 className="w-32 h-32 rounded-full object-cover border"
-//               />
-//             ) : (
-//               <div className="w-32 h-32 rounded-full bg-gray-200" />
-//             )}
-
-//             <h2 className="mt-4 text-lg font-semibold">
-//               {basic.firstName} {basic.lastName}
-//             </h2>
-
-//             <p className="text-sm text-gray-500">
-//               {basic.designation?.designationName}
-//             </p>
-
-//             <div className="mt-3 px-3 py-1 rounded-full bg-teal-50 border text-teal-700 text-xs font-semibold">
-//               {basic.employee_code}
-//             </div>
-//           </div>
-
-//           <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-//             <div>
-//               <label className="text-sm font-medium">Employee ID</label>
-//               <input
-//                 value={basic.employee_code || ""}
-//                 disabled
-//                 className="w-full border rounded p-2 bg-gray-100"
-//               />
-//             </div>
-
-//             <div>
-//               <label className="text-sm font-medium">Official Email</label>
-//               <input
-//                 value={basic.officialEmail || ""}
-//                 disabled
-//                 className="w-full border rounded p-2 bg-gray-100"
-//               />
-//             </div>
-
-//             <div>
-//               <label className="text-sm font-medium">First Name</label>
-//               <input
-//                 value={basic.firstName || ""}
-//                 disabled
-//                 className="w-full border rounded p-2 bg-gray-100"
-//               />
-//             </div>
-
-//             <div>
-//               <label className="text-sm font-medium">Last Name</label>
-//               <input
-//                 value={basic.lastName || ""}
-//                 disabled
-//                 className="w-full border rounded p-2 bg-gray-100"
-//               />
-//             </div>
-
-//             <div>
-//               <label className="text-sm font-medium">Mobile</label>
-//               <input
-//                 value={basic.mobile || ""}
-//                 disabled
-//                 className="w-full border rounded p-2 bg-gray-100"
-//               />
-//             </div>
-
-//             <div>
-//               <label className="text-sm font-medium">Alternate Mobile</label>
-//               <input
-//                 value={basic.alternateMobile || ""}
-//                 className="w-full border rounded p-2"
-//               />
-//             </div>
-//           </div>
-//         </div>
-
-//         <div className="mt-8 flex justify-end">
-//           <button className="px-5 py-2 bg-[#16B7AF] text-white rounded">
-//             View Profile
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

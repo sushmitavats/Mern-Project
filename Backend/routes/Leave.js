@@ -39,8 +39,6 @@ router.get(
     }
   }
 );
-
-
 router.post("/",
   authMiddleware,
   checkPermission("Leave_create"),
@@ -269,12 +267,6 @@ router.put(
   checkPermission("Leave_edit"),
   async (req, res) => {
     try {
-
-      // if (req.user.role !== "HR" && req.user.role !== "ADMIN") {
-      //   return res.status(403).json({
-      //     msg: "Only HR/Admin allowed",
-      //   });
-      // }
       const leave =
         await Leave.findById(
           req.params.id
@@ -337,19 +329,7 @@ router.put(
 
       leave.approvedBy =
         req.user.employee_code;
-
       await leave.save();
-
-
-
-      // leave.status =
-      //   req.body.status;
-
-      // leave.approvedBy =
-      //   req.user.employee_code;
-
-      // await leave.save();
-
       res.json({
         success: true,
         leave,

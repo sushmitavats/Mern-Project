@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, } from "react";
 import { createPermission, updatePermission, } from "../api";
 import { getDepartments, getDesignations, getEmployees, } from "../api";
@@ -15,7 +14,6 @@ const PermissionModal = ({onClose,selectedPermission,}) => {
     useState([]);
   const [employees, setEmployees] =
     useState([]);
-
   const permissionModules = [
     "Employee",
     "Attendance",
@@ -77,7 +75,6 @@ const PermissionModal = ({onClose,selectedPermission,}) => {
     setFilteredDesignations([]);
     return;
   }
-
   const filteredDesig = designations.filter((item) => {
     const deptId =
       item.department?._id ||
@@ -88,7 +85,6 @@ const PermissionModal = ({onClose,selectedPermission,}) => {
   });
   setFilteredDesignations(filteredDesig);
 }, [department, designations]);
-
 
 //permission
   useEffect(() => {

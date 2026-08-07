@@ -2,13 +2,15 @@ import axios from "axios";
 
 // BASE URL
 // "http://localhost:5000/api";
+// "http://localhost:5000/api";
+//http://192.168.1.18:5000/api
 const BASE_URL = "http://localhost:5000/api";
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
 });
-const api = axios.create({
-  baseURL: "http://localhost:5000/api",
-});
+// const api = axios.create({
+//   baseURL: "http://localhost:5000/api",
+// });
 
 //login 
 axiosInstance.interceptors.request.use(

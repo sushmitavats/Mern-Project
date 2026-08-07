@@ -9,7 +9,7 @@ import employeeRoutes from "./routes/EmployeeRoute.js";
 import attendanceRoutes from "./routes/Attendance.js";
 import leaveRoutes from "./routes/Leave.js";
 import permissionRoutes from "./routes/permissionRoutes.js";
-import leaveBalanceRoutes from "./routes/leaveBalanceRoutes.js";
+import leaveBalanceRoutes from "./routes/leaveRoutes.js";
 import "./cron/leaveReset.js";
 import "./cron/monthlyEarnLeave.js";
 import departmentRoutes from "./routes/departmentRoutes.js";
@@ -20,6 +20,7 @@ import exitDetailRoutes from "./routes/exitDetailRoutes.js"
 // import leaveDetailRoutes from "./routes/leaveDetailRoutes.js"
 import itAssertRoutes from "./routes/itAssertRoutes.js"
 import employeeProfileRoutes from "./routes/EmployeeProfileRoutes.js";
+import { startLeaveCron } from "./cron/leaveCron.js";
 import path from "path";
 
 dotenv.config();

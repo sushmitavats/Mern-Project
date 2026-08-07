@@ -82,18 +82,19 @@ export default function Layout() {
     //   path:"/employees/edit/:employee_code",
     //   module: "Employee",                                  //added for emp edit 
     // },
-    // {
     //   name: "Profile",
-    //   path: "/employee-profile",
+    //   path: `/employee-profile/${user?.employee_code}`,
     //   module: "Employee",
     //   icon: <MdOutlineBadge size={22} />,
-    // },
-    {
-      name: "Profile",
-      path: `/employee-profile/${user?.employee_code}`,
-      module: "Employee",
-      icon: <MdOutlineBadge size={22} />,
-    }
+    // }
+    ...(user?.employee_code
+      ? [{
+        name: "Profile",
+        path: `/employee-profile/${user.employee_code}`,
+        icon: <MdOutlineBadge size={22} />,
+      }]
+      : []),
+      
   ];
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#f7f9fc] text-[#0f1d3d]">
@@ -151,12 +152,10 @@ export default function Layout() {
                   rounded-[6px]
                   transition-all duration-200
                   cursor-pointer
-
                   ${sidebarOpen
                         ? "gap-3 px-3"
                         : "justify-center px-2"
                       }
-
                   ${isActive
                         ? "bg-[#0392a1] text-white shadow-[0_4px_12px_rgba(3,146,161,0.25)]"
                         : "text-[#d9e3f0] hover:bg-[#073263] hover:text-white"
@@ -211,10 +210,16 @@ export default function Layout() {
         <div className="border-t border-white/10 p-3">
 
           <button
+            // onClick={() => {
+            //   localStorage.removeItem("token");
+            //   localStorage.removeItem("user");
+            //   navigate("/login");
+            // }}
             onClick={() => {
               localStorage.removeItem("token");
               localStorage.removeItem("user");
-              navigate("/login");
+              localStorage.removeItem("permissions");
+              navigate("/login", { replace: true });
             }}
             className={`
           flex w-full
@@ -240,6 +245,12 @@ export default function Layout() {
                 Logout
               </span>
             )}
+            {/* onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              localStorage.removeItem("permissions");
+              navigate("/login", { replace: true });
+            }} */}
           </button>
         </div>
       </aside>

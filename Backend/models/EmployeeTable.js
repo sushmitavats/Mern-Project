@@ -78,10 +78,10 @@ const employeeSchema = new Schema(
         workLocation: String,
         officeBranch: String,
         joininDate: Date,
-        employmentStatus: {
-            type: String,
-            default: "Active"
-        },
+        // employmentStatus: {
+        //     type: String,
+        //     default: "Active"
+        // },
         shift: String,
         probationPeriod: String,
         confirmationDate: Date,
