@@ -48,11 +48,9 @@ export default function EditEmployeePage() {
     const currentTabIndex = tabOrder.indexOf(activeTab);
     const [saveDraftLoading, setSaveDraftLoading] = useState(false);
     const [saveNextLoading, setSaveNextLoading] = useState(false);
-
     //additional skills
     const [skillInput, setSkillInput] = useState("");
     const [certificationInput, setCertificationInput] = useState("");
-
     const [languageInput, setLanguageInput] = useState("");
 
     useEffect(() => {
@@ -69,7 +67,7 @@ export default function EditEmployeePage() {
                 designation: res.data.designation?._id || "",
                 profilePhoto: res.data.profilePhoto || "",
                 cancelledCheque: res.data.cancelledCheque || "",
-                identityDocuments: res.data.identityDocuments || []
+                identityDocuments: res.data.identityDocuments || [],
             });
             setSelectedImage(null);
             const educationRes =
@@ -249,7 +247,6 @@ export default function EditEmployeePage() {
             "esicDeduction",
             "professionalTax",
         ];
-
         if (payrollFields.includes(name)) {
             if (updatedValue === "") {
             } else if (!/^\d*\.?\d*$/.test(updatedValue)) {
@@ -264,20 +261,44 @@ export default function EditEmployeePage() {
                 return;
             }
         }
-
         const errorMessage = validateField(name, updatedValue);
         setErrors(prev => ({
             ...prev,
             [name]: errorMessage,
         }));
 
-        setForm(prev => ({
-            ...prev,
-            [name]: updatedValue,
-            ...(name === "department" && {
-                designation: "",
-            }),
-        }));
+        // setForm(prev => ({
+        //     ...prev,
+        //     [name]: updatedValue,
+        //     ...(name === "department" && {
+        //         designation: "",
+        //     }),
+        // }));
+        setForm(prev => {
+            const updatedForm = {
+                ...prev,
+                [name]: updatedValue,
+                // if user changed department then desigination should be empty.
+                ...(name === "department" && {
+                    designation: "",
+                }),
+            };
+            updatedForm.noticePeriod = "2 Months";
+            // Auto calculate Confirmation Date
+            const joiningDate =
+                name === "joiningDate" ? updatedValue : updatedForm.joiningDate;
+            const probation =
+                name === "probationPeriod"
+                    ? updatedValue
+                    : updatedForm.probationPeriod;
+            if (joiningDate && probation) {
+                const date = new Date(joiningDate);
+                date.setMonth(date.getMonth() + Number(probation));
+                updatedForm.confirmationDate =
+                    date.toISOString().split("T")[0];
+            }
+            return updatedForm;
+        });
     };
     //6Employee ki Profile Photo select aur preview karna
     //handling basic info image change.
@@ -464,7 +485,6 @@ export default function EditEmployeePage() {
             }
         };
     }, [form.profilePhoto]);
-
     //9 Ye project ka dusra backbone hai.
     //vallidatin
     const validate = () => {
@@ -523,10 +543,10 @@ export default function EditEmployeePage() {
             if (!form.joiningDate)
                 newErrors.joiningDate =
                     "Joining Date is required";
-            if (form.noticePeriod && isNaN(form.noticePeriod)) {
-                newErrors.noticePeriod =
-                    "Notice Period should be numeric";
-            }
+            // if (form.noticePeriod && isNaN(form.noticePeriod)) {
+            //     newErrors.noticePeriod =
+            //         "Notice Period should be numeric";
+            // }
             if (form.probationPeriod && isNaN(form.probationPeriod)) {
                 newErrors.probationPeriod =
                     "Probation should be numeric";
@@ -678,9 +698,9 @@ export default function EditEmployeePage() {
                     new Date(item.experienceEndDate) < new Date(item.experienceStartDate)) {
                     err.experienceEndDate = "End Date cannot be earlier than Start Date";
                 }
-                 if (item.lastCtc &&!/^\d+(\.\d{1,2})?$/.test(item.lastCtc)) {
-                err.lastCtc = "Enter a valid CTC amount";
-            }
+                if (item.lastCtc && !/^\d+(\.\d{1,2})?$/.test(item.lastCtc)) {
+                    err.lastCtc = "Enter a valid CTC amount";
+                }
                 expErrors[index] = err;
                 if (Object.keys(err).length > 0)
                     hasError = true;

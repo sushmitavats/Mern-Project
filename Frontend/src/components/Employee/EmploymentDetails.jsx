@@ -333,7 +333,7 @@ export default function EmploymentDetails({ form = {}, handleChange, errors = {}
                     <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
                         Probation Period
                     </label>
-                    <input
+                    {/* <select
                         name="probationPeriod"
                         value={form.probationPeriod || ""}
                         onChange={handleChange}
@@ -348,16 +348,34 @@ export default function EmploymentDetails({ form = {}, handleChange, errors = {}
                     outline-none
                     focus:border-[#0392a1]
                     focus:ring-1
-                    focus:ring-[#0392a1]/20
-                "
-                    />
+                    focus:ring-[#0392a1]/20"
+                    /> */}
+                    {/* <option value="">Select</option>
+                    <option value="3">3 Months</option>
+                    <option value="6">6 Months</option> */}
+                    <select
+                        name="probationPeriod"
+                        value={form.probationPeriod || ""}
+                        onChange={handleChange}
+                        className="
+                            h-[34px] w-full rounded-[6px]
+                            border border-[#cfd7e2]
+                            bg-white px-3 text-[11px]
+                            text-[#344054] outline-none
+                            focus:border-[#0392a1]
+                            focus:ring-1 focus:ring-[#0392a1]/20">
+                        <option value="">Select</option>
+                        <option value="3">3 Months</option>
+                        <option value="6">6 Months</option>
+                    </select>
+
+
                 </div>
                 {/* CONFIRMATION DATE */}
                 <div>
                     <label className="mb-1.5 block text-[11px] font-bold text-[#17213b]">
                         Confirmation Date
                     </label>
-
                     <input
                         type="date"
                         name="confirmationDate"
@@ -366,21 +384,20 @@ export default function EmploymentDetails({ form = {}, handleChange, errors = {}
                                 ? form.confirmationDate.split("T")[0]
                                 : ""
                         }
-                        onChange={handleChange}
+                        readOnly
+                        // onChange={handleChange}
                         className="
-                    h-[34px] w-full
-                    rounded-[6px]
-                    border border-[#cfd7e2]
-                    bg-white
-                    px-3
-                    text-[11px]
-                    text-[#344054]
-                    outline-none
-                    focus:border-[#0392a1]
-                    focus:ring-1
-                    focus:ring-[#0392a1]/20
-                "
-                    />
+                            h-[34px] w-full
+                            rounded-[6px]
+                            border border-[#cfd7e2]
+                            bg-white
+                            px-3
+                            text-[11px]
+                            text-[#344054]
+                            outline-none
+                            focus:border-[#0392a1]
+                            focus:ring-1
+                            focus:ring-[#0392a1]/20"/>
                 </div>
                 {/* NOTICE PERIOD */}
                 <div>
@@ -389,8 +406,10 @@ export default function EmploymentDetails({ form = {}, handleChange, errors = {}
                     </label>
                     <input
                         name="noticePeriod"
-                        value={form.noticePeriod || ""}
-                        onChange={handleChange}
+                        // value={form.noticePeriod || ""}
+                        value={form.noticePeriod || "2 Months"}
+                        readOnly
+                        // onChange={handleChange}
                         className="
                     h-[34px] w-full
                     rounded-[6px]
@@ -405,6 +424,17 @@ export default function EmploymentDetails({ form = {}, handleChange, errors = {}
                     focus:ring-[#0392a1]/20
                 "
                     />
+                    {/* <input
+                        name="noticePeriod"
+                        value={form.noticePeriod || "2 Months"}
+                        readOnly
+                        className="
+        h-[34px] w-full rounded-[6px]
+        border border-[#cfd7e2]
+        bg-gray-100 px-3 text-[11px]
+        text-[#344054] outline-none
+    "
+                    /> */}
                 </div>
                 {/* COST CENTER */}
                 {/* <div>

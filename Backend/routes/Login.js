@@ -14,172 +14,175 @@ import Designation from "../models/Designation.js";
 
 const router = express.Router();
 // create new user
-router.post(
-  "/register",
-  authMiddleware, isAdmin,
-  async (req, res) => {
-    try {
-      const {name,email,department,designation,role,joiningDate,} = req.body;
-      const existing =
-        await Login.findOne({ email });
-
-      if (existing) {
-        return res.status(400).json({
-          msg: "Email already exists",
-        });
-      } 
-      const plainPassword =
-        generatePassword();
-      const hashedPassword =
-        await bcrypt.hash(
-          plainPassword,
-          10
-        );
-      // CREATE USER
-      const employees =
-        await Employee.find({
-          employee_code: {
-            $regex: /^EMP\d+$/
-          }
-        });
-      let maxNumber = 0;
-      employees.forEach((emp) => {
-        const num =
-          parseInt(
-            emp.employee_code.replace(
-              "EMP",
-              ""
-            )
-          );
-        if (num > maxNumber) {
-          maxNumber = num;
+router.post("/register", authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { name, email, department, designation, role, joiningDate, } = req.body;
+    const existing =
+      await Login.findOne({ email });
+    if (existing) {
+      return res.status(400).json({
+        msg: "Email already exists",
+      });
+    }
+    const plainPassword = generatePassword();
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+    // CREATE USER
+    const employees =
+      await Employee.find({
+        employee_code: {
+          $regex: /^EMP\d+$/
         }
       });
-      const employee_code =
-        `EMP${String(
-          maxNumber + 1
-        ).padStart(3, "0")}`;
-
-      // const latestEmployee =
-      //   await Employee.findOne()
-      //     .sort({ createdAt: -1 });
-      // let employee_code = "EMP001";
-      // if (latestEmployee) {
-      //   const num = parseInt(
-      //     latestEmployee.employee_code.replace(
-      //       "EMP",
-      //       ""
-      //     )
-      //   );
-      //   employee_code =
-      //     `EMP${String(
-      //       num + 1
-      //     ).padStart(3, "0")}`;
-      // }
-
-      const user = new Login({
-        name,
-        email,
-        department,
-        designation,
-        password:
-          hashedPassword,
-        role:
-          role?.toUpperCase(),
-        joiningDate,
-        employee_code:
-          employee_code,
-        isFirstLogin: true,
-      });
-      await user.save();
-      //create in employe
-      const employeeExists =
-        await Employee.findOne({
-          employee_code
-        });
-      if (employeeExists) {
-        return res.status(400).json({
-          error: "Employee code already exists"
-        });
+    let maxNumber = 0;
+    employees.forEach((emp) => {
+      const num =
+        parseInt(
+          emp.employee_code.replace("EMP", "")
+        );
+      if (num > maxNumber) {
+        maxNumber = num;
       }
+    });
+    const employee_code = `EMP${String(maxNumber + 1).padStart(3, "0")}`;
+    const doj = new Date(joiningDate);
+    if (isNaN(doj.getTime())) {
+      return res.status(400).json({
+        msg: "Invalid joining date.",
+      });
+    }
+    const joiningYear = doj.getFullYear();
+    const joiningMonth = doj.getMonth();
+    let halfStartMonth;
+    let halfEndMonth;
 
-      const splitName =
-        name.trim().split(" ");
-      const employee =
-        new Employee({
-          userId: user._id,
-          employee_code,
-          firstName:
-            splitName[0] || "",
-          middleName:
-            splitName.length > 2
-              ?
-              splitName.slice(
-                1,
-                splitName.length - 1
-              ).join(" ")
-              :
-              "",
-          lastName:
-            splitName.length > 1
-              ?
-              splitName[
-              splitName.length - 1
-              ]
-              :
-              "",
-          officialEmail: email,
-          department,
-          designation,
-          joiningDate,
-          status: "Active"
-        });
-      await employee.save();
-      // SEND LOGIN MAIL TO USER
-      await sendMail(
-        email,
-        "Employee Login Credentials",
-
-        `
+    if (joiningMonth <= 5) {
+      // January - June
+      halfStartMonth = 0;
+      halfEndMonth = 5;
+    } else {
+      // July - December
+      halfStartMonth = 6;
+      halfEndMonth = 11;
+    }
+    let firstEligibleMonth = joiningMonth;
+    if (doj.getDate() > 15) {
+      firstEligibleMonth = joiningMonth + 1;
+    }
+    let eligibleMonths = 0;
+    if (firstEligibleMonth <= halfEndMonth) {
+      eligibleMonths =
+        halfEndMonth - Math.max(
+          firstEligibleMonth,
+          halfStartMonth
+        ) + 1;
+    }
+    eligibleMonths = Math.min(
+      Math.max(eligibleMonths, 0),
+      6
+    );
+    const initialFloatingLeave = Number(
+      (eligibleMonths * 0.5).toFixed(2)
+    );
+    const floatingCycleStart = new Date(
+      joiningYear,
+      halfStartMonth,
+      1
+    );
+    const initialEarnLeave = 0;
+    // First eligible month for EL
+    const earnCycleStart = new Date(doj.getFullYear(), doj.getMonth(), 1);
+    if (doj.getDate() > 15) {
+      earnCycleStart.setMonth(earnCycleStart.getMonth() + 1);
+    }
+    const user = new Login({
+      name,
+      email,
+      department,
+      designation,
+      password: hashedPassword,
+      role: role?.toUpperCase(),
+      joiningDate,
+      employee_code,
+      floatingLeave: initialFloatingLeave,
+      earnLeave: initialEarnLeave,
+      floatingLeaveIssuedDate: floatingCycleStart,
+      lastFloatingLeaveDate: initialFloatingLeave === 3 ? floatingCycleStart : null,
+      // Null means no EL has been credited yet
+      lastEarnLeaveCreditDate: null,
+      isFirstLogin: true,
+    });
+    await user.save();
+    //create in employe
+    const employeeExists =
+      await Employee.findOne({
+        employee_code
+      });
+    if (employeeExists) {
+      return res.status(400).json({
+        error: "Employee code already exists"
+      });
+    }
+    const splitName = name.trim().split(" ");
+    const employee = new Employee({
+      userId: user._id,
+      employee_code,
+      firstName:
+        splitName[0] || "",
+      middleName:
+        splitName.length > 2
+          ?
+          splitName.slice(
+            1,
+            splitName.length - 1
+          ).join(" ")
+          :
+          "",
+      lastName:
+        splitName.length > 1
+          ?
+          splitName[
+          splitName.length - 1
+          ]
+          :
+          "",
+      officialEmail: email,
+      department,
+      designation,
+      joiningDate,
+      status: "Active"
+    });
+    await employee.save();
+    // SEND LOGIN MAIL TO USER
+    await sendMail(
+      email,
+      "Employee Login Credentials",
+      `
         Welcome To Company
-
         Your account has been created.
-
         Employee Code: ${employee_code}
-
         Email: ${email}
-
         Temporary Password: ${plainPassword}
-
         Please login and change password.
         `
+    );
+    // IF EMPLOYEE CREATED
+    const departmentData =
+      await Department.findById(
+        department
       );
-
-      // IF EMPLOYEE CREATED
-      const departmentData =
-        await Department.findById(
-          department
-        );
-      const designationData =
-        await Designation.findById(
-          designation
-        );
-      if (
-        role?.toUpperCase() ===
-        "EMPLOYEE"
-      ) {
-
-        const hrUsers =
-          await Login.find({
-            role: "HR",
-          });
-
-        for (const hr of hrUsers) {
-
-          await sendMail(
-            hr.email,
-            "New Employee Added",
-            `
+    const designationData =
+      await Designation.findById(
+        designation
+      );
+    if (role?.toUpperCase() === "EMPLOYEE") {
+      const hrUsers = await Login.find({
+        role: "HR",
+      });
+      for (const hr of hrUsers) {
+        await sendMail(
+          hr.email,
+          "New Employee Added",
+          `
             New employee has been added.
             Name: ${name}
             Employee Code:${employee_code}
@@ -188,22 +191,20 @@ router.post(
             Designation:
             ${designationData?.designationName}
             `
-          );
-        }
+        );
       }
-
-      res.status(201).json({
-        success: true,
-        msg: "User Created Successfully",
-      });
-
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({
-        error: error.message,
-      });
     }
+    res.status(201).json({
+      success: true,
+      msg: "User Created Successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: error.message,
+    });
   }
+}
 );
 
 // add user
@@ -251,17 +252,11 @@ router.post("/login", async (req, res) => {
             $match: {
               $or: [
                 // employee specific
-                {
-                  employee:
-                    user.employee_code
-                },
+                { employee: user.employee_code },
                 // department + designation
                 {
-                  department:
-                    user.department?._id,
-
-                  designation:
-                    user.designation?._id
+                  department: user.department?._id,
+                  designation: user.designation?._id
                 },
                 // department only
                 {
@@ -269,7 +264,9 @@ router.post("/login", async (req, res) => {
                     user.department?._id,
                   designation: null
                 }
-              ]}},
+              ]
+            }
+          },
           {
             $addFields: {
               priority: {
@@ -296,10 +293,15 @@ router.post("/login", async (req, res) => {
                             $eq: [
                               "$designation",
                               user.designation?._id
-                            ]}]},
-                      2,3
+                            ]
+                          }]
+                      },
+                      2, 3
                     ]
-                  }]}}},
+                  }]
+              }
+            }
+          },
           {
             $sort: {
               priority: 1
@@ -309,34 +311,26 @@ router.post("/login", async (req, res) => {
             $limit: 1
           }
         ]);
-
       permissions =
         permissionResult[0]
           ?.permissions || [];
     }
-
-    console.log(
-      "Permissions:",
-      permissions
+    console.log("Permissions:", permissions);
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+        email: user.email,
+        employee_code:
+          user.employee_code,
+        department: user.department?._id || null,
+        designation: user.designation?._id || null
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d"
+      }
     );
-
-    const token =
-      jwt.sign(
-        {
-          id: user._id,
-          role: user.role,
-          email: user.email,
-          employee_code:
-            user.employee_code,
-          department: user.department?._id || null,
-          designation: user.designation?._id || null
-        },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: "1d"
-        }
-      );
-
     res.json({
       success: true,
       token,
@@ -358,17 +352,14 @@ router.post("/login", async (req, res) => {
     });
   }
   catch (error) {
-    console.log(
-      "LOGIN ERROR:",
-      error
-    );
+    console.log("LOGIN ERROR:", error);
     res.status(500).json({
       error: error.message
     });
   }
 });
 
-
+//change passs
 router.post("/change-password", authMiddleware, async (req, res) => {
   try {
     const {
@@ -382,13 +373,15 @@ router.post("/change-password", authMiddleware, async (req, res) => {
         msg: "Password must be at least 8 characters",
       });
     }
-
+    //ac
+    if (oldPassword == newPassword) {
+      msg: "password match to the previous one"
+    }
     if (newPassword !== confirmPassword) {
       return res.status(400).json({
         msg: "Passwords do not match",
       });
     }
-
     const user = await Login.findById(req.user.id);
     console.log("REQ BODY:", req.body);
     console.log("REQ USER:", req.user);
@@ -485,120 +478,108 @@ router.get("/all-users", authMiddleware,
   }
 );
 //update user with change madein in user management
-router.put(
-  "/update-user/:id",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      const updatedUser =
-        await Login.findByIdAndUpdate(
-          req.params.id,
-          req.body,
-          {
-            new: true
-          }
-        );
-      // await Employee.findOneAndUpdate(
-      //   {
-      //     employee_code:
-      //       updatedUser.employee_code
-      //   },
-      //   {
-      //     $set: {
-      //       department: req.body.department,
-      //       designation: req.body.designation,
-      //       joiningDate: req.body.joiningDate,
-      //       status: req.body.status
-      //     }
-      //   }
-      // );
-
-      await Employee.findOneAndUpdate(
+router.put("/update-user/:id", authMiddleware, async (req, res) => {
+  try {
+    const updatedUser =
+      await Login.findByIdAndUpdate(
+        req.params.id,
+        req.body,
         {
-          employee_code:
-            updatedUser.employee_code
-        },
-        {
-          $set: {
-            firstName:
-              req.body.name
-                ?.split(" ")[0],
-            lastName:
-              req.body.name
-                ?.split(" ")
-                .slice(1)
-                .join(" "),
-            officialEmail:
-              req.body.email,
-            department:
-              req.body.department,
-            designation:
-              req.body.designation,
-            joiningDate:
-              req.body.joiningDate,
-            status:
-              req.body.status
-          }
+          new: true
         }
-      )
-      res.json({
-        success: true
-      });
-    } catch (error) {
-      res.status(500).json({
-        error: error.message
-      })
-    }
+      );
+    // await Employee.findOneAndUpdate(
+    //   {
+    //     employee_code:
+    //       updatedUser.employee_code
+    //   },
+    //   {
+    //     $set: {
+    //       department: req.body.department,
+    //       designation: req.body.designation,
+    //       joiningDate: req.body.joiningDate,
+    //       status: req.body.status
+    //     }
+    //   }
+    // );
+
+    await Employee.findOneAndUpdate(
+      {
+        employee_code:
+          updatedUser.employee_code
+      },
+      {
+        $set: {
+          firstName:
+            req.body.name
+              ?.split(" ")[0],
+          lastName:
+            req.body.name
+              ?.split(" ")
+              .slice(1)
+              .join(" "),
+          officialEmail: req.body.email,
+          department: req.body.department,
+          designation: req.body.designation,
+          joiningDate: req.body.joiningDate,
+          status: req.body.status
+        }
+      }
+    )
+    res.json({
+      success: true
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message
+    })
   }
+}
 )
 // DELETE USER
-router.delete(
-  "/delete-user/:id",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      const user =
-        await Login.findById(req.params.id);
-      if (!user) {
-        return res.status(404).json({
-          msg: "User not found"
-        });
-      }
-      const employeeCode =
-        user.employee_code;
-      // Delete login record
-      await Login.findByIdAndDelete(
-        req.params.id
-      );
-      // Soft delete employee record
-      await Employee.findOneAndUpdate(
-        {
-          employee_code:
-            employeeCode
-        },
-        {
-          isDeleted: true
-        }
-      );
-      // Remove attendance
-      await Attendance.deleteMany({
-        employee_code:
-          employeeCode
-      });
-      res.json({
-        success: true,
-        msg:
-          "User, Employee and Attendance deleted successfully"
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({
-        error: error.message
+router.delete("/delete-user/:id", authMiddleware, async (req, res) => {
+  try {
+    const user =
+      await Login.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        msg: "User not found"
       });
     }
+    const employeeCode =
+      user.employee_code;
+    // Delete login record
+    await Login.findByIdAndDelete(
+      req.params.id
+    );
+    // Soft delete employee record
+    await Employee.findOneAndUpdate(
+      {
+        employee_code:
+          employeeCode
+      },
+      {
+        isDeleted: true
+      }
+    );
+    // Remove attendance
+    await Attendance.deleteMany({
+      employee_code:
+        employeeCode
+    });
+    res.json({
+      success: true,
+      msg:
+        "User, Employee and Attendance deleted successfully"
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: error.message
+    });
   }
+}
 );
-
 // change update in both user manag and Employee pg.
 router.put(
   "/change-status/:id",

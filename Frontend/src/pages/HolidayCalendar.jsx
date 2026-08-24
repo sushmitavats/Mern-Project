@@ -10,7 +10,6 @@ const holidays = [
     date: "2026-03-14",
   },
 ];
-
 export default function HolidayCalendar() {
   return (
     <div className="p-6">
@@ -24,7 +23,6 @@ export default function HolidayCalendar() {
           className="bg-white shadow rounded p-4 mb-3"
         >
           <h2>{holiday.name}</h2>
-
           <p>{holiday.date}</p>
         </div>
       ))}

@@ -33,6 +33,7 @@ router.get("/", authMiddleware, checkPermission("Employee_view"),
               { isDeleted: { $exists: false } },
             ],
           };
+          
       const data = await Employee.aggregate([
         {
           $match: matchStage,

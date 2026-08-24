@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-// import { useParams } from 'react-router-dom';
 import { FaCamera, FaCheckCircle } from "react-icons/fa";
-// import { getEmployeeProfile } from "../api";
 import { useNavigate, useParams } from "react-router-dom";
 import { getEmployeeProfile, updateEmployeeProfile, } from "../api";
 import { toast } from "react-toastify";
@@ -81,6 +79,24 @@ export default function EmployeeProfile() {
     const handleImageChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        // Allowed file types
+        const allowedTypes = [
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+        ];
+        // Validate file type
+        if (!allowedTypes.includes(file.type)) {
+            alert("Only JPG, JPEG and PNG files are allowed.");
+            e.target.value = ""; // clear invalid file
+            return;
+        }
+        const MAX_SIZE = 2 * 1024 * 1024;
+        if (file.size > MAX_SIZE) {
+            alert("Profile photo must be less than 2 MB.");
+            e.target.value = "";
+            return;
+        }
         // Save the actual file for backend upload
         setSelectedImage(file);
         // Show preview immediately
@@ -199,12 +215,12 @@ export default function EmployeeProfile() {
                                     </span>
                                 </div>
                                 {/* UPLOAD TEXT */}
-                                <p className="mt-5 text-center text-[11px] font-semibold text-[#17213B]">
+                                {/* <p className="mt-5 text-center text-[11px] font-semibold text-[#17213B]">
                                     Upload Profile Photo
                                 </p>
                                 <p className="mt-1 text-center text-[10px] text-[#8994A5]">
                                     JPG, PNG (Max 2MB)
-                                </p>
+                                </p> */}
                             </div>
                             {/* RIGHT FORM SECTION */}
                             <div className="lg:col-span-9">

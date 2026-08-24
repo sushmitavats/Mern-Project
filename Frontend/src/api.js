@@ -29,22 +29,48 @@ axiosInstance.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-axiosInstance.interceptors.response.use(
-  (response) => response,
+axiosInstance.interceptors.response.use((response) => response,
   (error) => {
-    console.log(
-      "API ERROR:",
+    console.log("API ERROR:",
       error.response?.data
     );
     return Promise.reject(error);
   }
 );
-// leave fl & el
-export const monthlyEarnLeave = () =>
-  axiosInstance.put(
-    "/monthly-earn-leave"
-  );
+//leave api start from here##
+//HOLIDAY API
+export const getHolidays = () => axiosInstance.get("/holiday/all");
+export const addHoliday = (data) => axiosInstance.post("/holiday/add", data);
+//api of EL on last day of month and FL
+export const monthlyEarnLeave = () => axiosInstance.put("/monthly-earn-leave");
 export const grantFloatingLeave = () => axiosInstance.put("/grant-floating-leave");
+// export const getLeaveBalance = (employee_code) => axiosInstance.get(`/leave-balance/${employee_code}`);
+export const getLeaveBalance = (employee_code) =>
+  axiosInstance.get(`/leave/leave-balance/${employee_code}`);
+// GET LEAVE HISTORY
+export const getLeaves = () => axiosInstance.get("/leave");
+export const addLeave = (data) => axiosInstance.post("/leave", data);
+// export const updateLeaveStatus = (id, status) => axiosInstance.put(`/leave/${id}`, { status });
+export const updateLeaveStatus = (id, status, rejectedReason = "") =>
+  axiosInstance.put(
+    `/leave/${id}`,
+    { status, rejectedReason, }
+  );
+// export const searchEmployees = (search) => axiosInstance.get(`/employees/search?search=${search}`);
+export const searchEmployees = (search) =>
+  axiosInstance.get(
+    `/leave/search-employee?search=${search}`
+  );
+// leave employee calandar
+export const getEmployeeCalendarLeaves = (employeeCode) => {
+  return api.get(`/leave/calendar/${employeeCode}`);
+};
+export const searchReportingManagers = async (search) => {
+    return axiosInstance.get(
+        `/leave/search-employee?search=${encodeURIComponent(search)}`
+    );
+};
+//leave api ends here**
 //employee
 export const getEmployees = () => axiosInstance.get("/employees");
 export const addEmployee = (data) =>
@@ -145,13 +171,6 @@ export const saveITAssetDetails = (data) =>
 export const getITAssetDetails = (employee_code) =>
   axiosInstance.get(`/it-asset/${employee_code}`);
 
-// Leave Details API
-// export const saveLeaveDetails = (data) =>
-//   axiosInstance.post("/leave-detail/save", data);
-
-// export const getLeaveDetails = (employee_code) =>
-//   axiosInstance.get(`/leave-detail/${employee_code}`);
-
 // Exit Details API
 export const saveExitDetails = (data) =>
   axiosInstance.post("/exit-detail/save", data);
@@ -175,24 +194,18 @@ export const getAttendance = () =>
   axiosInstance.get("/attendance");
 export const saveAttendance = (data) =>
   axiosInstance.post("/attendance", data);
-export const searchEmployeess = (search) =>
-  axiosInstance.get(
-    `/leave/search-employee?search=${search}`
-  );
-export const searchEmployees = (
-  search
-) =>
-  axiosInstance.get(
-    `/employees/search?search=${search}`
-  );
+// export const searchEmployeess = (search) =>
+//   axiosInstance.get(
+//     `/leave/search-employee?search=${search}`
+//   );
+// export const searchEmployees = (
+//   search
+// ) =>
+//   axiosInstance.get(
+//     `/employees/search?search=${search}`
+//   );
 // export const searchEmployees = (search) =>
 //   axiosInstance.get(`/employees/search?search=${search}`);
-
-export const getLeaves = () => axiosInstance.get("/leave");
-export const addLeave = (data) => axiosInstance.post("/leave", data);
-export const updateLeaveStatus = (id, status) =>
-  axiosInstance.put(`/leave/${id}`, { status });
-
 // LOGIN
 export const loginUser = async (data) => {
   console.log("LOGIN API FUNCTION CALLED");
@@ -228,59 +241,16 @@ export const updateUser = (id, data) => axiosInstance.put(
 export const deleteUser = (id) => axiosInstance.delete(
   `/auth/delete-user/${id}`
 );
-
 // CHANGE STATUS
-export const changeUserStatus = (
-  id
-) =>
+export const changeUserStatus = (id) =>
   axiosInstance.put(
     `/auth/change-status/${id}`
   );
-
-//ENTERPRISE LEAVE FEATURES
-export const getLeaveBalance = (employee_code) =>
-  axiosInstance.get(`/leave-balance/${employee_code}`);
-
-// GET LEAVE HISTORY
-export const getLeaveHistory = (
-  employee_code
-) =>
-  axiosInstance.get(
-    `/leave/history/${employee_code}`
-  );
-export const addEarnLeave = (id) =>
-  axiosInstance.put(`/add-earn-leave/${id}`);
-export const addFloatingLeave = (id) =>
-  axiosInstance.put(`/add-floating-leave/${id}`);
-
-// ADD HOLIDAY
-export const addHoliday = (data) =>
-  axiosInstance.post(
-    "/holiday/add",
-    data
-  );
-
-// GET HOLIDAYS
-export const getHolidays = () =>
-  axiosInstance.get(
-    "/holiday/all"
-  );
 // GET NOTIFICATIONS
-export const getNotifications = (
-  employee_code
-) =>
-  axiosInstance.get(
-    `/notification/${employee_code}`
-  );
+export const getNotifications = (employee_code) =>
+  axiosInstance.get(`/notification/${employee_code}`);
 // MARK NOTIFICATION READ
-export const markNotificationRead = (
-  id
-
-) =>
-  axiosInstance.put(
-    `/notification/read/${id}`
-  );
-
+export const markNotificationRead = (id) => axiosInstance.put(`/notification/read/${id}`);
 // DOWNLOAD PDF REPORT
 export const downloadLeaveReport =
   () =>
@@ -356,8 +326,3 @@ export const getDesignationByDepartment =
     axiosInstance.get(
       `/designation/department/${departmentId}`
     );
-// new employee page updated route
-// export const getEmployeeByCode = (code) =>
-//   axiosInstance.get(
-//     `/employees/${code}`
-//   );

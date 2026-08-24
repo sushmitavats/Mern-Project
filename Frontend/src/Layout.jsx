@@ -24,7 +24,6 @@ export default function Layout() {
   const user = JSON.parse(
     localStorage.getItem("user")
   );
-
   const menuItems = [
     {
       name: "Dashboard",
@@ -57,7 +56,6 @@ export default function Layout() {
       module: "Usermanagement",
       icon: <MdOutlinePerson size={22} />,
     },
-
     {
       name: "Leave",
       path: "/leave",
@@ -70,23 +68,19 @@ export default function Layout() {
       module: "Exit",
       icon: <MdOutlineExitToApp size={22} />,
     },
-
+    //  path="/designation"
     {
       name: "Department",
       path: "/department",
       module: "Department",
       icon: <MdOutlineBusiness size={22} />,
     },
-    // {
-    //   name: "EditEmployreeModal",
-    //   path:"/employees/edit/:employee_code",
-    //   module: "Employee",                                  //added for emp edit 
-    // },
-    //   name: "Profile",
-    //   path: `/employee-profile/${user?.employee_code}`,
-    //   module: "Employee",
-    //   icon: <MdOutlineBadge size={22} />,
-    // }
+    {
+      name: "Designation",
+      path: "/designation",
+      module:"Designation",
+      icon: <MdOutlineBusiness size={22} />,
+    },
     ...(user?.employee_code
       ? [{
         name: "Profile",
@@ -94,11 +88,9 @@ export default function Layout() {
         icon: <MdOutlineBadge size={22} />,
       }]
       : []),
-      
   ];
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#f7f9fc] text-[#0f1d3d]">
-
       {/* SIDEBAR  */}
       <aside
         className={`
@@ -208,7 +200,6 @@ export default function Layout() {
         </nav>
         {/* LOGOUT */}
         <div className="border-t border-white/10 p-3">
-
           <button
             // onClick={() => {
             //   localStorage.removeItem("token");

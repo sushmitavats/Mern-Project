@@ -8,31 +8,26 @@ const AdditionalDetailSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-
     skills: {
       type: String,
       default: "",
       trim: true,
     },
-
     certifications: {
       type: String,
       default: "",
       trim: true,
     },
-
     languages: {
       type: String,
       default: "",
       trim: true,
     },
-
     linkedIn: {
       type: String,
       default: "",
       trim: true,
     },
-
     notes: {
       type: String,
       default: "",

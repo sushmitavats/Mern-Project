@@ -112,12 +112,19 @@ function App() {
           <Route
             path="/employee-profile/:employee_code"
             element={
-              <ProtectedRoute module="Employee">
+              <ProtectedRoute>
                 <EmployeeProfile />
               </ProtectedRoute>
             }
           />
-
+                  {/* <Route
+          path="/employee-profile/:employee_code"
+          element={
+            <ProtectedRoute>
+              <EmployeeProfile />
+            </ProtectedRoute>
+          }
+        /> */}
           <Route
             path="/employee-profile/view/:employee_code"
             element={

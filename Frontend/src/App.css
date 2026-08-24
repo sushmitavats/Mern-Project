@@ -1,388 +1,234 @@
  /* this css is for react-data-table-component */
-.user-table {
-  border: 1px solid #d1d5db;
+ .user-table {
+   border: 1px solid #d1d5db;
+   border-radius: 10px;
+   overflow: hidden;
+   background: #fff;
+ }
+
+ /* TABLE HEADER */
+ .user-table .rdt_TableHead {
+   border-bottom: 2px solid #d1d5db;
+ }
+
+ .user-table .rdt_TableHeadRow {
+   min-height: 55px;
+   background-color: #f9fafb;
+ }
+
+ /* HEADER CELLS */
+ .user-table .rdt_TableCol {
+   border-right: 1px solid #d1d5db;
+ }
+
+ .user-table .rdt_TableCol:last-child {
+   border-right: none;
+ }
+
+ .user-table .rdt_TableCol div {
+   font-size: 14px;
+   font-weight: 700;
+   color: #111827;
+ }
+ /* css for leave page */
+ /* BODY ROW */
+ /* =========================
+   Professional HRMS Calendar
+========================= */
+
+/* ==============================
+   HRMS React Calendar - Professional UI
+   ============================== */
+
+.react-calendar {
+  width: 100%;
+  background: #ffffff;
+  border: none;
+  font-family: Inter, sans-serif;
+  padding: 12px;
+}
+
+/* Navigation */
+.react-calendar__navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.react-calendar__navigation button {
+  background: transparent;
+  border: none;
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 700;
   border-radius: 10px;
-  overflow: hidden;
-  background: #fff;
+  min-width: 36px;
+  height: 36px;
+  transition: all 0.2s ease;
 }
 
-/* TABLE HEADER */
-.user-table .rdt_TableHead {
-  border-bottom: 2px solid #d1d5db;
+.react-calendar__navigation button:hover {
+  background: #eef2f7;
 }
 
-.user-table .rdt_TableHeadRow {
-  min-height: 55px;
-  background-color: #f9fafb;
-}
-
-/* HEADER CELLS */
-.user-table .rdt_TableCol {
-  border-right: 1px solid #d1d5db;
-}
-
-.user-table .rdt_TableCol:last-child {
-  border-right: none;
-}
-
-.user-table .rdt_TableCol div {
-  font-size: 14px;
+.react-calendar__navigation__label {
+  font-size: 17px;
   font-weight: 700;
   color: #111827;
 }
 
-/* BODY ROW */
-.user-table .rdt_TableRow {
-  border-bottom: 1px solid #d1d5db;
-  min-height: 60px;
+/* Weekday header */
+.react-calendar__month-view__weekdays {
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 10px;
 }
 
-/* BODY CELLS */
-.user-table .rdt_TableCell {
-  border-right: 1px solid #d1d5db;
+.react-calendar__month-view__weekdays__weekday {
+  text-align: center;
+  padding: 6px 0;
 }
 
-.user-table .rdt_TableCell:last-child {
-  border-right: none;
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
 }
 
-/* CELL TEXT */
-.user-table .rdt_TableCell div {
-  font-size: 14px;
-  color: #374151;
+/* Saturday & Sunday header red */
+.react-calendar__month-view__weekdays__weekday:nth-child(6) abbr,
+.react-calendar__month-view__weekdays__weekday:nth-child(7) abbr {
+  color: #dc2626 !important;
 }
 
-/* ROW HOVER */
-.user-table .rdt_TableRow:hover {
-  background-color: #f9fafb;
+/* Calendar grid */
+.react-calendar__month-view__days {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
 }
 
-/* PAGINATION */
-.user-table .rdt_Pagination {
-  border-top: 1px solid #d1d5db;
-}
-
-/* SORT ICON */
-.user-table svg {
-  width: 14px;
-  height: 14px;
-  opacity: 1;
-}
-
-
-.user-table .rdt_TableRow:nth-child(even) {
-  background-color: #f9fafb;
-}
-
-.user-table .rdt_TableRow:nth-child(odd) {
-  background-color: white;
-}
- .react-tooltip {
-  background: white !important;
-  color: rgb(26, 20, 20) !important;
-  font-size: 13px !important;
-  padding: 8px 12px !important;
-  border-radius: 6px !important;
-  z-index: 9999 !important;
-  max-width: 320px !important;
-  word-break: break-word !important;
-  opacity: 1 !important;
-}
-   /* React Calendar Leave Colors */
-/* Holiday - Red */
-.holiday-tile {
-  background: #ef4444 !important;
-  color: white !important;
-  border-radius: 8px !important;
-}
-/* Pending Leave - Yellow */
-.pending-leave {
-  background: #facc15 !important;
-  color: black !important;
-  border-radius: 8px !important;
-}
-
-/* Approved Leave - Green */
-.approved-leave {
-  background: #22c55e !important;
-  color: white !important;
-  border-radius: 8px !important;
-}
-
-/* Weekend (Saturday & Sunday) disabled style */
-.react-calendar__tile:disabled {
-  background: #f3f4f6 !important;
-  color: #9ca3af !important;
-  cursor: not-allowed !important;
-}
-
-/* Improve calendar appearance */
-.react-calendar {
-  width: 100%;
-  border: none !important;
-  border-radius: 12px;
-  font-family: inherit;
-}
-
-.react-calendar__navigation button {
-  font-weight: 600;
-  color: #111827;
-}
-
+/* Default tile */
 .react-calendar__tile {
-  border-radius: 8px;
+  height: 52px;
+  border: none;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
   transition: all 0.2s ease;
 }
 
-.react-calendar__tile:hover:not(:disabled) {
-  background: #e5e7eb !important;
+.react-calendar__tile abbr {
+  text-decoration: none;
 }
 
-.react-calendar__tile--active {
+.react-calendar__tile:hover {
+  background: #e2e8f0;
+}
+
+/* Selected date - GREEN */
+.selected-leave,
+.react-calendar__tile--active,
+.react-calendar__tile--rangeStart,
+.react-calendar__tile--rangeEnd {
+  background: #16a34a !important;
+  color: #ffffff !important;
+}
+
+.selected-leave abbr,
+.react-calendar__tile--active abbr,
+.react-calendar__tile--rangeStart abbr,
+.react-calendar__tile--rangeEnd abbr {
+  color: #ffffff !important;
+}
+
+/* Weekend - RED */
+.weekend-tile {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  cursor: not-allowed !important;
+}
+
+.weekend-tile abbr {
+  color: #dc2626 !important;
+  font-weight: 700;
+}
+
+.weekend-tile:hover {
+  background: #fee2e2 !important;
+}
+
+/* Fixed Holiday - PINK */
+.holiday-tile {
+  background: #fbcfe8 !important;
+  color: #be185d !important;
+  cursor: not-allowed !important;
+}
+
+.holiday-tile abbr {
+  color: #be185d !important;
+  font-weight: 700;
+}
+.holiday-tile:hover {
+  background: #fbcfe8 !important;
+}
+
+/* Pending Leave - ORANGE */
+.pending-leave {
+  background: #f59e0b !important;
+  color: #ffffff !important;
+}
+
+.pending-leave abbr {
+  color: #ffffff !important;
+}
+
+/* Approved Leave - BLUE */
+.approved-leave {
   background: #2563eb !important;
-  color: white !important;
+  color: #ffffff !important;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- /* this css is of simple-datatables
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
-
-.card:hover {
-  border-color: var(--accent-border);
-}
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+.approved-leave abbr {
+  color: #ffffff !important;
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+/* Rejected Leave - GRAY */
+.rejected-leave {
+  background: #9ca3af !important;
+  color: #ffffff !important;
 }
 
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+.rejected-leave abbr {
+  color: #ffffff !important;
 }
 
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+/* Holiday label */
+.holiday-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: #be185d;
+  line-height: 1;
+  margin-top: 2px;
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
+/* Today highlight */
+.react-calendar__tile--now {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+}
+.react-calendar__tile:disabled {
+  background: #f3f4f6 !important;
+  color: #9ca3af !important;
+  border-radius: 12px !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
 }
 
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-/* 
-    &:hover {
-      box-shadow: var(--shadow);
-    } */
-
-    /* .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
+.react-calendar__tile:disabled abbr {
+  color: #9ca3af !important;
 }
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
-}
-
-
-
-.dataTable-wrapper {
-  width: 100%;
-}
-
-.dataTable-top {
-  margin-bottom: 16px;
-}
-
-.dataTable-input {
-  border: 1px solid #d1d5db;
-  padding: 6px 10px;
-  border-radius: 6px;
-}
-
-.dataTable-selector {
-  border: 1px solid #d1d5db;
-  padding: 4px;
-  border-radius: 6px;
-}
-
-.dataTable-table {
-  border-collapse: collapse !important;
-  width: 100%;
-}
-
-.dataTable-table th,
-.dataTable-table td {
-  border: 1px solid #d1d5db !important;
-}
-
-.dataTable-pagination a {
-  padding: 6px 10px;
-} */ 

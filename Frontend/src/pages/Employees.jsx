@@ -56,7 +56,6 @@ export default function Employees() {
         .includes(search.toLowerCase())
     );
   });
-
   const columns = [
     {
       name: "Employee ID",
@@ -87,20 +86,6 @@ export default function Employees() {
       // sortable: true,
       grow: 2,
     },
-
-    // {
-    //   name: "Contact",
-    //   cell: row => (
-    //     <div
-    //       data-tooltip-id="email-tooltip"
-    //       data-tooltip-content={row.contact}
-    //       className="max-w-[100px] truncate whitespace-nowrap overflow-hidden cursor-pointer"
-    //     >
-    //       {row.contact}
-    //     </div>
-    //   ),
-    //   sortable: true,
-    // },
     {
       name: "Mobile",
       cell: (row) => (

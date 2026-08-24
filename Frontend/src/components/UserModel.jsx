@@ -13,137 +13,62 @@ const UserModal = ({ onClose, fetchUsers, editData, }) => {
     status: "Active",
     joiningDate: ""
   });
-
   useEffect(() => {
     fetchDropdownData();
   }, []);
 
   const fetchDropdownData = async () => {
     try {
-      const deptRes =
-        await getDepartments();
-      const desigRes =
-        await getDesignations();
-      setDepartments(
-        deptRes.data
-      );
-      setDesignations(
-        desigRes.data
-      );
+      const deptRes = await getDepartments();
+      const desigRes = await getDesignations();
+      setDepartments(deptRes.data);
+      setDesignations(desigRes.data);
     } catch (error) {
       console.log(error);
     }
   };
 
-  // useEffect(() => {
-  //   if (editData && departments.length && designations.length) {
-  //     const selectedDepartment =
-  //       departments.find(
-  //         (dept) =>
-  //           dept.departmentName ===
-  //           editData.department
-  //       );
-  //     const selectedDesignation =
-  //       designations.find(
-  //         (des) =>
-  //           des.designationName ===
-  //           editData.designation
-  //       );
-
-  //     setFormData({
-  //       name: editData.name || "",
-  //       email: editData.email || "",
-  //       department: selectedDepartment?._id || "",
-  //       designation: selectedDesignation?._id || "",
-  //       status: editData.status || "Active",
-  //       joiningDate: editData.joiningDate
-  //         ? new Date(editData.joiningDate)
-  //           .toISOString()
-  //           .split("T")[0]
-  //         : ""
-  //     });
-  //   }
-  // }, [editData, departments, designations]);
-
   useEffect(() => {
     if (editData) {
       setFormData({
-        name:
-          editData.name || "",
-        email:
-          editData.email || "",
-        department:
-          editData.department?._id || "",
-        designation:
-          editData.designation?._id || "",
-        status:
-          editData.status || "Active",
-        joiningDate:
-          editData.joiningDate
-            ?
-            editData.joiningDate.substring(
-              0,
-              10
-            )
-            :
-            ""
-
+        name:editData.name || "",
+        email:editData.email || "",
+        department:editData.department?._id || "",
+        designation:editData.designation?._id || "",
+        status:editData.status || "Active",
+        joiningDate: editData.joiningDate
+            ?editData.joiningDate.substring(0,10):""
       });
-
     }
-
   }, [editData]);
-
   //handle new data
   const handleChange = (e) => {
-    const { name, value } =
-      e.target;
-    setFormData({
-      ...formData,
+    const { name, value } = e.target;
+    setFormData({...formData,
       [name]: value,
       ...(name === "department"
-        ? {
-          designation: ""
-        }
-        : {})
+        ? {designation: ""}: {})
     });
   };
   //submit data
-  const handleSubmit =
-    async () => {
+  const handleSubmit = async () => {
       try {
-        if (
-          !formData.name.trim() ||
-          !formData.email.trim() ||
-          !formData.department ||
-          !formData.designation ||
-          !formData.status ||
-          !formData.joiningDate
-        ) {
+        if (!formData.name.trim() || !formData.email.trim() || !formData.department ||
+          !formData.designation || !formData.status || !formData.joiningDate) {
           alert("Please fill all fields");
           return;
         }
         // Email validation
-        const emailRegex =
-          /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
           alert("Please enter a valid email");
           return;
         }
-
         if (editData) {
-          await updateUser(
-            editData._id,
-            formData
-          );
-          alert(
-            "User Updated Successfully"
-          );
+          await updateUser(editData._id,formData);
+          alert("User Updated Successfully" );
         } else {
-          await createUser(
-            formData
-          );
+          await createUser(formData);
           alert(
             "User Created Successfully"
           );
@@ -157,14 +82,25 @@ const UserModal = ({ onClose, fetchUsers, editData, }) => {
         );
       }
     };
+     
+  const handleOnChange=async()=>{
+    if(updateOne){
+      await updateUser(updateOne._id,formDate);
+      alert("user is updated")
+    }else{
+      await createUser(formDate);
+      alert(
+        "user date is changed sucessfully"
+      )
+    }
+     fetchUsers();
+     onClose();
+
+  }
   return (
-
     <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center p-4">
-
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-7">
-
         {/* HEADER */}
-
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
             {editData
@@ -243,7 +179,6 @@ const UserModal = ({ onClose, fetchUsers, editData, }) => {
               <option value="">
                 Select Designation
               </option>
-
               {designations
                 .filter(
                   (des) =>
@@ -260,47 +195,37 @@ const UserModal = ({ onClose, fetchUsers, editData, }) => {
                 ))}
             </select>
           </div>
-
           {/* STATUS + JOIN DATE */}
-
           <div className="grid grid-cols-2 gap-4">
-
             <div>
-
               <label className="block text-sm font-bold uppercase text-gray-700 mb-2">
                 Status
               </label>
-
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-cyan-400"
               >
-
                 <option value="Active">
                   Active
                 </option>
-
                 <option value="Inactive">
                   Inactive
                 </option>
-
               </select>
-
             </div>
-
             <div>
-
               <label className="block text-sm font-bold uppercase text-gray-700 mb-2">
                 Joining Date
               </label>
-
               <input
                 type="date"
                 name="joiningDate"
                 value={formData.joiningDate}
                 onChange={handleChange}
+                // onChange={handleOnChange}
+                min="2025-08-04"
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-cyan-400"
               />
             </div>

@@ -1,65 +1,60 @@
 import DataTable from "react-data-table-component";
 import { FaSearch } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import { getLeaves, addLeave, updateLeaveStatus, searchEmployees, getLeaveBalance, getEmployees } from "../api";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
 import { hasPermission } from "../utils/hasPermission";
 import { useNavigate } from "react-router-dom";
+import { getLeaves, updateLeaveStatus, } from "../api";
+import {
+  FaCheck,
+  FaTimes,
+} from "react-icons/fa";
 
-//logic
 export default function LeaveManagement() {
-  const navigate= useNavigate()
-  // const [employeeResults, setEmployeeResults] = useState([]);
-  // const [employeeSearch, setEmployeeSearch] = useState("");
+  const navigate = useNavigate()
   const [leaves, setLeaves] = useState([]);
-  // const [applyOnBehalf, setApplyOnBehalf] = useState(false);
   const [search, setSearch] = useState("");
-  const [leaveBalance, setLeaveBalance] = useState({
-    earnLeave: 0,
-    floatingLeave: 0,
-  });
-  // const [form, setForm] = useState({
-  //   employee_code: "",
-  //   leaveType: "",
-  //   leaveSource: "",
-  //   description: "",
-  //   deductedFrom: "",
-  //   leaveDates: [],
-  // });
-  // console.log("Submitting:", form);
-  // const [selectedDate, setSelectedDate] =
-  //   useState(null);
-  // const [selectedDayType, setSelectedDayType] =
-  //   useState("Full Day");
-  const user = JSON.parse(localStorage.getItem("user"));
-  const fetchLeaveBalance = async () => {
-    try {
-      const res = await getLeaveBalance(
-        user.employee_code
-      );
-      console.log(
-        "LEAVE BALANCE RESPONSE",
-        res.data
-      );
-      setLeaveBalance(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  // const fetchLeaveBalance = async () => {
+  //   try {
+  //     const res = await getLeaveBalance(
+  //       user.employee_code
+  //     );
+  //     console.log(
+  //       "LEAVE BALANCE RESPONSE",
+  //       res.data
+  //     );
+  //     setLeaveBalance(res.data);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
   // useEffect(() => {
   //   if (user?.role !== "ADMIN" && user?.employee_code
   //   ) {
   //     fetchLeaveBalance();
   //   }
   // }, []);
-  console.log("USER =>", user);
+  // const fetchLeaveBalance = async () => {
+  //   try {
+  //     if (!user?.employee_code) return;
+
+  //     const res = await getLeaveBalance(user.employee_code);
+  //     setLeaveBalance({
+  //       earnLeave: Number(res.data.earnLeave || 0),
+  //       floatingLeave: Number(res.data.floatingLeave || 0),
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+  // console.log("USER =>", user);
   //leave fetch
   const fetchLeaves = async () => {
     try {
       console.log("Fetching leaves...");
+      // const res = await getLeaves()
       const res = await getLeaves();
-      setLeaves(res.data);
+      setLeaves(res.data || []);
     } catch (err) {
       console.log(err);
     }
@@ -78,146 +73,115 @@ export default function LeaveManagement() {
       leave.description?.toLowerCase().includes(search.toLowerCase())
     );
   });
-  // const addDateToLeave = () => {
-  //   if (!selectedDate) {
-  //     alert("Select Date");
-  //     return;
-  //   }
-  //   const dateString =
-  //     selectedDate.toLocaleDateString(
-  //       "en-CA"
-  //     );
-  //   const exists =
-  //     form.leaveDates.find(
-  //       (d) => d.date === dateString
-  //     );
-  //   if (exists) {
-  //     alert("Date already added");
-  //     return;
-  //   }
-  //   setForm({
-  //     ...form,
-  //     leaveDates: [
-  //       ...form.leaveDates,
-  //       {
-  //         date: dateString,
-  //         dayType: selectedDayType,
-  //       },
-  //     ],
-  //   });
-  // };
-  //handle employee
-  // const handleEmployeeSearch = async (value) => {
-  //   setEmployeeSearch(value);
-  //   if (!value.trim()) {
-  //     setEmployeeResults([]);
-  //     return;
-  //   }
+  // const handleStatus = async (id, status) => {
   //   try {
-  //     const res = await searchEmployees(value);
-  //     // setEmployeeResults(res.data);
-  //     setEmployeeResults(
-  //       res.data.filter(
-  //         emp =>
-  //           emp.employee_code !==
-  //           user.employee_code
+  //     await updateLeaveStatus(id, status);
+  //     // Refresh balance after approval / rejection
+  //     if (user?.role !== "ADMIN") {
+  //       await fetchLeaveBalance();
+  //     }
+  //     alert(`Leave ${status} successfully.`);
+  //   } catch (err) {
+  //     console.log(err);
+  //     alert(err.response?.data?.msg || "Failed to update leave status.");
+  //   }
+  // };
+  //nc
+  // const handleStatus = async (id, status) => {
+  //   const previousLeaves = [...leaves];
+
+  //   try {
+  //     // Immediate UI update
+  //     setLeaves((prevLeaves) =>
+  //       prevLeaves.map((leave) =>
+  //         leave._id === id
+  //           ? { ...leave, status: status, }
+  //           : leave
   //       )
   //     );
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
-  //submit form
-  // const handleSubmit = async () => {
-
-  //   console.log("FORM BEFORE VALIDATION", form);
-
-  //   if (!form.leaveType) {
-  //     alert("Select Leave Type");
-  //     return;
-  //   }
-
-  //   if (form.leaveDates.length === 0) {
-  //     alert(
-  //       "Select At Least One Leave Date"
-  //     );
-  //     return;
-  //   }
-
-  //   if (!form.description.trim()) {
-  //     alert(
-  //       "Description Required"
-  //     );
-  //     return;
-  //   }
-
-
-  //   if (form.leaveType === "Floating Leave" &&
-  //     leaveBalance.floatingLeave < 0.5) {
-  //     alert(
-  //       "Floating Leave balance is less than half day (0.5)"
-  //     );
-  //     return;
-  //   }
-  //   // handle submit
-  //   try {
-  //     let finalForm = {
-  //       ...form,
-  //     };
-  //     if (!applyOnBehalf) {
-  //       finalForm.employee_code =
-  //         user.employee_code;
-  //     }
-  //     console.log("FINAL FORM =>", finalForm);
-  //     await addLeave(finalForm);
-  //     await fetchLeaveBalance(); // refresh balances
-  //     await fetchLeaves();
-  //     setForm({
-  //       employee_code: "",
-  //       leaveType: "",
-  //       leaveSource: "",
-  //       description: "",
-  //       deductedFrom: "",
-  //       leaveDates: [],
-  //     });
-
-  //     setEmployeeSearch("");
-  //     setSelectedDate(null);
-  //     setSelectedDayType("Full Day");
-  //     setApplyOnBehalf(false);
-
-  //     alert(
-  //       "Leave Applied Successfully"
-  //     );
-  //     setShowModal(false);
-  //   } catch (err) {
-  //     console.log(err);
-  //     alert(
-  //       err.response?.data?.msg ||
-  //       "Error"
-  //     );
-  //   }
-  // };
-
   const handleStatus = async (id, status) => {
+    const actionText = status === "Approved" ? "approve" : "reject";
+
+    // Confirmation before changing status
+    const confirmed = window.confirm(
+      `Are you sure you want to ${actionText} this leave?`
+    );
+
+    // User clicked Cancel
+    if (!confirmed) {
+      return;
+    }
+
+    const previousLeaves = [...leaves];
+
     try {
-      await updateLeaveStatus(id, status);
-      fetchLeaves();
+      // Immediate UI update
+      setLeaves((prevLeaves) =>
+        prevLeaves.map((leave) =>
+          leave._id === id
+            ? { ...leave, status: status }
+            : leave
+        )
+      );
+
+      // Update backend
+      const response = await updateLeaveStatus(id, status);
+
+      // Use backend response if available
+      if (response?.data?.leave) {
+        setLeaves((prevLeaves) =>
+          prevLeaves.map((leave) =>
+            leave._id === id
+              ? response.data.leave
+              : leave
+          )
+        );
+      }
+
+      // Success alert
+      alert(
+        status === "Approved"
+          ? "Leave approved successfully."
+          : "Leave rejected successfully."
+      );
+
     } catch (err) {
-      console.log(err);
+      console.log("Status Update Error:", err);
+
+      // Rollback UI if API fails
+      setLeaves(previousLeaves);
+
+      alert(
+        err.response?.data?.msg ||
+        err.response?.data?.message ||
+        "Failed to update leave status."
+      );
     }
   };
-  useEffect(() => {
-    fetchLeaves();
-    if (
-      user?.role !== "ADMIN" &&
-      user?.employee_code
-    ) {
-      fetchLeaveBalance();
-    }
-  }, []);
+  // Update backend
+  //     const response = await updateLeaveStatus(id, status);
+  //     // Use backend response if available
+  //     if (response?.data?.leave) {
+  //       setLeaves((prevLeaves) =>
+  //         prevLeaves.map((leave) =>
+  //           leave._id === id
+  //             ? response.data.leave
+  //             : leave
+  //         )
+  //       );
+  //     }
+  //   } catch (err) {
+  //     console.log("Status Update Error:", err);
+  //     // Rollback UI if API fails
+  //     setLeaves(previousLeaves);
+  //     alert(
+  //       err.response?.data?.msg ||
+  //       err.response?.data?.message ||
+  //       "Failed to update leave status."
+  //     );
+  //   }
+  // };
 
-  //table
   const columns = [
     {
       name: "ID",
@@ -229,28 +193,63 @@ export default function LeaveManagement() {
       selector: row => row.name,
       sortable: true,
     },
+    // {
+    //   name: "Leave Dates",
+    //   cell: row => (
+    //     <div className="max-h-16 overflow-y-auto flex flex-wrap gap-1">
+    //       {row.leaveDates?.map((d, i) => (
+    //         <span
+    //           key={i}
+    //           className="bg-cyan-100 text-cyan-700 px-2 py-1 rounded text-xs"
+    //         >
+    //           {d.date} (
+    //           {d.dayType === "Full Day"
+    //             ? "FD"
+    //             : d.dayType === "1st Half Day"
+    //               ? "FH"
+    //               : "SH"}
+    //           )
+    //         </span>
+    //       ))}
+    //     </div>
+    //   ),
+    //   width: "250px",
+    //   grow: 2,
+    // },
     {
       name: "Leave Dates",
-      cell: row => (
-        <div className="max-h-16 overflow-y-auto flex flex-wrap gap-1">
+      width: "250px",
+      grow: 2,
+      cell: (row) => (
+        <div className="flex flex-wrap gap-1 max-h-16 overflow-y-auto py-1">
           {row.leaveDates?.map((d, i) => (
             <span
               key={i}
-              className="bg-cyan-100 text-cyan-700 px-2 py-1 rounded text-xs"
+              className="
+            inline-flex items-center
+            bg-cyan-50
+            text-cyan-700
+            border border-cyan-100
+            px-2 py-1
+            rounded-md
+            text-xs
+            font-medium
+          "
             >
-              {d.date} (
-              {d.dayType === "Full Day"
-                ? "FD"
-                : d.dayType === "1st Half Day"
-                  ? "FH"
-                  : "SH"}
-              )
+              {d.date}
+              <span className="ml-1 text-cyan-500">
+                (
+                {d.dayType === "Full Day"
+                  ? "FD"
+                  : d.dayType === "1st Half Day"
+                    ? "FH"
+                    : "SH"}
+                )
+              </span>
             </span>
           ))}
         </div>
       ),
-      width: "250px",
-      grow: 2,
     },
     {
       name: "Total Days",
@@ -285,81 +284,212 @@ export default function LeaveManagement() {
     },
     {
       name: "Status",
-      cell: row => (
-        <span
-          className={`px-2 py-1 rounded text-white text-xs ${row.status === "Approved"
-            ? "bg-green-500"
-            : row.status === "Rejected"
-              ? "bg-red-500"
-              : "bg-yellow-500"
-            }`}
-        >
-          {row.status}
-        </span>
-      ),
-      sortable: true,
-    },
-
-    {
-      name: "Action",
+      width: "120px",
+      center: true,
       cell: (row) => {
-        const canApprove =
-          hasPermission(
-            "Leave",
-            "edit"
-          );
+        const statusStyles = {
+          Approved:
+            "bg-green-100 text-green-700 border border-green-200",
+          Rejected:
+            "bg-red-100 text-red-700 border border-red-200",
+          Pending:
+            "bg-yellow-100 text-yellow-700 border border-yellow-200",
+        };
+
         return (
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                if (!canApprove) {
-                  alert(
-                    "You are not permitted to approve leave"
-                  );
-                  return;
-                }
-                handleStatus(
-                  row._id,
-                  "Approved"
-                );
-                alert(
-                  "Approved successfully"
-                );
-              }}
-              className={`px-2 py-1 rounded text-white ${canApprove
-                  ? "bg-green-500"
-                  : "bg-gray-400 cursor-not-allowed"
-                }`}
-            >
-              Approve
-            </button>
-            <button
-              onClick={() => {
-                if (!canApprove) {
-                  alert(
-                    "You are not permitted to reject leave"
-                  );
-                  return;
-                }
-                handleStatus(
-                  row._id,
-                  "Rejected"
-                );
-                alert(
-                  "Rejected successfully"
-                );
-              }}
-              className={`px-2 py-1 rounded text-white ${canApprove
-                  ? "bg-red-500"
-                  : "bg-gray-400 cursor-not-allowed"
-                }`}
-            >
-              Reject
-            </button>
-          </div>
+          <span
+            className={`
+          px-3 py-1
+          rounded-full
+          text-xs
+          font-semibold
+          ${statusStyles[row.status] || "bg-gray-100 text-gray-600"}
+        `}
+          >
+            {row.status}
+          </span>
         );
       },
-    }
+      sortable: true,
+    },
+    {
+      name: "Action",
+      width: "150px",
+      center: true,
+      cell: (row) => {
+        const canApprove = hasPermission("Leave", "edit");
+        return (
+          <div className="flex items-center justify-center gap-2">
+            {/* APPROVE */}
+
+            {/* APPROVE */}
+            <button
+              type="button"
+              title="Approve Leave"
+              aria-label="Approve Leave"
+              disabled={!canApprove}
+              onClick={() => handleStatus(row._id, "Approved")}
+              className={`
+              w-9 h-9
+              flex items-center justify-center
+              rounded-lg
+              transition-all duration-200
+              ${row.status === "Approved"
+                            ? "bg-green-600 text-white shadow-sm"
+                            : "bg-green-50 text-green-600 border border-green-200 hover:bg-green-600 hover:text-white"
+                          }
+              ${!canApprove
+                            ? "opacity-50 cursor-not-allowed"
+                            : "cursor-pointer"
+                          }
+            `}
+            >
+              <FaCheck size={14} />
+            </button>
+
+            {/* REJECT */}
+            <button
+              type="button"
+              title="Reject Leave"
+              aria-label="Reject Leave"
+              disabled={!canApprove}
+              onClick={() => handleStatus(row._id, "Rejected")}
+              className={`
+                w-9 h-9
+                flex items-center justify-center
+                rounded-lg
+                transition-all duration-200
+                ${row.status === "Rejected"
+                              ? "bg-red-600 text-white shadow-sm"
+                              : "bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white"
+                            }
+                ${!canApprove
+                              ? "opacity-50 cursor-not-allowed"
+                              : "cursor-pointer"
+                            }
+              `}
+            >
+              <FaTimes size={14} />
+            </button>
+            {/* <button
+              type="button"
+              title={
+                row.status === "Approved"
+                  ? "Leave is already Approved"
+                  : "Approve Leave"
+              }
+              aria-label="Approve Leave"
+              disabled={!canApprove}
+              onClick={() => handleStatus(row._id, "Approved")}
+              className={`
+            w-9 h-9
+            flex items-center justify-center
+            rounded-lg
+            transition-all duration-200
+            ${row.status === "Approved"
+                  ? "bg-green-600 text-white shadow-sm"
+                  : "bg-green-50 text-green-600 border border-green-200 hover:bg-green-600 hover:text-white"
+                }
+            ${!canApprove
+                  ? "opacity-50 cursor-not-allowed"
+                  : "cursor-pointer"
+                }
+          `}
+            >
+              <FaCheck size={14} />
+            </button>
+            {/* REJECT */}
+            {/* <button
+              type="button"
+              title={
+                row.status === "Rejected"
+                  ? "Leave is already Rejected"
+                  : "Reject Leave"
+              }
+              aria-label="Reject Leave"
+              disabled={!canApprove}
+              onClick={() => handleStatus(row._id, "Rejected")}
+              className={`w-9 h-9 flex items-center justify-center rounded-lg
+                transition-all duration-200
+            ${row.status === "Rejected"
+                  ? "bg-red-600 text-white shadow-sm"
+                  : "bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white"
+                }
+            ${!canApprove
+                  ? "opacity-50 cursor-not-allowed"
+                  : "cursor-pointer"
+                }
+          `}>
+              <FaTimes size={14} />
+            </button> */} 
+
+          </div>
+
+        );
+      },
+    },
+
+
+    // {
+    //   name: "Action",
+    //   cell: (row) => {
+    //     const canApprove =
+    //       hasPermission(
+    //         "Leave",
+    //         "edit"
+    //       );
+    //     return (
+    //       <div className="flex gap-2">
+    //         <button
+    //           onClick={() => {
+    //             if (!canApprove) {
+    //               alert(
+    //                 "You are not permitted to approve leave"
+    //               );
+    //               return;
+    //             }
+    //             handleStatus(
+    //               row._id,
+    //               "Approved"
+    //             );
+    //             alert(
+    //               "Approved successfully"
+    //             );
+    //           }}
+    //           className={`px-2 py-1 rounded text-white ${canApprove
+    //             ? "bg-green-500"
+    //             : "bg-gray-400 cursor-not-allowed"
+    //             }`}
+    //         >
+    //           Approve
+    //         </button>
+    //         <button
+    //           onClick={() => {
+    //             if (!canApprove) {
+    //               alert(
+    //                 "You are not permitted to reject leave"
+    //               );
+    //               return;
+    //             }
+    //             handleStatus(
+    //               row._id,
+    //               "Rejected"
+    //             );
+    //             alert(
+    //               "Rejected successfully"
+    //             );
+    //           }}
+    //           className={`px-2 py-1 rounded text-white ${canApprove
+    //             ? "bg-red-500"
+    //             : "bg-gray-400 cursor-not-allowed"
+    //             }`}
+    //         >
+    //           Reject
+    //         </button>
+    //       </div>
+    //     );
+    //   },
+    // }
   ];
   return (
     <div className="w-full">
@@ -367,7 +497,7 @@ export default function LeaveManagement() {
         <h2 className="text-3xl font-semibold text-gray-800">
           Leave Management
         </h2>
-        {user?.role !== "ADMIN" && (
+        {/* {user?.role !== "ADMIN" && (
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="w-full bg-white rounded-xl shadow p-4">
               <h2 className="text-lg font-semibold">
@@ -386,20 +516,9 @@ export default function LeaveManagement() {
               </p>
             </div>
           </div>
-        )}
+        )} */}
         <div className="flex gap-2">
-          {/* {user?.role !== "ADMIN" && */}
-          {/* {hasPermission(
-            "Leave",
-            "create"
-          ) && (
-              <button
-                onClick={() => setShowModal(true)}
-                className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded"
-              >
-                Add Leave
-              </button>
-            )} */}
+
           {hasPermission("Leave", "create") && (
             <button
               onClick={() => navigate("/leave/apply")}
@@ -428,7 +547,7 @@ export default function LeaveManagement() {
         </div>
         {/* <div className="w-full overflow-x-auto"> */}
         <div className="user-table border-0 overflow-x-auto">
-          <DataTable
+          {/* <DataTable
             style={{ width: "100%" }}
             columns={columns}
             data={filteredLeaves}
@@ -441,6 +560,24 @@ export default function LeaveManagement() {
             paginationPerPage={5}
             paginationRowsPerPageOptions={[5, 10, 15, 20]}
             sortIcon={<span>↕</span>}
+          /> */}
+          <DataTable
+            columns={columns}
+            data={filteredLeaves}
+            pagination
+            highlightOnHover
+            responsive
+            striped
+            dense
+            persistTableHead
+            paginationPerPage={5}
+            paginationRowsPerPageOptions={[5, 10, 15, 20]}
+            sortIcon={<span>↕</span>}
+            noDataComponent={
+              <div className="py-8 text-gray-500">
+                No leave records found.
+              </div>
+            }
           />
         </div>
       </div>

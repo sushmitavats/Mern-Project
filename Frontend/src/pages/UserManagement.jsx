@@ -49,137 +49,59 @@ const UserManagement = () => {
       console.log(error);
     }
   };
-  const handleEarnLeave = async (id) => {
-    try {
-      await addEarnLeave(id);
-      alert("Earn Leave Added Successfully");
-      fetchUsers();
-    } catch (error) {
-      alert(
-        error.response?.data?.msg ||
-        error.message
-      );
-    }
-  };
-
-  const handleFloatingLeave = async (id) => {
-    try {
-      await addFloatingLeave(id);
-      alert("Floating Leave Added Successfully");
-      fetchUsers();
-    } catch (error) {
-      alert(
-        error.response?.data?.msg ||
-        error.message
-      );
-    }
-  };
-
   useEffect(() => {
     const today = new Date();
     const lastDay =
-      new Date(
-        today.getFullYear(),
-        today.getMonth() + 1,
-        0
-      ).getDate();
-    setIsLastDay(
-      today.getDate() === lastDay
-    );
+      new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    setIsLastDay(today.getDate() === lastDay);
   }, []);
-
-  const handleMonthlyEL =
-    async () => {
-      try {
-        await monthlyEarnLeave();
-        alert(
-          "Monthly Earn Leave Added Successfully"
-        );
-        fetchUsers();
-      } catch (error) {
-        alert(
-          error.response?.data?.msg ||
-          error.message
-        );
-      }
-    };
-
-  const handleFL =
-    async () => {
-      try {
-        await grantFloatingLeave();
-        alert(
-          "Floating Leave Added Successfully"
-        );
-        fetchUsers();
-      } catch (error) {
-        alert(
-          error.response?.data?.msg ||
-          error.message
-        );
-      }
-    };
-
-  // SEARCH FILTER
-  // const filteredUsers = users.filter((user) => {
-
-  //   return (
-  //     user.name
-  //       ?.toLowerCase()
-  //       .includes(search.toLowerCase()) ||
-  //     user.email
-  //       ?.toLowerCase()
-  //       .includes(search.toLowerCase()) ||
-  //     user.employee_code
-  //       ?.toLowerCase()
-  //       .includes(search.toLowerCase()) ||
-  //     user.department
-  //       ?.toLowerCase()
-  //       .includes(search.toLowerCase())
-  //   );
-  // });
+  const handleMonthlyEL = async () => {
+    try {
+      await monthlyEarnLeave();
+      await fetchUsers();
+      alert("Monthly Earn Leave credited successfully.");
+    } catch (error) {
+      alert(error.response?.data?.msg || error.message);
+    }
+  };
+  const handleFL = async () => {
+    try {
+      await grantFloatingLeave();
+      await fetchUsers();
+      alert("6-month Floating Leave cycle completed successfully.");
+    } catch (error) {
+      alert(error.response?.data?.msg || error.message);
+    }
+  };
   const filteredUsers =
     users.filter(user => {
-
       return (
-
         user.name
           ?.toLowerCase()
           .includes(
             search.toLowerCase()
           )
-
         ||
-
         user.email
           ?.toLowerCase()
           .includes(
             search.toLowerCase()
           )
-
         ||
-
         user.employee_code
           ?.toLowerCase()
           .includes(
             search.toLowerCase()
           )
-
         ||
-
         user.department
           ?.departmentName
           ?.toLowerCase()
           .includes(
             search.toLowerCase()
           )
-
       )
-
     })
-
-
-
   // TABLE COLUMNS
   const columns = [
     {
@@ -209,7 +131,6 @@ const UserManagement = () => {
           ?.departmentName || "-",
       sortable: true,
     },
-
     {
       name: "Designation",
       selector: (row) =>
@@ -258,7 +179,6 @@ const UserManagement = () => {
                 :
                 "bg-red-500"
               }
-
           ${!canEdit
                 ?
                 "opacity-60 cursor-not-allowed"
@@ -274,43 +194,32 @@ const UserManagement = () => {
     },
     {
       name: "Action",
-
       cell: row => {
-
         const canEdit =
           hasPermission(
             "Usermanagement",
             "edit"
           );
-
         const canDelete =
           hasPermission(
             "Usermanagement",
             "delete"
           );
-
         return (
-
           <div className="flex gap-2">
-
             <button
-
               onClick={() => {
-
                 if (!canEdit) {
                   alert(
                     "You are not permitted to edit users"
                   );
                   return;
                 }
-
                 handleEdit(
                   row
                 );
               }}
-
               className={`px-3 py-2 rounded-lg text-white shadow
-
             ${canEdit
                   ?
                   "bg-blue-500 hover:bg-blue-600"
@@ -344,15 +253,12 @@ const UserManagement = () => {
             >
               <FaTrash />
             </button>
-
           </div>
         );
       }
     }
   ];
-
   return (
-
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
